@@ -2437,13 +2437,30 @@
       tb.textContent = S.truthOn ? '⚖ 다음 대답은 진실만을 말한다' : S.truthUsed ? '⚖ 진실만을 말하게 한다 (사용함)' : '⚖ 진실만을 말하게 한다 (게임 중 1번)';
     }
     $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : S.phase === 'ask' && !S.firstAsked ? '첫 질문은 위 5개 중에서 골라 주세요' : S.truthOn ? '⚖ 진실만을 말한다 — 가장 확인하고 싶은 것을 신중하게' : '망자에게 물어볼 질문';
+    keepChatBottom(); // 입력창이 나타나며 채팅창이 줄어도 최신 메시지 유지
   }
+  // 채팅창 자동 스크롤: 새 메시지가 오면 맨 아래로. 떠오른 질문·진실 안내가 나타나 채팅창이 줄어들어도
+  // 맨 아래를 보고 있었다면 계속 최신 메시지가 보이게 붙잡아 둔다 (위로 올려 읽는 중이면 건드리지 않음)
+  // 레이아웃이 바뀌는 곳(떠오른 질문·진실 안내·입력창 표시)에서 바로 불러 준다 — 화면이 숨겨져 ResizeObserver가 늦어도 안전
+  function keepChatBottom() { const c = $('#chat'); if (c && S.chatStick !== false) c.scrollTop = c.scrollHeight; }
+  const chatEl = $('#chat');
+  // 고정을 푸는 건 사용자가 직접 스크롤할 때뿐 (레이아웃 변화로 생긴 scroll 이벤트는 무시)
+  let chatUserT = 0;
+  for (const ev of ['wheel', 'touchmove', 'pointerdown', 'keydown']) chatEl.addEventListener(ev, () => { chatUserT = performance.now(); }, { passive: true });
+  chatEl.addEventListener('scroll', () => {
+    const atBottom = chatEl.scrollHeight - chatEl.scrollTop - chatEl.clientHeight < 40;
+    if (atBottom) S.chatStick = true;
+    else if (performance.now() - chatUserT < 800) S.chatStick = false;
+  }, { passive: true });
+  new ResizeObserver(keepChatBottom).observe(chatEl);
   function chatAdd(kind, text, who) {
     const d = document.createElement('div');
     d.className = `m ${kind}`;
     d.innerHTML = (who ? `<span class="who">${esc(who)}</span>` : '') + esc(text);
-    $('#chat').append(d);
-    $('#chat').scrollTop = $('#chat').scrollHeight;
+    chatEl.append(d);
+    S.chatStick = true; // 새 메시지가 오면 언제나 최신으로
+    keepChatBottom();
+    requestAnimationFrame(keepChatBottom); // 레이아웃이 바뀐 뒤 한 번 더
   }
 
   // 정곡! 모래시계 +1 — 소리·HUD 팝업·꿀렁·금빛 입자로 '이득'을 확실히 보여 준다
@@ -2462,7 +2479,7 @@
 
   /* ── 대답이 끝나면 바로 지금 상황에 맞는 질문 3개 ── */
   let idleT = null;
-  function hideSuggest() { $('#suggest').hidden = true; }
+  function hideSuggest() { $('#suggest').hidden = true; keepChatBottom(); }
   function armIdle() {
     clearTimeout(idleT);
     if (S.phase === 'ask' && !S.firstAsked) return; // 첫 질문 보기 5개는 고를 때까지 그대로
@@ -2491,6 +2508,7 @@
     $('#chips').innerHTML = qs.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
     $('#chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => pickChip(b.textContent)));
     $('#suggest').hidden = false;
+    keepChatBottom();
     SFX.hint();
   }
 
@@ -2640,6 +2658,7 @@
     await banner('⚖ 진실만을 말하라!<small>다음 질문 단 한 번 — 망자는 무엇을 묻든 진실만 답한다</small>', 'blue', 2200);
     chatAdd('fact', '⚖ 진실만을 말하라! 다음 질문 단 한 번, 망자는 거짓말도 얼버무림도 할 수 없다. 가장 확인하고 싶은 것을 신중하게 물어라.');
     $('#truth-next').hidden = false;
+    keepChatBottom();
     $('#ask-form').classList.add('truth-mode');
     S.busy = false; renderHUD(); armIdle();
     if (S.firstAsked) $('#ask-input').focus({ preventScroll: true });
