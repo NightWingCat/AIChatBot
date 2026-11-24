@@ -71,6 +71,41 @@ for (const c of cases) {
   if (!c.deeds || !c.deeds.good || !c.deeds.bad || !fid(c.deeds.gf) || !fid(c.deeds.bf)) err('deeds {good, gf, bad, bf} (gf/bf는 facts id)');
   for (const v of ['hell', 'heaven']) { const p = c.plea?.[v]; if (!p?.style || !p?.line) err(`plea.${v} style/line`); if (c.group && p && typeof p.by !== 'number') err(`plea.${v}.by`); }
 }
+// 반전 시나리오(ALT) 검사: 인자 2개면 (사건 파일, ALT 조각 파일), 아니면 index.html 안의 ALT
+function loadAlt() {
+  if (process.argv[3]) return eval('({' + fs.readFileSync(process.argv[3], 'utf8') + '})');
+  if (process.argv[2]) return null;
+  const html = fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8');
+  const a = html.indexOf('/*ALT-BEGIN*/'), b = html.indexOf('/*ALT-END*/');
+  return a < 0 ? null : eval('({' + html.slice(a + 13, b) + '})');
+}
+const ALT = loadAlt();
+if (ALT) {
+  const byId = Object.fromEntries(cases.map((c) => [c.id, c]));
+  for (const [id, t] of Object.entries(ALT)) {
+    const err = (m) => errors.push(`[alt:${id}] ${m}`);
+    const c = byId[id];
+    if (!c) { err('없는 사건 id'); continue; }
+    if (t.truth === c.truth || !['heaven', 'hell'].includes(t.truth)) err('truth는 원본의 반대여야 함');
+    if (!t.reveal) err('reveal 없음');
+    const ov = Object.entries(t.facts || {});
+    if (ov.length < 2 || ov.length > 3) err(`단서 덮어쓰기 2~3개 (지금 ${ov.length})`);
+    for (const [fid, f] of ov) {
+      if (!/^f[1-5]$/.test(fid)) err(`단서 id ${fid}`);
+      for (const k of Object.keys(f)) if (!['tag', 'a', 'lie', 'note', 'mood'].includes(k)) err(`${fid}: ${k}는 바꿀 수 없음`);
+      for (const k of ['tag', 'a', 'lie', 'note', 'mood']) if (f[k] == null) err(`${fid}.${k} 없음`);
+      if (f.tag && f.tag.length > 14) err(`${fid}.tag 14자 이하`);
+      if (f.mood && !MOODS.includes(f.mood)) err(`${fid}.mood`);
+      if (c.lang && f.a && !/\(.+\)\s*$/.test(f.a)) err(`${fid}.a 끝에 (한국어 번역)`);
+      if (c.lang && f.lie && !/\(.+\)\s*$/.test(f.lie)) err(`${fid}.lie 끝에 (한국어 번역)`);
+      if (c.species && f.a && !/\(.+\)/.test(f.a)) err(`${fid}.a 울음소리 + (번역)`);
+      if (c.species && f.lie && !/\(.+\)/.test(f.lie)) err(`${fid}.lie 울음소리 + (번역)`);
+    }
+    if (t.deeds) { const ok = (x) => /^f[1-5]$/.test(x); if (!t.deeds.good || !t.deeds.bad || !ok(t.deeds.gf) || !ok(t.deeds.bf)) err('deeds {good, gf, bad, bf}'); }
+  }
+  const missing = cases.filter((c) => !ALT[c.id]).map((c) => c.id);
+  console.log(`반전 시나리오 ${Object.keys(ALT).length}개${missing.length ? ` (없음: ${missing.join(', ')})` : ''}`);
+}
 console.log(`${cases.length} cases — heaven ${cases.filter((c) => c.truth === 'heaven').length} / hell ${cases.filter((c) => c.truth === 'hell').length}`);
 if (errors.length) { console.log(errors.join('\n')); process.exit(1); }
 console.log('OK');
