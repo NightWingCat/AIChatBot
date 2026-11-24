@@ -67,6 +67,8 @@ for (const c of cases) {
     if (c.species && f.a && !/\(.+\)/.test(f.a)) err(`${w}.a 울음소리 + (번역) 필요`);
     if (c.species && f.lie && !/\(.+\)/.test(f.lie)) err(`${w}.lie 울음소리 + (번역) 필요`);
   });
+  const fid = (x) => (c.facts || []).some((f) => f.id === x);
+  if (!c.deeds || !c.deeds.good || !c.deeds.bad || !fid(c.deeds.gf) || !fid(c.deeds.bf)) err('deeds {good, gf, bad, bf} (gf/bf는 facts id)');
   for (const v of ['hell', 'heaven']) { const p = c.plea?.[v]; if (!p?.style || !p?.line) err(`plea.${v} style/line`); if (c.group && p && typeof p.by !== 'number') err(`plea.${v}.by`); }
 }
 console.log(`${cases.length} cases — heaven ${cases.filter((c) => c.truth === 'heaven').length} / hell ${cases.filter((c) => c.truth === 'hell').length}`);
