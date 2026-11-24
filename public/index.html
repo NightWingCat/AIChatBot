@@ -1626,12 +1626,13 @@
     $('#sound-btn').textContent = settings.sound ? '♪ ON' : '♪ OFF';
     $('#engine-tag').textContent = engineLabel();
     const off = S.qLeft <= 0 || S.busy || S.phase !== 'ask';
-    $('#ask-input').disabled = off; $('#ask-btn').disabled = off;
+    const locked = off || (S.phase === 'ask' && !S.firstAsked); // 첫 질문은 5개 보기 중에서만
+    $('#ask-input').disabled = locked; $('#ask-btn').disabled = locked;
     document.querySelectorAll('#chips .chip').forEach((b) => (b.disabled = off));
     document.querySelectorAll('#heaven-btn, #hell-btn').forEach((b) => (b.disabled = S.busy || S.phase !== 'ask'));
     const ex = $('#exec-btn');
     if (ex) { ex.disabled = S.busy || S.phase !== 'ask' || S.execUsed; ex.textContent = S.execUsed ? '⚔ 처형! (사용함)' : '⚔ 처형! (게임 중 1회 · 이번 망자 무효)'; }
-    $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : '망자에게 물어볼 질문';
+    $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : S.phase === 'ask' && !S.firstAsked ? '첫 질문은 위 5개 중에서 골라 주세요' : '망자에게 물어볼 질문';
   }
   function chatAdd(kind, text, who) {
     const d = document.createElement('div');
@@ -1645,7 +1646,9 @@
   let idleT = null;
   function hideSuggest() { $('#suggest').hidden = true; }
   function armIdle() {
-    clearTimeout(idleT); hideSuggest();
+    clearTimeout(idleT);
+    if (S.phase === 'ask' && !S.firstAsked) return; // 첫 질문 보기 5개는 고를 때까지 그대로
+    hideSuggest();
     if (S.phase !== 'ask' || S.busy) return;
     idleT = setTimeout(showSuggest, 10000);
   }
@@ -1662,9 +1665,10 @@
     return nextFacts(3).map((f) => f.q);
   }
   function showSuggest(reason) {
-    if (S.phase !== 'ask' || S.busy || $('#ask-input').value.trim()) return;
-    $('#suggest .lbl').textContent = reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 머뭇거리는 사신에게 떠오른 질문…';
-    const qs = suggestions();
+    if (S.phase !== 'ask' || S.busy || (reason !== 'first' && $('#ask-input').value.trim())) return;
+    $('#suggest .lbl').textContent = reason === 'first' ? '⌛ 첫 질문 — 무엇부터 캐물을까? (하나를 고르세요)' : reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 머뭇거리는 사신에게 떠오른 질문…';
+    // 첫 질문: 사건의 핵심 단서 5개와 바로 이어지는 질문만 (스토리에서 동떨어진 실마리 방지)
+    const qs = reason === 'first' ? shuffle(S.c.facts).map((f) => f.q) : suggestions();
     if (!qs.length) { chatAdd('sys', S.qLeft <= 0 ? '⌛ 모래시계가 비었다. 천국인가, 지옥인가?' : '물어볼 건 다 물었다. 이제 판결이다.'); return; }
     $('#chips').innerHTML = qs.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
     $('#chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => ask(b.textContent)));
@@ -1713,7 +1717,7 @@
   async function nextCase() {
     const c = pickCase();
     const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
-    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null });
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false });
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
     $('#stage-wrap').classList.toggle('group', members.length > 1);
@@ -1728,14 +1732,16 @@
     await sleep(500);
     await say('sinner', c.intro, { name: members[0].name, by: 0 });
     chatAdd('s', c.intro, members[0].name);
-    S.phase = 'ask'; S.busy = false; renderHUD(); armIdle();
-    $('#ask-input').focus({ preventScroll: true });
+    S.phase = 'ask'; S.busy = false; renderHUD();
+    showSuggest('first');
   }
 
   async function ask(q) {
     q = String(q || '').trim();
     if (!q || S.busy || S.phase !== 'ask' || S.qLeft <= 0) return;
     clearTimeout(idleT); hideSuggest();
+    const wasFirst = !S.firstAsked;
+    S.firstAsked = true;
     S.busy = true; S.qLeft--; renderHUD(); SFX.glass();
     $('#ask-input').value = '';
     chatAdd('r', q, '사신');
@@ -1767,6 +1773,7 @@
     S.busy = false;
     if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
     renderHUD(); armIdle();
+    if (wasFirst) { chatAdd('sys', '이제 자유롭게 심문할 수 있다. 직접 질문을 써 보라.'); $('#ask-input').focus({ preventScroll: true }); }
     const missed = !(r.factIds || []).some((id) => !before.has(id));
     if (missed && S.qLeft > 0) showSuggest('miss'); // 맥락을 놓쳤으면 바로 방향을 잡아 준다
   }
