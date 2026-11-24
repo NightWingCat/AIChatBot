@@ -1492,39 +1492,34 @@
 
   function builtinAnswer(c, q) {
     const n = norm(q);
-    let best = null, bestScore = 0;
-    for (const f of c.facts) {
-      let s = 0;
-      for (const k of f.kw) if (n.includes(k)) s += k.length >= 2 ? 2 : 1;
-      if (S.revealed.has(f.id)) s -= 1.5; // 이미 나온 정황은 우선순위 낮춤
-      if (s > bestScore) { best = f; bestScore = s; }
-    }
-    // 압박 단계 = 정곡을 찌른 화제 수. 높을수록 속얘기를 더 흘리지만, 확률이라 들쑥날쑥하다.
+    const scored = c.facts.map((f) => {
+      let sc = 0;
+      for (const k of f.kw) if (n.includes(k)) sc += k.length >= 2 ? 2 : 1;
+      return { f, sc, again: S.revealed.has(f.id) };
+    }).filter((x) => x.sc > 0)
+      .sort((x, y) => (x.again - y.again) || (y.sc - x.sc)); // 아직 안 나온 단서 우선
+    // 압박 단계 = 정곡을 찌른 화제 수. 높을수록 '질문과 관련된' 속얘기를 더 털어놓는다 (엉뚱한 단서는 절대 안 흘림)
     const P = Math.min(S.fearUsed?.size || 0, 2);
-    const left = c.facts.filter((f) => !S.revealed.has(f.id));
-    if (best && bestScore > 0) {
-      const again = S.revealed.has(best.id);
-      if (!again && P === 0 && Math.random() < 0.2) {
-        // 압박이 없으면 가끔은 맞는 질문에도 입을 다문다
-        return { reply: pick(c.evasive), factIds: [], mood: 'nervous', hint: best.kw[0], by: best.by ?? 0 };
+    const best = scored[0];
+    if (best) {
+      if (!best.again && P === 0 && Math.random() < 0.2) {
+        // 압박이 없으면 가끔은 맞는 질문에도 입을 다문다 → 사신의 감으로 같은 방향을 다시 파게 유도
+        return { reply: pick(c.evasive), factIds: [], mood: 'nervous', hint: best.f.kw[0], near: best.f.id, by: best.f.by ?? 0 };
       }
       const re = c.lang === 'ja' ? 'さっきも言っただろ。(아까도 말했잖아.) ' : c.lang === 'en' ? 'Like I said— (아까 말했듯이—) ' : c.species ? '' : pick(['아까도 말씀드렸잖아요… ', '또요? ', '…같은 얘기예요. ']);
-      let reply = (again ? re : '') + best.a;
-      const ids = [best.id];
-      const others = left.filter((f) => f.id !== best.id);
-      if (others.length && Math.random() < [0.12, 0.45, 0.75][P]) {
-        const f2 = pick(others);
-        reply += ` …${c.species || c.lang ? ' ' : ' 그리고… '}${f2.a}`;
-        ids.push(f2.id);
+      let reply = (best.again ? re : '') + best.f.a;
+      const ids = [best.f.id];
+      // 질문이 다른 단서도 함께 건드렸다면, 압박이 높을수록 그것까지 털어놓는다
+      const second = scored.find((x) => x !== best && !x.again);
+      if (second && Math.random() < [0.15, 0.55, 0.85][P]) {
+        reply += ` …${c.species || c.lang ? ' ' : ' 그리고… '}${second.f.a}`;
+        ids.push(second.f.id);
       }
-      return { reply, factIds: ids, mood: best.mood || 'calm', by: best.by ?? 0 };
+      return { reply, factIds: ids, mood: best.f.mood || 'calm', by: best.f.by ?? 0 };
     }
-    // 빗나간 질문: 압박이 높으면 엉뚱한 데서 속얘기가 새어 나온다
-    if (left.length && Math.random() < [0.1, 0.45, 0.75][P]) {
-      const f = pick(left);
-      return { reply: f.a, factIds: [f.id], mood: 'nervous', by: f.by ?? 0 };
-    }
-    const hint = left.length ? pick(left).kw[0] : null;
+    // 빗나간 질문: 얼버무리고, 떠오른 질문으로 방향을 잡게 한다
+    const left = c.facts.filter((f) => !S.revealed.has(f.id));
+    const hint = left.length ? nextFacts(1)[0]?.kw[0] : null;
     return { reply: pick(c.evasive), factIds: [], mood: 'nervous', hint, by: c.group ? Math.floor(Math.random() * c.members.length) : 0 };
   }
 
@@ -1551,7 +1546,7 @@
       ...c.facts.map((f) => `${f.id}${c.group ? `(${c.members[f.by ?? 0].name})` : ''}: ${f.a}`),
       '규칙:',
       `1. ${speechRule(c)} 1~3문장, 캐릭터 말투로.`,
-      '2. 사신의 질문과 관련된 정황만 한 번에 1개(많아야 2개) 드러낸다. 관련 없으면 얼버무린다.',
+      '2. 사신의 질문과 직접 관련된 정황만 드러낸다(한 번에 1개, 많아야 2개). 질문과 관계없는 정황은 절대 먼저 꺼내지 말고, 관련 없으면 얼버무린다.',
       `3. ${style}`,
       '4. 천국/지옥 여부를 직접 말하지 않는다. 게임·규칙·AI에 대한 메타 발언을 하지 않는다.',
       `5. 출력은 JSON 하나만: {"reply":"대사","factIds":["f1"],"mood":"calm|nervous|crying|angry|smug"${c.group ? ',"speaker":0' : ''}}${c.group ? ' (speaker는 대답한 망자 번호)' : ''}`,
@@ -1562,13 +1557,16 @@
     if (useAI()) {
       try {
         const P = Math.min(S.fearUsed?.size || 0, 2);
-        const pressure = ['압박 0단계: 관련 정황 1개만, 때로는 얼버무린다.', '압박 1단계: 관련 정황 1개에, 가끔 다른 속얘기 1개를 흘린다.', '압박 2단계: 동요해서 다른 정황까지 2개를 털어놓는다.'][P];
+        const pressure = ['압박 0단계: 질문과 관련된 정황 1개만, 때로는 얼버무린다.', '압박 1단계: 질문과 관련된 정황을 솔직하게 말한다.', '압박 2단계: 동요해서 질문과 관련된 정황을 자세히, 질문이 두 정황에 걸치면 둘 다 털어놓는다.'][P] + ' 질문과 관계없는 정황은 절대 먼저 꺼내지 않는다.';
         const msgs = [{ role: 'system', content: sinnerSystemPrompt(c) }, ...S.chat, { role: 'user', content: `사신의 질문: ${q}\n(${pressure})` }];
         const out = await callLLM(msgs);
         S.chat.push({ role: 'user', content: `사신의 질문: ${q}` }, { role: 'assistant', content: JSON.stringify({ reply: out.reply, speaker: out.speaker }) });
         const ids = (Array.isArray(out.factIds) ? out.factIds : []).filter((id) => c.facts.some((f) => f.id === id));
         // AI가 factIds를 빠뜨려도, 답변 문장이 정황 대사와 많이 겹치면 드러난 것으로 본다 (2글자 조각 겹침 비율)
-        for (const f of c.facts) if (!ids.includes(f.id) && overlap(out.reply, f.a) >= 0.32) ids.push(f.id);
+        const nq = norm(q);
+        for (const f of c.facts) if (!ids.includes(f.id) && overlap(out.reply, f.a) >= 0.32 && (ids.length === 0 || f.kw.some((k) => nq.includes(k)))) ids.push(f.id);
+        // 질문 키워드와 전혀 닿지 않는 단서를 AI가 2개째로 흘렸다면 그건 접어 둔다
+        if (ids.length > 1) for (let i = ids.length - 1; i >= 1; i--) { const f = c.facts.find((x) => x.id === ids[i]); if (!f.kw.some((k) => nq.includes(k))) ids.splice(i, 1); }
         let by = 0;
         if (c.group) {
           const sp = Number(out.speaker);
@@ -1651,14 +1649,21 @@
     if (S.phase !== 'ask' || S.busy) return;
     idleT = setTimeout(showSuggest, 10000);
   }
+  // 마지막으로 드러난 단서 다음 순서부터 이어지는 미공개 단서 (대화 흐름을 따라가도록)
+  function nextFacts(k = 3) {
+    const facts = S.c.facts;
+    const lastIdx = S.lastFact ? facts.findIndex((f) => f.id === S.lastFact) : -1;
+    const near = S.nearFact ? facts.filter((f) => f.id === S.nearFact && !S.revealed.has(f.id)) : [];
+    const order = facts.map((_, i) => facts[(lastIdx + 1 + i) % facts.length]).filter((f) => !S.revealed.has(f.id) && !near.includes(f));
+    return [...near, ...order].slice(0, k);
+  }
   function suggestions() {
     if (S.qLeft <= 0) return [];
-    const left = S.c.facts.filter((f) => !S.revealed.has(f.id));
-    // 사건의 핵심 구멍(앞쪽 정황) 2개 + 나머지 중 하나를 섞어서
-    return [...left.slice(0, 2), ...shuffle(left.slice(2))].slice(0, 3).map((f) => f.q);
+    return nextFacts(3).map((f) => f.q);
   }
-  function showSuggest() {
+  function showSuggest(reason) {
     if (S.phase !== 'ask' || S.busy || $('#ask-input').value.trim()) return;
+    $('#suggest .lbl').textContent = reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 머뭇거리는 사신에게 떠오른 질문…';
     const qs = suggestions();
     if (!qs.length) { chatAdd('sys', S.qLeft <= 0 ? '⌛ 모래시계가 비었다. 천국인가, 지옥인가?' : '물어볼 건 다 물었다. 이제 판결이다.'); return; }
     $('#chips').innerHTML = qs.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
@@ -1708,7 +1713,7 @@
   async function nextCase() {
     const c = pickCase();
     const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
-    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0 });
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null });
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
     $('#stage-wrap').classList.toggle('group', members.length > 1);
@@ -1735,12 +1740,15 @@
     $('#ask-input').value = '';
     chatAdd('r', q, '사신');
     await say('reaper', q, { name: '사신' });
+    const before = new Set(S.revealed);
     const r = await answer(S.c, q);
     S.mood = r.mood || 'calm';
     const who = S.members[r.by || 0] || S.members[0];
     await say('sinner', r.reply, { name: who.name, by: r.by || 0 });
     chatAdd('s', r.reply, who.name);
+    S.nearFact = r.near || null;
     for (const id of r.factIds || []) {
+      S.lastFact = id;
       if (S.revealed.has(id)) continue;
       S.revealed.add(id);
       const f = S.c.facts.find((x) => x.id === id);
@@ -1759,6 +1767,8 @@
     S.busy = false;
     if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
     renderHUD(); armIdle();
+    const missed = !(r.factIds || []).some((id) => !before.has(id));
+    if (missed && S.qLeft > 0) showSuggest('miss'); // 맥락을 놓쳤으면 바로 방향을 잡아 준다
   }
 
   async function judge(v) {
