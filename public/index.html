@@ -2115,22 +2115,34 @@
   }
   const BUBBLES = { reaper: '#bubble-reaper', sinner: '#bubble-sinner', crow: '#crow-say' };
   const typing = new Map();
-  // 괄호 밖 원문 중 한글이 없는 구간(일본어·영어)만 '빠르게' 표시. 한국어 대사·동물 울음·괄호 속 번역은 정상 속도
-  const FAST_STEP = 4;
-  function fastMask(chars) {
-    const mask = new Array(chars.length).fill(false);
-    if (!chars.includes('(')) return mask;
-    let depth = 0, start = 0;
-    const flush = (end) => {
-      if (/[가-힣]/.test(chars.slice(start, end).join(''))) return;
-      for (let k = start; k < end; k++) mask[k] = true;
-    };
-    chars.forEach((ch, k) => {
-      if (ch === '(') { if (depth === 0) flush(k); depth++; }
-      else if (ch === ')' && depth > 0) { depth--; if (depth === 0) start = k + 1; }
-    });
-    if (depth === 0) flush(chars.length);
-    return mask;
+  // 외국어 대사 "原文 (번역)" → 말풍선엔 원문 한 줄(넘치면 …)만 보이고 바로 한국어 번역이 이어진다
+  function splitForeign(text) {
+    const orig = [], ko = [];
+    let depth = 0, buf = '';
+    const flushOut = () => { const t = buf.trim(); if (t) (/[가-힣]/.test(t) ? ko : orig).push(t); buf = ''; };
+    for (const ch of text) {
+      if (ch === '(') { if (depth === 0) flushOut(); else buf += ch; depth++; }
+      else if (ch === ')' && depth > 0) { depth--; if (depth === 0) { const t = buf.trim(); if (t) ko.push(t); buf = ''; } else buf += ch; }
+      else buf += ch;
+    }
+    if (depth === 0) flushOut();
+    return orig.length && ko.length ? { orig: orig.join(' '), ko: ko.join(' ') } : null;
+  }
+  // 말풍선 안에서 원문이 한 줄을 넘으면 잘라 '…'을 붙인다 (실제 글꼴 폭으로 측정)
+  function fitOneLine(el, whoHtml, orig) {
+    el.innerHTML = `${whoHtml}<span class="body"><span class="ghost" style="white-space:nowrap">${esc(orig)}</span></span>`;
+    el.hidden = false;
+    const body = el.querySelector('.body'), g = body.querySelector('.ghost');
+    const avail = body.clientWidth;
+    if (g.offsetWidth <= avail) return orig;
+    const ch = [...orig];
+    let lo = 0, hi = ch.length;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      g.textContent = ch.slice(0, mid).join('').trimEnd() + '…';
+      if (g.offsetWidth <= avail) lo = mid; else hi = mid - 1;
+    }
+    return ch.slice(0, lo).join('').trimEnd() + '…';
   }
   function say(who, text, { name, plea = false, by } = {}) {
     const el = $(BUBBLES[who]);
@@ -2143,8 +2155,12 @@
       S.crowTalkUntil = performance.now() + 240 + [...text].length * 30;
     }
     typing.get(el)?.finish();
+    const whoHtml = name ? `<span class="who">${esc(name)}</span>` : '';
+    // 일본어·영어 대사: 원문은 한 줄(넘치면 …), 다음 줄에 바로 한국어. 채팅 기록엔 전문이 남는다
+    const fx = who !== 'crow' ? splitForeign(text) : null;
+    if (fx) text = `${fitOneLine(el, whoHtml, fx.orig)}\n${fx.ko}`;
     // ghost: 최종 크기를 먼저 잡아 두는 투명 텍스트 → 말풍선이 다 커진 뒤 typed에 한 글자씩 찍는다
-    el.innerHTML = `${name ? `<span class="who">${esc(name)}</span>` : ''}<span class="body"><span class="ghost">${esc(text)}</span><span class="typed"></span></span>`;
+    el.innerHTML = `${whoHtml}<span class="body"><span class="ghost">${esc(text)}</span><span class="typed"></span></span>`;
     el.hidden = false;
     if (who !== 'crow') {
       placeBubble(el, who); // ghost 텍스트로 최종 크기가 잡힌 뒤 위치 계산
@@ -2152,7 +2168,6 @@
     }
     const typed = el.querySelector('.typed');
     const chars = [...text];
-    const fast = fastMask(chars);
     return new Promise((resolve) => {
       let i = 0, done = false, timer = null, startT = null;
       const finish = () => {
@@ -2164,11 +2179,9 @@
       };
       startT = setTimeout(() => {
         timer = setInterval(() => {
-          // 일본어·영어 원문은 한 번에 여러 글자씩 빠르게, 괄호 속 한국어 자막은 한 글자씩 정상 속도로
-          const step = fast[i] ? FAST_STEP : 1;
-          i = Math.min(chars.length, i + step);
+          i++;
           typed.textContent = chars.slice(0, i).join('');
-          if ((step > 1 || i % 2 === 0) && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : who === 'crow' ? 1.6 : 1);
+          if (i % 2 === 0 && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : who === 'crow' ? 1.6 : 1);
           if (i >= chars.length) finish();
         }, who === 'crow' ? 22 : 30);
       }, 240);
