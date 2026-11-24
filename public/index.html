@@ -36,24 +36,19 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
-    html, body { min-height: 100%; background: var(--bg); color: var(--ink); }
-    body { font-family: 'Galmuri11', 'Galmuri9', monospace; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: none; }
+    html, body { height: 100%; background: var(--bg); color: var(--ink); }
+    body { font-family: 'Galmuri11', 'Galmuri9', monospace; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: none; overflow: hidden; }
     button, input, select, textarea { font: inherit; color: inherit; }
     button { cursor: pointer; }
 
-    /* ── 픽셀 테두리 (계단식 모서리) ── */
+    /* ── 픽셀 테두리 ── */
     .px-box {
-      background: var(--panel);
-      box-shadow:
-        0 calc(var(--px) * -1) 0 0 var(--line), 0 var(--px) 0 0 var(--line),
-        calc(var(--px) * -1) 0 0 0 var(--line), var(--px) 0 0 0 var(--line),
-        0 0 0 var(--px) var(--bg) inset;
-      margin: var(--px);
+      background: var(--panel); margin: var(--px);
+      box-shadow: 0 calc(var(--px) * -1) 0 0 var(--line), 0 var(--px) 0 0 var(--line), calc(var(--px) * -1) 0 0 0 var(--line), var(--px) 0 0 0 var(--line), 0 0 0 var(--px) var(--bg) inset;
     }
     .px-btn {
-      border: 0; background: var(--panel-2); color: var(--ink); padding: 8px 14px; font-family: 'Galmuri11', monospace;
+      border: 0; background: var(--panel-2); color: var(--ink); padding: 7px 12px; font-family: 'Galmuri11', monospace; margin: 3px; transition: transform .05s;
       box-shadow: 0 -3px 0 0 var(--line), 0 3px 0 0 var(--line), -3px 0 0 0 var(--line), 3px 0 0 0 var(--line), inset -3px -3px 0 0 rgba(0,0,0,.45);
-      margin: 3px; transition: transform .05s;
     }
     .px-btn:hover { background: #3a1f44; }
     .px-btn:active { transform: translateY(2px); box-shadow: 0 -3px 0 0 var(--line), 0 3px 0 0 var(--line), -3px 0 0 0 var(--line), 3px 0 0 0 var(--line), inset 3px 3px 0 0 rgba(0,0,0,.45); }
@@ -66,213 +61,226 @@
     .px-btn.gold { background: #6b4a00; color: #fff6d6; --line: var(--gold); }
     .px-btn.big { font-family: 'Galmuri14', 'Galmuri11', monospace; font-size: 20px; padding: 12px 26px; }
 
-    /* ── 레이아웃 ── */
-    .app { max-width: 1080px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
-    .hud { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 12px; }
-    .logo { font-family: 'Galmuri14', monospace; font-size: 18px; color: var(--gold); text-shadow: 2px 2px 0 #6b1a1a; white-space: nowrap; }
-    .hourglass-row { display: flex; align-items: center; gap: 4px; }
-    .hourglass-row svg { width: 21px; height: 33px; image-rendering: pixelated; }
-    .hourglass-row .label { color: var(--ink-dim); font-size: 12px; margin-right: 6px; }
-    .hud-right { display: flex; align-items: center; gap: 4px; }
-    .streak { color: var(--gold); font-size: 13px; margin-right: 6px; }
-    .icon-btn { padding: 4px 9px; font-size: 13px; }
-
-    .stage-wrap { position: relative; aspect-ratio: 16 / 9; width: 100%; overflow: hidden; background: #000; }
-    #stage { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
-    .name-tag { position: absolute; bottom: 6%; font-size: clamp(10px, 1.6vw, 13px); padding: 1px 8px; background: rgba(13,6,16,.85); border: 2px solid var(--line-dim); }
-    .name-tag.reaper { left: 14%; color: var(--ember); }
-    .name-tag.sinner { right: 13%; color: var(--heaven); }
-
-    /* 픽셀 말풍선 */
-    .bubble {
-      position: absolute; max-width: 46%; min-width: 120px; padding: 8px 12px; background: #fffaf0; color: #1a0e14;
-      font-size: clamp(11px, 1.7vw, 15px); line-height: 1.55; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere;
-      box-shadow: 0 -3px 0 0 #1a0e14, 0 3px 0 0 #1a0e14, -3px 0 0 0 #1a0e14, 3px 0 0 0 #1a0e14, 6px 6px 0 0 rgba(0,0,0,.45);
-      cursor: pointer; z-index: 3;
+    /* ── 한 화면 가로 레이아웃: [스테이지] [사건 기록부 + 심문 채팅] ── */
+    .app {
+      height: 100vh; max-width: 1680px; margin: 0 auto; padding: 8px;
+      display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 29vw, 420px); gap: 10px;
     }
-    .bubble::after { content: ''; position: absolute; bottom: -12px; width: 12px; height: 9px; background: #fffaf0; box-shadow: 3px 0 0 #1a0e14, -3px 0 0 #1a0e14, 0 3px 0 #1a0e14; }
-    .bubble.sinner { right: 4%; top: 8%; }
-    .bubble.sinner::after { right: 22%; }
-    .bubble.reaper { left: 4%; top: 10%; background: #2a1530; color: var(--ink); box-shadow: 0 -3px 0 0 var(--ember), 0 3px 0 0 var(--ember), -3px 0 0 0 var(--ember), 3px 0 0 0 var(--ember), 6px 6px 0 0 rgba(0,0,0,.45); }
-    .bubble.reaper::after { left: 24%; background: #2a1530; box-shadow: 3px 0 0 var(--ember), -3px 0 0 var(--ember), 0 3px 0 var(--ember); }
-    .bubble .who { display: block; font-size: .8em; opacity: .7; margin-bottom: 2px; }
-    .bubble.plea { background: #ffe9e4; animation: tremble .12s infinite; }
+    .left { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .hud { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 10px; flex: none; }
+    .logo { font-family: 'Galmuri14', monospace; font-size: 17px; color: var(--gold); text-shadow: 2px 2px 0 #6b1a1a; white-space: nowrap; }
+    .hourglass-row { display: inline-flex; align-items: center; gap: 3px; }
+    .hourglass-row svg { width: 18px; height: 28px; image-rendering: pixelated; }
+    .hourglass-row .label { color: var(--ink-dim); font-size: 12px; margin-right: 4px; }
+    .hud-right { display: flex; align-items: center; gap: 2px; }
+    .streak { color: var(--gold); font-size: 13px; margin-right: 6px; white-space: nowrap; }
+    .icon-btn { padding: 3px 8px; font-size: 12px; }
+    .stage-area { flex: 1; min-height: 0; display: grid; place-items: center; }
+    .stage-wrap { position: relative; aspect-ratio: 16 / 9; width: min(100%, calc((100vh - 84px) * 16 / 9)); overflow: hidden; background: #000; }
+    #stage { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+    .name-tag { position: absolute; bottom: 3%; transform: translateX(-50%); font-size: clamp(9px, 1.15vw, 13px); padding: 0 7px; background: rgba(13,6,16,.85); border: 2px solid var(--line-dim); white-space: nowrap; z-index: 2; }
+    .name-tag.reaper { left: 20%; color: var(--ember); }
+    .name-tag.sinner { left: 62.5%; color: var(--heaven); }
+
+    /* ── 픽셀 말풍선: 말하는 캐릭터의 머리를 기준점으로 커진 뒤 글자가 찍힌다 ── */
+    .bubble {
+      position: absolute; z-index: 3; max-width: 52%; min-width: 90px; max-height: 50%; overflow: hidden; padding: 7px 11px;
+      background: #fffaf0; color: #1a0e14; font-size: clamp(10px, 1.35vw, 15px); line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; cursor: pointer;
+      box-shadow: 0 -3px 0 0 #1a0e14, 0 3px 0 0 #1a0e14, -3px 0 0 0 #1a0e14, 3px 0 0 0 #1a0e14, 6px 6px 0 0 rgba(0,0,0,.45);
+      transform-origin: var(--tail) 100%; transform: translateX(calc(var(--tail) * -1)) scale(1);
+    }
+    .bubble.grow { animation: grow .22s steps(4) both; }
+    @keyframes grow { from { transform: translateX(calc(var(--tail) * -1)) scale(.08); } to { transform: translateX(calc(var(--tail) * -1)) scale(1); } }
+    .bubble::after { content: ''; position: absolute; bottom: -11px; left: var(--tail); width: 10px; height: 8px; margin-left: -5px; background: inherit; box-shadow: 3px 0 0 #1a0e14, -3px 0 0 #1a0e14, 0 3px 0 #1a0e14; }
+    .bubble .who { display: block; font-size: .78em; opacity: .65; }
+    .bubble .body { position: relative; display: block; }
+    .bubble .ghost { visibility: hidden; white-space: pre-wrap; }
+    .bubble .typed { position: absolute; inset: 0; white-space: pre-wrap; }
+    .bubble.reaper { --tail: 18%; background: #2a1530; color: var(--ink); box-shadow: 0 -3px 0 0 var(--ember), 0 3px 0 0 var(--ember), -3px 0 0 0 var(--ember), 3px 0 0 0 var(--ember), 6px 6px 0 0 rgba(0,0,0,.45); }
+    .bubble.reaper::after { box-shadow: 3px 0 0 var(--ember), -3px 0 0 var(--ember), 0 3px 0 var(--ember); }
+    .bubble.sinner { --tail: 68%; }
+    .bubble.plea { background: #ffe9e4; }
+    .bubble.plea .body { animation: tremble .12s infinite; }
     @keyframes tremble { 0%,100% { transform: translate(0,0); } 25% { transform: translate(1px,-1px); } 75% { transform: translate(-1px,1px); } }
 
+    /* ── 망자 좌/우 픽셀 정황 태그 ── */
+    .tags { position: absolute; z-index: 2; display: flex; flex-direction: column; gap: 5px; pointer-events: auto; }
+    .tags.left { left: 36%; top: 54%; width: 19%; align-items: flex-end; }
+    .tags.right { left: 71%; top: 54%; width: 27%; align-items: flex-start; }
+    .ftag {
+      font-family: 'Galmuri9', 'Galmuri11', monospace; font-size: clamp(8px, 1.05vw, 12px); line-height: 1.3; padding: 3px 6px; max-width: 100%;
+      background: rgba(20, 8, 24, .92); color: var(--gold); cursor: help;
+      box-shadow: 0 -2px 0 0 var(--gold), 0 2px 0 0 var(--gold), -2px 0 0 0 var(--gold), 2px 0 0 0 var(--gold), 3px 3px 0 0 rgba(0,0,0,.5);
+      animation: tagpop .3s steps(3) both;
+    }
+    .ftag::before { content: '◆ '; color: var(--ember); }
+    @keyframes tagpop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
     .banner {
-      position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 4; text-align: center; pointer-events: none;
-      font-family: 'Galmuri14', monospace; font-size: clamp(22px, 5.5vw, 52px); color: var(--gold); white-space: nowrap;
+      position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 4; text-align: center; pointer-events: none;
+      font-family: 'Galmuri14', monospace; font-size: clamp(20px, 4.4vw, 50px); color: var(--gold); white-space: nowrap;
       text-shadow: 3px 3px 0 #6b1a1a, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000; animation: pop .35s steps(4) both;
     }
     .banner.red { color: var(--hell); }
     .banner.blue { color: var(--heaven); text-shadow: 3px 3px 0 #123b55, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000; }
-    .banner small { display: block; font-family: 'Galmuri11', monospace; font-size: .32em; color: var(--ink); margin-top: 6px; }
+    .banner small { display: block; font-family: 'Galmuri11', monospace; font-size: .34em; color: var(--ink); margin-top: 6px; }
     @keyframes pop { from { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 
     /* 타이틀 */
     .title-ui { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 12px; }
-    .title-ui h1 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: clamp(30px, 7.5vw, 68px); color: var(--gold); line-height: 1.1;
+    .title-ui h1 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: clamp(28px, 6.5vw, 72px); color: var(--gold); line-height: 1.1;
       text-shadow: 4px 4px 0 #6b1a1a, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 0 0 18px rgba(255,80,40,.5); animation: flicker 3s infinite steps(1); }
     @keyframes flicker { 0%, 92%, 100% { opacity: 1; } 93% { opacity: .55; } 95% { opacity: 1; } 97% { opacity: .7; } }
-    .title-ui p { color: var(--ink); font-size: clamp(11px, 1.8vw, 15px); text-shadow: 2px 2px 0 #000; }
+    .title-ui p { color: var(--ink); font-size: clamp(11px, 1.5vw, 15px); text-shadow: 2px 2px 0 #000; }
     .title-ui .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
     .blink { animation: blink 1s steps(2) infinite; color: var(--gold); }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* 콘솔 */
-    .console { display: grid; grid-template-columns: 1.05fr 1fr; gap: 12px; }
-    .panel { padding: 12px 14px; }
-    .panel h2 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: 15px; color: var(--gold); margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; }
-    .panel h2 small { font-family: 'Galmuri11', monospace; color: var(--ink-dim); font-size: 12px; }
-    .case-title { font-family: 'Galmuri14', monospace; font-size: 17px; color: var(--ink); }
-    .case-who { color: var(--heaven); font-size: 13px; margin-bottom: 6px; }
-    .brief { color: var(--ink); margin-bottom: 8px; }
-    .hooks { list-style: none; display: flex; flex-direction: column; gap: 2px; color: var(--ember); font-size: 13px; }
-    .hooks li::before { content: '? '; color: var(--gold); }
-    .notes { list-style: none; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; font-size: 13px; }
-    .notes li { padding: 5px 8px; background: var(--panel-2); border-left: 3px solid var(--line-dim); }
-    .notes li.q { border-left-color: var(--ember); color: var(--ink-dim); }
-    .notes li.fact { border-left-color: var(--gold); }
-    .notes li.fact b { color: var(--gold); font-weight: normal; }
-    .notes li.hint { border-left-color: var(--heaven); color: var(--heaven); }
-    .notes .empty { color: var(--ink-dim); background: none; border: 0; }
-
-    .ask { display: flex; flex-direction: column; gap: 8px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-    .chip { font-size: 12px; padding: 4px 10px; }
-    .ask-row { display: flex; gap: 6px; align-items: stretch; }
+    /* ── 오른쪽: 사건 기록부 + 심문 채팅 ── */
+    .side { display: flex; flex-direction: column; min-height: 0; padding: 10px 12px; gap: 8px; }
+    .side h2 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: 14px; color: var(--gold); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .side h2 small { font-family: 'Galmuri11', monospace; color: var(--ink-dim); font-size: 11px; }
+    .casefile { flex: none; background: var(--panel-2); padding: 8px 10px; border-left: 3px solid var(--gold); }
+    .case-title { font-family: 'Galmuri14', monospace; font-size: 15px; }
+    .case-meta { font-size: 12.5px; color: var(--heaven); }
+    .case-meta b { color: var(--hell); font-weight: normal; }
+    .brief { font-size: 12.5px; color: var(--ink); margin-top: 4px; }
+    .chat { flex: 1; min-height: 80px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; font-size: 13px; }
+    .chat .m { padding: 5px 8px; max-width: 92%; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; }
+    .chat .m.r { align-self: flex-end; background: #3a1f2a; border-right: 3px solid var(--ember); }
+    .chat .m.s { align-self: flex-start; background: var(--panel-2); border-left: 3px solid var(--heaven); }
+    .chat .m.sys { align-self: center; color: var(--ink-dim); font-size: 11.5px; text-align: center; max-width: 100%; }
+    .chat .m.fact { align-self: center; color: var(--gold); font-size: 11.5px; }
+    .chat .who { display: block; font-size: 10.5px; opacity: .65; }
+    .suggest { flex: none; display: flex; flex-direction: column; gap: 3px; }
+    .suggest .lbl { font-size: 11.5px; color: var(--heaven); animation: blink 1.2s steps(2) 3; }
+    .suggest .chips { display: flex; flex-direction: column; gap: 2px; }
+    .chip { font-size: 12px; padding: 4px 9px; text-align: left; animation: tagpop .25s steps(3) both; }
+    .ask-row { flex: none; display: flex; gap: 4px; align-items: stretch; }
     .ask-row input {
-      flex: 1; min-width: 0; background: #0d0610; color: var(--ink); border: 0; padding: 8px 10px; margin: 3px;
+      flex: 1; min-width: 0; background: #0d0610; color: var(--ink); border: 0; padding: 7px 9px; margin: 3px;
       box-shadow: 0 -3px 0 0 var(--line-dim), 0 3px 0 0 var(--line-dim), -3px 0 0 0 var(--line-dim), 3px 0 0 0 var(--line-dim);
     }
     .ask-row input:focus { outline: none; box-shadow: 0 -3px 0 0 var(--gold), 0 3px 0 0 var(--gold), -3px 0 0 0 var(--gold), 3px 0 0 0 var(--gold); }
-    .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
-    .verdict .px-btn { font-family: 'Galmuri14', monospace; font-size: 18px; padding: 12px; }
+    .verdict { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .verdict .px-btn { font-family: 'Galmuri14', monospace; font-size: 16px; padding: 9px; }
+    .verdict .plea-note { grid-column: 1 / -1; font-size: 12px; color: var(--hell); text-align: center; }
     .engine-tag { font-size: 11px; color: var(--ink-dim); }
 
     /* 다이얼로그 */
     dialog { border: 0; background: transparent; color: var(--ink); max-width: min(620px, calc(100vw - 24px)); width: 100%; margin: auto; }
     dialog::backdrop { background: rgba(5, 0, 8, .78); }
-    .dlg { padding: 18px 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
-    .dlg h2 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: 22px; margin-bottom: 8px; }
-    .dlg h2.win { color: var(--gold); }
+    .dlg { padding: 16px 18px; max-height: calc(100vh - 40px); overflow-y: auto; }
+    .dlg h2 { font-family: 'Galmuri14', monospace; font-weight: normal; font-size: 22px; margin-bottom: 6px; }
     .dlg h2.lose { color: var(--hell); }
-    .dlg .sub { color: var(--ink-dim); font-size: 13px; margin-bottom: 10px; }
-    .result-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; margin: 10px 0; }
+    .dlg .sub { color: var(--ink-dim); font-size: 13px; margin-bottom: 8px; }
+    .result-grid { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 14px; margin: 8px 0; }
     .result-grid dt { color: var(--ink-dim); }
-    .truth { background: var(--panel-2); padding: 10px 12px; font-size: 13px; border-left: 3px solid var(--gold); margin: 8px 0; }
-    .share-card { background: #0d0610; padding: 10px 12px; font-size: 12.5px; white-space: pre-wrap; border: 2px dashed var(--line-dim); margin: 8px 0; }
-    .dlg .row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-top: 10px; }
+    .runlist { list-style: none; font-size: 13px; display: flex; flex-direction: column; gap: 2px; margin: 4px 0 6px; }
+    .truth { background: var(--panel-2); padding: 9px 11px; font-size: 13px; border-left: 3px solid var(--gold); margin: 6px 0; }
+    .share-card { background: #0d0610; padding: 9px 11px; font-size: 12.5px; white-space: pre-wrap; border: 2px dashed var(--line-dim); margin: 6px 0; }
+    .dlg .row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-top: 8px; }
     .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; font-size: 13px; }
     .field label { color: var(--gold); }
-    .field input[type='text'], .field input[type='password'], .field select {
-      background: #0d0610; border: 2px solid var(--line-dim); padding: 6px 8px; color: var(--ink);
-    }
+    .field input[type='text'], .field input[type='password'], .field select { background: #0d0610; border: 2px solid var(--line-dim); padding: 6px 8px; color: var(--ink); }
     .field small { color: var(--ink-dim); font-size: 11.5px; }
     .field .inline { display: flex; align-items: center; gap: 6px; color: var(--ink); }
     .help-list { font-size: 13px; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
     .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 50; padding: 8px 14px; font-size: 13px; }
 
-    @media (max-width: 760px) {
-      .console { grid-template-columns: 1fr; }
-      .bubble { max-width: 62%; }
-      .name-tag { display: none; }
-      .logo { font-size: 15px; }
+    /* 세로 화면·좁은 화면: 위 스테이지, 아래 패널 */
+    @media (max-width: 860px), (max-aspect-ratio: 1/1) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100vh; grid-template-columns: 1fr; }
+      .stage-wrap { width: 100%; }
+      .chat { max-height: 36vh; }
+      .logo { font-size: 14px; }
+      .hourglass-row .label { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .title-ui h1, .blink, .bubble.plea, .banner { animation: none; }
+      .title-ui h1, .blink, .bubble.plea .body, .banner, .bubble.grow, .ftag, .chip { animation: none; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <header class="hud px-box">
-      <div class="logo">☠ 지옥문의 사신</div>
-      <div class="hourglass-row" aria-live="polite"><span class="label">모래시계</span><span id="hourglass"></span></div>
-      <div class="hud-right">
-        <span id="streak" class="streak"></span>
-        <button type="button" id="sound-btn" class="px-btn icon-btn" aria-label="소리 켜기/끄기">♪ ON</button>
-        <button type="button" id="settings-btn" class="px-btn icon-btn">⚙ 설정</button>
-      </div>
-    </header>
-
-    <div class="stage-wrap px-box" id="stage-wrap">
-      <canvas id="stage" width="320" height="180" aria-label="지옥문 심판소 픽셀 스테이지"></canvas>
-      <span class="name-tag reaper" id="tag-reaper">사신</span>
-      <span class="name-tag sinner" id="tag-sinner" hidden></span>
-      <div id="bubble-reaper" class="bubble reaper" hidden></div>
-      <div id="bubble-sinner" class="bubble sinner" hidden></div>
-      <div id="banner" class="banner" hidden></div>
-      <div id="title-ui" class="title-ui">
-        <h1>지옥문의 사신</h1>
-        <p>망자를 심문하고, 천국 또는 지옥으로 보내라.<br />단, 판결을 그르친 사신은… 처벌받는다.</p>
-        <div class="row">
-          <button type="button" id="start-btn" class="px-btn gold big">▶ 심판 시작</button>
-          <button type="button" id="howto-btn" class="px-btn">? 플레이 방법</button>
+    <div class="left">
+      <header class="hud px-box">
+        <div class="logo">☠ 지옥문의 사신</div>
+        <div class="hourglass-row" aria-live="polite"><span class="label">모래시계</span><span id="hourglass"></span></div>
+        <div class="hud-right">
+          <span id="streak" class="streak"></span>
+          <button type="button" id="sound-btn" class="px-btn icon-btn" aria-label="소리 켜기/끄기">♪ ON</button>
+          <button type="button" id="settings-btn" class="px-btn icon-btn">⚙ 설정</button>
         </div>
-        <p class="blink">PRESS START</p>
+      </header>
+      <div class="stage-area">
+        <div class="stage-wrap px-box" id="stage-wrap">
+          <canvas id="stage" width="320" height="180" aria-label="지옥문 심판소 픽셀 스테이지"></canvas>
+          <span class="name-tag reaper" id="tag-reaper" hidden>사신</span>
+          <span class="name-tag sinner" id="tag-sinner" hidden></span>
+          <div class="tags left" id="tags-left" aria-label="드러난 정황"></div>
+          <div class="tags right" id="tags-right"></div>
+          <div id="bubble-reaper" class="bubble reaper" hidden></div>
+          <div id="bubble-sinner" class="bubble sinner" hidden></div>
+          <div id="banner" class="banner" hidden></div>
+          <div id="title-ui" class="title-ui">
+            <h1>지옥문의 사신</h1>
+            <p>망자를 심문하고, 천국 또는 지옥으로 보내라.<br />맞히면 다음 망자가 줄지어 오고, 틀리면… 사신이 처벌받는다.</p>
+            <div class="row">
+              <button type="button" id="start-btn" class="px-btn gold big">▶ 심판 시작</button>
+              <button type="button" id="howto-btn" class="px-btn">? 플레이 방법</button>
+            </div>
+            <p class="blink">PRESS START</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <section class="console" id="console" hidden>
-      <div class="panel px-box">
-        <h2>📜 사건 기록부 <small id="case-no"></small></h2>
-        <div class="case-title" id="case-title"></div>
-        <div class="case-who" id="case-who"></div>
+    <aside class="side px-box">
+      <h2>📜 사건 기록부 <small id="case-no"></small></h2>
+      <div class="casefile">
+        <div class="case-title" id="case-title">심판을 기다리는 중</div>
+        <div class="case-meta" id="case-meta">▶ 심판 시작을 누르면 첫 망자가 입장합니다</div>
         <p class="brief" id="case-brief"></p>
-        <ul class="hooks" id="case-hooks"></ul>
       </div>
-      <div class="panel px-box ask">
-        <h2>🔥 심문 <small class="engine-tag" id="engine-tag"></small></h2>
+      <h2>🔥 심문 <small class="engine-tag" id="engine-tag"></small></h2>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="suggest" id="suggest" hidden>
+        <span class="lbl">⌛ 머뭇거리는 사신에게 떠오른 질문…</span>
         <div class="chips" id="chips"></div>
-        <form class="ask-row" id="ask-form">
-          <input id="ask-input" maxlength="120" autocomplete="off" placeholder="망자에게 물어볼 질문을 입력하세요" />
-          <button type="submit" class="px-btn" id="ask-btn">질문 ⏳</button>
-        </form>
-        <h2 style="margin-top:4px">📝 드러난 정황</h2>
-        <ul class="notes" id="notes"><li class="empty">아직 아무것도 드러나지 않았다. 모래시계를 뒤집어 질문하라.</li></ul>
-        <div class="verdict">
-          <button type="button" class="px-btn heaven" id="heaven-btn">☁ 천국</button>
-          <button type="button" class="px-btn hell" id="hell-btn">🔥 지옥</button>
-        </div>
       </div>
-    </section>
+      <form class="ask-row" id="ask-form">
+        <input id="ask-input" maxlength="120" autocomplete="off" placeholder="망자에게 물어볼 질문" />
+        <button type="submit" class="px-btn" id="ask-btn">질문 ⏳</button>
+      </form>
+      <div class="verdict" id="verdict">
+        <button type="button" class="px-btn heaven" id="heaven-btn">☁ 천국</button>
+        <button type="button" class="px-btn hell" id="hell-btn">🔥 지옥</button>
+      </div>
+    </aside>
   </div>
 
-  <!-- 최후의 변론 -->
-  <dialog id="plea-dlg">
-    <div class="dlg px-box">
-      <h2 class="lose">‼ 최후의 변론!</h2>
-      <p class="sub" id="plea-style"></p>
-      <p id="plea-text" style="font-size:15px"></p>
-      <div class="row">
-        <button type="button" class="px-btn" id="plea-flip"></button>
-        <button type="button" class="px-btn gold" id="plea-keep"></button>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- 결과 -->
+  <!-- 게임 오버: 결과 + 공유 -->
   <dialog id="result-dlg">
     <div class="dlg px-box">
-      <h2 id="r-head"></h2>
+      <h2 class="lose">☠ GAME OVER — 사신 처벌</h2>
       <p class="sub" id="r-sub"></p>
       <dl class="result-grid">
-        <dt>사건</dt><dd id="r-case"></dd>
-        <dt>내린 판결</dt><dd id="r-verdict"></dd>
-        <dt>판정</dt><dd id="r-judge"></dd>
-        <dt>모래시계</dt><dd id="r-glass"></dd>
+        <dt>연속 심판</dt><dd id="r-streak"></dd>
         <dt>사신 칭호</dt><dd id="r-title"></dd>
-        <dt>연속 정답</dt><dd id="r-streak"></dd>
+        <dt>오판 사건</dt><dd id="r-case"></dd>
+        <dt>내린 판결</dt><dd id="r-verdict"></dd>
+        <dt>모래시계</dt><dd id="r-glass"></dd>
       </dl>
+      <ul class="runlist" id="r-run"></ul>
       <div class="truth" id="r-truth"></div>
-      <p class="sub" style="margin:10px 0 0">📤 공유 카드 미리보기</p>
+      <p class="sub" style="margin:8px 0 0">📤 공유 카드 미리보기</p>
       <div class="share-card" id="r-share"></div>
       <div class="row">
         <button type="button" class="px-btn" id="r-copy">기록 복사</button>
         <button type="button" class="px-btn" id="r-native" hidden>공유하기</button>
-        <button type="button" class="px-btn" id="r-retry">↺ 다시하기</button>
-        <button type="button" class="px-btn gold" id="r-next">다음 망자 ▶</button>
+        <button type="button" class="px-btn gold" id="r-retry">↺ 다시하기</button>
       </div>
     </div>
   </dialog>
@@ -284,11 +292,11 @@
       <div class="field">
         <label for="s-key">OpenAI API 키 (선택)</label>
         <input type="password" id="s-key" placeholder="sk-..." autocomplete="off" />
-        <small>키를 넣으면 망자가 실시간 AI로 답합니다. 키는 이 브라우저에서 OpenAI로 직접 전송되며 우리 서버로는 가지 않습니다. 공용 PC에서는 저장하지 마세요.</small>
+        <small>개인 키로 플레이하고 싶을 때만 넣으세요. 키는 이 브라우저에서 OpenAI로 직접 전송되며 우리 서버로는 가지 않습니다. 공용 PC에서는 저장하지 마세요.</small>
         <span class="inline"><input type="checkbox" id="s-remember" /> <label for="s-remember" style="color:var(--ink)">이 브라우저에 키 저장</label></span>
       </div>
       <div class="field">
-        <label for="s-model">모델</label>
+        <label for="s-model">모델 (개인 키 사용 시)</label>
         <input type="text" id="s-model" value="gpt-4o-mini" />
       </div>
       <div class="field">
@@ -319,11 +327,11 @@
     <div class="dlg px-box">
       <h2 style="color:var(--gold)">? 플레이 방법</h2>
       <ol class="help-list">
-        <li>망자의 <b>현생 사건</b>이 기록부에 뜹니다. 줄거리에는 일부러 비워 둔 <b style="color:var(--ember)">알쏭달쏭한 구멍</b>이 있습니다.</li>
-        <li>질문할 때마다 <b>모래시계</b>가 하나씩 줄어듭니다. 추천 질문 칩을 눌러도 되고 직접 써도 됩니다.</li>
-        <li>드러난 정황을 모아 <b style="color:var(--heaven)">천국</b> 또는 <b style="color:var(--hell)">지옥</b>을 선고하세요. 모래시계가 남아 있어도 언제든 판결할 수 있습니다.</li>
-        <li>판결 순간, 망자가 <b>‼ 최후의 변론</b>으로 태세를 바꿀 수 있습니다. 흔들릴지, 고수할지는 당신의 몫.</li>
-        <li>진실과 맞으면 승리, 틀리면 <b style="color:var(--hell)">사신이 처벌</b>되고 게임 오버. 기록을 공유해 보세요.</li>
+        <li>오른쪽 <b>사건 기록부</b>에 망자의 사인과 사건이 뜹니다. 줄거리엔 일부러 비워 둔 <b style="color:var(--ember)">구멍</b>이 있습니다.</li>
+        <li>질문할 때마다 <b>모래시계</b>가 하나씩 줄어듭니다. 10초 머뭇거리면 지금 상황에 맞는 질문 3개가 떠오릅니다.</li>
+        <li>드러난 정황은 망자 양옆에 <b style="color:var(--gold)">◆ 픽셀 태그</b>로 붙습니다. 모아서 <b style="color:var(--heaven)">천국</b> 또는 <b style="color:var(--hell)">지옥</b>을 선고하세요.</li>
+        <li>판결 순간 망자가 <b>‼ 최후의 변론</b>으로 태세를 바꿀 수 있습니다. 고수할지, 번복할지.</li>
+        <li>맞히면 바로 다음 망자가 이어서 옵니다(릴레이). 틀리면 <b style="color:var(--hell)">사신 처벌</b>과 함께 게임 오버 — 기록을 공유하세요.</li>
       </ol>
       <div class="row"><button type="button" class="px-btn gold" onclick="this.closest('dialog').close()">알겠다</button></div>
     </div>
@@ -377,18 +385,18 @@
    * ════════════════════════════════════════════════════════════════ */
   const CASES = [
     {
-      id: 'phone', title: '계곡의 휴대폰', name: '윤서진', age: 27, sprite: 'woman', truth: 'heaven',
+      id: 'phone', title: '계곡의 휴대폰', name: '윤서진', age: 27, sprite: 'woman', cause: '빗길 교통사고', truth: 'heaven',
       voice: '겁 많고 자책하는 20대 여성, 존댓말, 말끝을 흐림',
       brief: '여름 계곡 여행에서 친구 하은이 급류에 휩쓸렸다. 서진은 물에 뛰어들지 않고 바위 위에서 휴대폰만 들고 있었다. 하은은 구조됐지만, 그날 밤 서진의 SNS에는 계곡 사진이 올라왔다.',
       hooks: ['왜 물에 뛰어들지 않았을까?', '휴대폰으로 무엇을 하고 있었나?', '그날 밤 올라온 사진은 누가, 왜?'],
       intro: '저… 저는 정말 아무것도 못 했어요. 그래서 여기 온 건가요?',
       facts: [
-        { id: 'f1', kw: ['수영', '물', '뛰어', '들어가', '구하', '안구'], a: '전… 수영을 못 해요. 어릴 때 물에 빠진 뒤로 발목까지만 들어가도 숨이 막혀요. 뛰어들었으면 둘 다 떠내려갔을 거예요.', note: '수영을 못 함 (어릴 적 익수 경험)', mood: 'crying' },
-        { id: 'f2', kw: ['휴대폰', '폰', '전화', '찍', '촬영', '영상', '핸드폰'], a: '찍은 게 아니라… 119랑 통화 중이었어요. 위치를 몰라서 영상통화로 바위랑 물살을 보여 줬어요. 통화 기록 남아 있을 거예요.', note: '휴대폰은 119 영상통화 — 위치 안내', mood: 'nervous' },
-        { id: 'f3', kw: ['구조', '누가', '살렸', '낚시', '도움', '사람', '로프'], a: '하류에 낚시하던 아저씨들이 있었어요. 제가 소리 지르면서 뛰어가서 불렀고, 그분들이 로프를 던졌어요.', note: '하류 낚시꾼들을 불러 구조를 도움', mood: 'calm' },
-        { id: 'f4', kw: ['sns', '사진', '인스타', '올린', '올렸', '게시', '밤'], a: '그 사진… 하은이가 올린 거예요. 제 계정 비번을 알거든요. "서진이 덕분에 살았다"고 쓰려다 제 계정인 줄 모르고… 나중에 지웠어요.', note: 'SNS 사진은 하은이 서진 계정으로 올림', mood: 'nervous' },
-        { id: 'f5', kw: ['친구', '하은', '사이', '싸우', '싸웠', '관계', '다퉜'], a: '하은이랑은 그 전날 좀 다퉜어요. 돈 문제로… 그래서 다들 제가 일부러 안 구했다고 수군거려요.', note: '전날 돈 문제로 다툼 — 오해의 원인', mood: 'crying' },
-        { id: 'f6', kw: ['죽', '사망', '사고', '어떻게', '돌아오'], a: '구조 끝나고 정신없이 차를 몰다가… 빗길에 미끄러졌어요. 하은이 있는 병원에 가던 길이었어요.', note: '하은의 병원으로 가다 빗길 사고', mood: 'crying' },
+        { id: 'f1', tag: '수영 못 함', q: '왜 물에 뛰어들지 않았지?', kw: ['수영', '물', '뛰어', '들어가', '구하', '안구'], a: '전… 수영을 못 해요. 어릴 때 물에 빠진 뒤로 발목까지만 들어가도 숨이 막혀요. 뛰어들었으면 둘 다 떠내려갔을 거예요.', note: '수영을 못 함 (어릴 적 익수 경험)', mood: 'crying' },
+        { id: 'f2', tag: '119 영상통화', q: '휴대폰으로 무엇을 했나?', kw: ['휴대폰', '폰', '전화', '찍', '촬영', '영상', '핸드폰'], a: '찍은 게 아니라… 119랑 통화 중이었어요. 위치를 몰라서 영상통화로 바위랑 물살을 보여 줬어요. 통화 기록 남아 있을 거예요.', note: '휴대폰은 119 영상통화 — 위치 안내', mood: 'nervous' },
+        { id: 'f3', tag: '낚시꾼 호출', q: '하은은 누가 구했지?', kw: ['구조', '누가', '살렸', '낚시', '도움', '사람', '로프'], a: '하류에 낚시하던 아저씨들이 있었어요. 제가 소리 지르면서 뛰어가서 불렀고, 그분들이 로프를 던졌어요.', note: '하류 낚시꾼들을 불러 구조를 도움', mood: 'calm' },
+        { id: 'f4', tag: 'SNS는 하은이 올림', q: '그날 밤 사진은 누가 올렸지?', kw: ['sns', '사진', '인스타', '올린', '올렸', '게시', '밤'], a: '그 사진… 하은이가 올린 거예요. 제 계정 비번을 알거든요. "서진이 덕분에 살았다"고 쓰려다 제 계정인 줄 모르고… 나중에 지웠어요.', note: 'SNS 사진은 하은이 서진 계정으로 올림', mood: 'nervous' },
+        { id: 'f5', tag: '전날 돈 문제 다툼', q: '친구와 사이는 어땠나?', kw: ['친구', '하은', '사이', '싸우', '싸웠', '관계', '다퉜'], a: '하은이랑은 그 전날 좀 다퉜어요. 돈 문제로… 그래서 다들 제가 일부러 안 구했다고 수군거려요.', note: '전날 돈 문제로 다툼 — 오해의 원인', mood: 'crying' },
+        { id: 'f6', tag: '병원 가던 길 사고', q: '사고 당시 어디로 가던 중이었나?', kw: ['죽', '사망', '사고', '어떻게', '돌아오'], a: '구조 끝나고 정신없이 차를 몰다가… 빗길에 미끄러졌어요. 하은이 있는 병원에 가던 길이었어요.', note: '하은의 병원으로 가다 빗길 사고', mood: 'crying' },
       ],
       evasive: ['그건… 잘 기억이 안 나요. 너무 무서웠거든요.', '사신님, 그걸 왜 물어보세요…?', '다들 저를 나쁜 사람이라고 해요. 그것만 알아요.'],
       chips: ['왜 물에 뛰어들지 않았지?', '휴대폰으로 무엇을 했나?', '그날 밤 사진은 누가 올렸지?', '친구와 사이는 어땠나?', '어떻게 죽게 됐지?'],
@@ -399,18 +407,18 @@
       reveal: '서진은 수영을 못 해 뛰어들 수 없었고, 119와 영상통화로 위치를 알리며 하류의 낚시꾼들을 불러 하은을 살렸다. SNS 사진은 하은이 감사 글을 쓰려다 실수로 올린 것. 서진은 하은의 병원으로 가다 사고로 숨졌다.',
     },
     {
-      id: 'donor', title: '기부왕 사장님', name: '박만복', age: 61, sprite: 'merchant', truth: 'hell',
+      id: 'donor', title: '기부왕 사장님', name: '박만복', age: 61, sprite: 'merchant', cause: '심근경색 (회식 자리)', truth: 'hell',
       voice: '허세 많고 능글맞은 60대 사장, 반말 섞인 하오체, 불리하면 비서·아들 탓',
       brief: '식품 유통회사 사장 박만복은 매년 어린이 급식 단체에 거액을 기부해 "기부왕"이라 불렸다. 장례식엔 수백 명이 찾아왔다. 다만 장례 다음 날, 회사 창고에서 서류 상자 몇 개가 급히 불태워졌다.',
       hooks: ['기부금은 어디서 나왔을까?', '급식 단체에 들어간 건 돈뿐이었을까?', '장례 다음 날 불태운 서류는?'],
       intro: '허허, 사신 양반. 내 장례식 봤소? 그 많은 사람들이 다 날 사랑해서 온 거요.',
       facts: [
-        { id: 'f1', kw: ['기부', '돈', '금액', '얼마', '어디서', '출처', '영수증'], a: '기부야 매년 했지. 영수증도 다 있고… 뭐, 금액은 회계팀이 알아서 부풀… 아니, 맞췄겠지.', note: '기부 영수증을 "부풀"렸다고 말하다 정정', mood: 'nervous' },
-        { id: 'f2', kw: ['세금', '탈세', '절세', '회계', '장부', '공제'], a: '기부하면 세금 깎아 주는 건 나라가 정한 거요! 남들보다 좀… 많이 깎았을 뿐이지.', note: '기부로 세금을 과도하게 공제', mood: 'smug' },
-        { id: 'f3', kw: ['급식', '식품', '음식', '납품', '아이', '애들', '유통기한', '재고', '보냈'], a: '급식 단체에 식품도 대 줬지. 창고에 남는 거… 날짜 좀 지난 것도 있었지만 먹고 죽진 않아요. 아, 한 번 애들이 배탈 난 적은 있었나.', note: '유통기한 지난 재고를 급식 단체에 납품 — 아이들 배탈', mood: 'nervous' },
-        { id: 'f4', kw: ['서류', '불', '태운', '태웠', '상자', '창고', '증거'], a: '서류? 그건 아들놈이 정리한 거요. 오래된 거래 명세서… 식약처에서 연락 오기 전에 치운 거지, 다른 뜻은 없소.', note: '식약처 연락 직전 거래 명세서 소각', mood: 'angry' },
-        { id: 'f5', kw: ['장례', '조문', '직원', '사랑', '사람들'], a: '직원들도 다 왔지. 안 오면 퇴직금 정산이 좀 늦어질 거라고 아들이 귀띔은 했다더만.', note: '직원 조문은 퇴직금 압박 때문', mood: 'smug' },
-        { id: 'f6', kw: ['좋은', '선행', '착한', '진심', '봉사', '노인정'], a: '내가 동네 노인정 쌀은 매달 보냈소. 그건 진짜요. 거긴 세금도 안 깎아 주는데.', note: '노인정 쌀 지원은 사실', mood: 'calm' },
+        { id: 'f1', tag: '영수증 부풀림?', q: '기부금은 어디서 나왔지?', kw: ['기부', '돈', '금액', '얼마', '어디서', '출처', '영수증'], a: '기부야 매년 했지. 영수증도 다 있고… 뭐, 금액은 회계팀이 알아서 부풀… 아니, 맞췄겠지.', note: '기부 영수증을 "부풀"렸다고 말하다 정정', mood: 'nervous' },
+        { id: 'f2', tag: '과도한 세금 공제', q: '기부로 세금 혜택은 받았나?', kw: ['세금', '탈세', '절세', '회계', '장부', '공제'], a: '기부하면 세금 깎아 주는 건 나라가 정한 거요! 남들보다 좀… 많이 깎았을 뿐이지.', note: '기부로 세금을 과도하게 공제', mood: 'smug' },
+        { id: 'f3', tag: '유통기한 지난 납품', q: '급식 단체에 무엇을 보냈나?', kw: ['급식', '식품', '음식', '납품', '아이', '애들', '유통기한', '재고', '보냈'], a: '급식 단체에 식품도 대 줬지. 창고에 남는 거… 날짜 좀 지난 것도 있었지만 먹고 죽진 않아요. 아, 한 번 애들이 배탈 난 적은 있었나.', note: '유통기한 지난 재고를 급식 단체에 납품 — 아이들 배탈', mood: 'nervous' },
+        { id: 'f4', tag: '증거 서류 소각', q: '장례 다음 날 태운 서류는?', kw: ['서류', '불', '태운', '태웠', '상자', '창고', '증거'], a: '서류? 그건 아들놈이 정리한 거요. 오래된 거래 명세서… 식약처에서 연락 오기 전에 치운 거지, 다른 뜻은 없소.', note: '식약처 연락 직전 거래 명세서 소각', mood: 'angry' },
+        { id: 'f5', tag: '퇴직금 압박 조문', q: '장례식에 온 사람들은?', kw: ['장례', '조문', '직원', '사랑', '사람들'], a: '직원들도 다 왔지. 안 오면 퇴직금 정산이 좀 늦어질 거라고 아들이 귀띔은 했다더만.', note: '직원 조문은 퇴직금 압박 때문', mood: 'smug' },
+        { id: 'f6', tag: '노인정 쌀 지원', q: '진심으로 한 선행이 있나?', kw: ['좋은', '선행', '착한', '진심', '봉사', '노인정'], a: '내가 동네 노인정 쌀은 매달 보냈소. 그건 진짜요. 거긴 세금도 안 깎아 주는데.', note: '노인정 쌀 지원은 사실', mood: 'calm' },
       ],
       evasive: ['그건 내 비서한테 물어보시오.', '사신 양반, 그런 건 서류로 얘기합시다.', '허허, 다 지난 일 아니오.'],
       chips: ['기부금은 어디서 나왔지?', '급식 단체에 무엇을 보냈나?', '장례 다음 날 태운 서류는?', '장례식에 온 사람들은?', '진심으로 한 선행이 있나?'],
@@ -421,18 +429,18 @@
       reveal: '박만복의 기부는 부풀린 영수증으로 세금을 줄이는 수단이었고, 급식 단체엔 유통기한 지난 재고를 떠넘겨 아이들이 탈이 났다. 식약처 조사 직전 증거 서류를 태웠다. 노인정 쌀 지원은 사실이지만 죄를 덮기엔 턱없이 작다.',
     },
     {
-      id: 'bread', title: '빵 도둑 할머니', name: '김말순', age: 79, sprite: 'granny', truth: 'heaven',
+      id: 'bread', title: '빵 도둑 할머니', name: '김말순', age: 79, sprite: 'granny', cause: '저체온증 (눈 덮인 골목)', truth: 'heaven',
       voice: '구수한 사투리 섞인 70대 할머니, 귀가 어둡고 남 걱정이 많음',
       brief: '편의점 CCTV에 매일 새벽 빵 두 개를 들고 그냥 나가는 김말순 할머니가 찍혔다. 점주는 신고를 고민했고, 동네엔 "빵 도둑 할머니" 소문이 돌았다. 할머니는 그해 겨울 골목길에서 쓰러진 채 발견됐다.',
       hooks: ['정말 돈을 안 냈을까?', '빵 두 개는 누구 몫이었나?', '왜 하필 새벽마다 갔을까?'],
       intro: '아이고, 여기가 거긴가… 사신 양반, 나 빵값 다 냈어요. 진짜로.',
       facts: [
-        { id: 'f1', kw: ['돈', '계산', '값', '냈', '훔', '도둑', '결제'], a: '계산대에 사람이 없길래 동전을 계산대 밑 컵에 넣어 놨지. 점주 양반이 그 컵을 못 봤나 봐. 내가 눈이 어두워서 딱 맞게 넣었는지는 몰라도.', note: '빵값을 계산대 아래 컵에 넣어 둠', mood: 'calm' },
-        { id: 'f2', kw: ['두개', '누구', '누가', '먹', '몫', '빵'], a: '하나는 옆집 꼬맹이 거야. 엄마가 밤에 일 나가서 아침을 못 먹어. 하나는… 골목 고양이들 거.', note: '빵은 방치된 옆집 아이와 길고양이 몫', mood: 'calm' },
-        { id: 'f3', kw: ['새벽', '아침', '시간', '매일', '하필'], a: '애 학교 가기 전에 갖다줘야 하니까. 새벽 다섯 시엔 편의점이 한가하잖아.', note: '아이 등교 전에 주려고 새벽에 감', mood: 'calm' },
-        { id: 'f4', kw: ['자기', '본인', '할머니', '당신', '혼자', '가족', '자식', '지냈'], a: '나? 나는 안 먹어도 돼. 자식들은 연락 끊긴 지 오래고… 연금 나오면 빵값은 돼.', note: '본인은 굶으며 연금으로 빵값 충당', mood: 'crying' },
-        { id: 'f5', kw: ['쓰러', '죽', '겨울', '골목', '사망', '어떻게'], a: '그날도 빵 들고 가다가 눈길에 미끄러졌지. 꼬맹이가 기다렸을 텐데…', note: '빵을 전하러 가다 눈길에 쓰러짐', mood: 'crying' },
-        { id: 'f6', kw: ['컵', '점주', 'cctv', '확인', '증거', '동전'], a: '컵? 계산대 밑 파란 컵. 점주 양반이 나중에 청소하다 동전 가득한 걸 보고 울었다고, 꼬맹이가 그러더라고.', note: '점주가 동전 가득한 컵을 뒤늦게 발견', mood: 'calm' },
+        { id: 'f1', tag: '계산대 밑 동전 컵', q: '빵값은 정말 냈나?', kw: ['돈', '계산', '값', '냈', '훔', '도둑', '결제'], a: '계산대에 사람이 없길래 동전을 계산대 밑 컵에 넣어 놨지. 점주 양반이 그 컵을 못 봤나 봐. 내가 눈이 어두워서 딱 맞게 넣었는지는 몰라도.', note: '빵값을 계산대 아래 컵에 넣어 둠', mood: 'calm' },
+        { id: 'f2', tag: '아이·고양이 몫', q: '빵 두 개는 누구 몫이지?', kw: ['두개', '누구', '누가', '먹', '몫', '빵'], a: '하나는 옆집 꼬맹이 거야. 엄마가 밤에 일 나가서 아침을 못 먹어. 하나는… 골목 고양이들 거.', note: '빵은 방치된 옆집 아이와 길고양이 몫', mood: 'calm' },
+        { id: 'f3', tag: '등교 전 배달', q: '왜 꼭 새벽에 갔나?', kw: ['새벽', '아침', '시간', '매일', '하필'], a: '애 학교 가기 전에 갖다줘야 하니까. 새벽 다섯 시엔 편의점이 한가하잖아.', note: '아이 등교 전에 주려고 새벽에 감', mood: 'calm' },
+        { id: 'f4', tag: '본인은 굶음', q: '당신 자신은 어떻게 지냈나?', kw: ['자기', '본인', '할머니', '당신', '혼자', '가족', '자식', '지냈'], a: '나? 나는 안 먹어도 돼. 자식들은 연락 끊긴 지 오래고… 연금 나오면 빵값은 돼.', note: '본인은 굶으며 연금으로 빵값 충당', mood: 'crying' },
+        { id: 'f5', tag: '빵 전하러 가던 길', q: '쓰러진 날 어디로 가던 중이었나?', kw: ['쓰러', '죽', '겨울', '골목', '사망', '어떻게'], a: '그날도 빵 들고 가다가 눈길에 미끄러졌지. 꼬맹이가 기다렸을 텐데…', note: '빵을 전하러 가다 눈길에 쓰러짐', mood: 'crying' },
+        { id: 'f6', tag: '점주가 컵 발견', q: '점주는 그 컵을 확인했나?', kw: ['컵', '점주', 'cctv', '확인', '증거', '동전'], a: '컵? 계산대 밑 파란 컵. 점주 양반이 나중에 청소하다 동전 가득한 걸 보고 울었다고, 꼬맹이가 그러더라고.', note: '점주가 동전 가득한 컵을 뒤늦게 발견', mood: 'calm' },
       ],
       evasive: ['응? 귀가 어두워서… 다시 말해 봐요.', '그건 모르겠고, 꼬맹이 아침은 누가 챙기나 몰라.', '사신 양반 얼굴이 참 창백하네. 밥은 먹었어요?'],
       chips: ['빵값은 정말 냈나?', '빵 두 개는 누구 몫이지?', '왜 꼭 새벽에 갔나?', '당신 자신은 어떻게 지냈나?', '어떻게 쓰러지게 됐지?'],
@@ -443,18 +451,18 @@
       reveal: '할머니는 매일 동전을 계산대 아래 컵에 넣고 빵을 가져가, 방치된 옆집 아이의 아침과 길고양이 먹이로 나눴다. 본인은 굶으며 연금으로 빵값을 댔고, 빵을 전하러 가던 눈길에서 쓰러졌다.',
     },
     {
-      id: 'courier', title: '불길 속 의인', name: '강도윤', age: 31, sprite: 'courier', truth: 'hell',
+      id: 'courier', title: '불길 속 의인', name: '강도윤', age: 31, sprite: 'courier', cause: '배달 중 교통사고', truth: 'hell',
       voice: '자기과시가 강한 30대 배달원, 가벼운 존댓말, 몰리면 말을 바꿈',
       brief: '원룸 건물 화재 현장에서 배달원 강도윤이 이웃 노인을 업고 나오는 영상이 퍼져 "의인"으로 표창과 상금을 받았다. 화재 원인은 "1층 주차장의 원인 불명 발화"로 남았다.',
       hooks: ['불은 왜 1층 주차장에서 시작됐을까?', '영상은 누가 찍었나?', '노인을 처음 발견한 사람은?'],
       intro: '사신님, 저 의인상 받은 사람이에요. 뉴스 보셨죠? 그럼 얘기 끝난 거 아닌가?',
       facts: [
-        { id: 'f1', kw: ['불', '화재', '원인', '주차장', '발화', '시작'], a: '주차장 불은… 누가 담배라도 버렸겠죠. 제 오토바이요? 거기 세워 두긴 했는데, 충전은… 그냥 일반 충전이었어요.', note: '자기 오토바이를 주차장에서 충전 중이었음', mood: 'nervous' },
-        { id: 'f2', kw: ['배터리', '충전', '오토바이', '개조', '전기'], a: '배터리 용량 좀 늘린 게 불법인가요? 다들 그렇게 해요. 그날 좀 뜨겁긴 했는데… 설마 그거 때문이겠어요.', note: '불법 개조 배터리가 과열됐던 정황', mood: 'nervous' },
-        { id: 'f3', kw: ['영상', '찍', '촬영', 'sns', '유튜브', '카메라'], a: '영상은 제 친구가 찍었어요. 각도 좋게 다시 나와 달라고 해서… 아니, 처음부터 찍힌 거예요.', note: '"다시 나와 달라"고 했다가 말을 바꿈 — 연출 의혹', mood: 'nervous' },
-        { id: 'f4', kw: ['노인', '할아버지', '구한', '구했', '발견', '처음', '먼저', '업고'], a: '할아버지는 제가 업고 나왔죠. 처음 찾은 건… 옆방 대학생이 계단까지 데려왔던가. 저는 거기서 받은 거고.', note: '노인을 먼저 구한 건 옆방 대학생', mood: 'smug' },
-        { id: 'f5', kw: ['상금', '표창', '보상', '의인', '돈', '인터뷰'], a: '상금은 받을 만했죠. 위험했으니까. 대학생이요? 걔는 연기 마셔서 병원 갔던데, 인터뷰는 제가 했고요.', note: '대학생은 입원, 공과 상금은 독차지', mood: 'smug' },
-        { id: 'f6', kw: ['죽', '사망', '어떻게', '사고'], a: '배달하다가 신호를 좀… 급했어요. 그날도 별점 깎일까 봐.', note: '배달 중 신호위반 사고로 사망', mood: 'calm' },
+        { id: 'f1', tag: '주차장서 충전 중', q: '불은 어디서 시작됐지?', kw: ['불', '화재', '원인', '주차장', '발화', '시작'], a: '주차장 불은… 누가 담배라도 버렸겠죠. 제 오토바이요? 거기 세워 두긴 했는데, 충전은… 그냥 일반 충전이었어요.', note: '자기 오토바이를 주차장에서 충전 중이었음', mood: 'nervous' },
+        { id: 'f2', tag: '개조 배터리 과열', q: '오토바이 배터리는 어떤 건가?', kw: ['배터리', '충전', '오토바이', '개조', '전기'], a: '배터리 용량 좀 늘린 게 불법인가요? 다들 그렇게 해요. 그날 좀 뜨겁긴 했는데… 설마 그거 때문이겠어요.', note: '불법 개조 배터리가 과열됐던 정황', mood: 'nervous' },
+        { id: 'f3', tag: '영상 연출 의혹', q: '영상은 누가 찍었나?', kw: ['영상', '찍', '촬영', 'sns', '유튜브', '카메라'], a: '영상은 제 친구가 찍었어요. 각도 좋게 다시 나와 달라고 해서… 아니, 처음부터 찍힌 거예요.', note: '"다시 나와 달라"고 했다가 말을 바꿈 — 연출 의혹', mood: 'nervous' },
+        { id: 'f4', tag: '먼저 구한 건 대학생', q: '노인을 처음 구한 사람은?', kw: ['노인', '할아버지', '구한', '구했', '발견', '처음', '먼저', '업고'], a: '할아버지는 제가 업고 나왔죠. 처음 찾은 건… 옆방 대학생이 계단까지 데려왔던가. 저는 거기서 받은 거고.', note: '노인을 먼저 구한 건 옆방 대학생', mood: 'smug' },
+        { id: 'f5', tag: '공·상금 독차지', q: '상금과 인터뷰는 어떻게 했지?', kw: ['상금', '표창', '보상', '의인', '돈', '인터뷰'], a: '상금은 받을 만했죠. 위험했으니까. 대학생이요? 걔는 연기 마셔서 병원 갔던데, 인터뷰는 제가 했고요.', note: '대학생은 입원, 공과 상금은 독차지', mood: 'smug' },
+        { id: 'f6', tag: '신호위반 사고', q: '어떻게 죽게 됐지?', kw: ['죽', '사망', '어떻게', '사고'], a: '배달하다가 신호를 좀… 급했어요. 그날도 별점 깎일까 봐.', note: '배달 중 신호위반 사고로 사망', mood: 'calm' },
       ],
       evasive: ['그건 기사에 다 나와 있어요.', '왜 자꾸 저만 의심하세요?', '기억 안 나요. 연기 때문에 정신없었어요.'],
       chips: ['불은 어디서 시작됐지?', '오토바이 배터리는 어떤 건가?', '영상은 누가 찍었나?', '노인을 처음 구한 사람은?', '상금은 어떻게 했지?'],
@@ -465,18 +473,18 @@
       reveal: '화재는 강도윤이 주차장에서 충전하던 불법 개조 배터리에서 시작됐다. 그는 원인을 숨겼고, 노인을 먼저 구한 옆방 대학생의 공을 가로채 영상을 연출하고 상금까지 챙겼다.',
     },
     {
-      id: 'leak', title: '회사를 판 배신자', name: '정우현', age: 44, sprite: 'office', truth: 'heaven',
+      id: 'leak', title: '회사를 판 배신자', name: '정우현', age: 44, sprite: 'office', cause: '급성 심장마비', truth: 'heaven',
       voice: '말수 적고 단정한 40대 팀장, 딱딱한 하십시오체, 감정을 누름',
       brief: '건설사 팀장 정우현은 회사 내부 자료를 외부로 빼돌렸다는 이유로 해고됐다. 밤늦게 회의실에서 USB를 꽂는 모습이 찍혔고, 그 직후 계좌에 큰돈이 들어왔다. 그는 끝까지 아무 해명도 하지 않았다.',
       hooks: ['자료는 누구에게 갔을까?', '계좌에 들어온 돈의 정체는?', '왜 끝까지 해명하지 않았을까?'],
       intro: '…해명은 안 할 겁니다. 살아서도 안 했으니까요. 물어보실 게 있으면 물어보십시오.',
       facts: [
-        { id: 'f1', kw: ['자료', '누구', '경쟁사', '넘긴', '넘겼', '빼돌', '유출', '외부'], a: '경쟁사가 아닙니다. 기자와 감독기관에 보냈습니다. 아파트 철근을 설계보다 빼먹은 기록이었습니다.', note: '자료는 철근 누락 증거 — 기자·감독기관에 제보', mood: 'calm' },
-        { id: 'f2', kw: ['돈', '계좌', '입금', '대가', '받은', '받았'], a: '그 돈은 제 퇴직금을 담보로 받은 대출입니다. 소송 비용이 필요할 것 같아서요. 서류 보시면 압니다.', note: '입금된 돈은 퇴직금 담보 대출', mood: 'calm' },
-        { id: 'f3', kw: ['해명', '왜', '침묵', '변명', '말안'], a: '제가 제보자라고 밝히면 자료를 함께 모은 후배 둘이 바로 드러납니다. 걔들은 애가 어립니다.', note: '후배 제보자들을 보호하려 침묵', mood: 'nervous' },
-        { id: 'f4', kw: ['usb', '회의실', '밤', '몰래', 'cctv', '서버'], a: '회의실은 그 층에서 유일하게 결재 서버에 붙는 자리였습니다. 몰래 한 건 맞습니다. 규정 위반이죠.', note: '서버 무단 접근 — 규정 위반은 인정', mood: 'calm' },
-        { id: 'f5', kw: ['아파트', '철근', '건물', '결과', '그뒤', '어떻게됐'], a: '제가 죽고 반년 뒤에 그 아파트 보강 공사가 시작됐다고 들었습니다. 그거면 됐습니다.', note: '제보 후 아파트 보강 공사 시작', mood: 'calm' },
-        { id: 'f6', kw: ['가족', '아내', '죽', '사망', '심장'], a: '해고 뒤로 집에서도 배신자 소리를 들었습니다. 심장이… 좀 약했나 봅니다.', note: '가족에게도 오해받다 심장 질환으로 사망', mood: 'crying' },
+        { id: 'f1', tag: '기자·감독기관 제보', q: '자료는 누구에게 넘겼지?', kw: ['자료', '누구', '경쟁사', '넘긴', '넘겼', '빼돌', '유출', '외부'], a: '경쟁사가 아닙니다. 기자와 감독기관에 보냈습니다. 아파트 철근을 설계보다 빼먹은 기록이었습니다.', note: '자료는 철근 누락 증거 — 기자·감독기관에 제보', mood: 'calm' },
+        { id: 'f2', tag: '퇴직금 담보 대출', q: '계좌에 들어온 돈은?', kw: ['돈', '계좌', '입금', '대가', '받은', '받았'], a: '그 돈은 제 퇴직금을 담보로 받은 대출입니다. 소송 비용이 필요할 것 같아서요. 서류 보시면 압니다.', note: '입금된 돈은 퇴직금 담보 대출', mood: 'calm' },
+        { id: 'f3', tag: '후배 보호 침묵', q: '왜 끝까지 해명하지 않았나?', kw: ['해명', '왜', '침묵', '변명', '말안'], a: '제가 제보자라고 밝히면 자료를 함께 모은 후배 둘이 바로 드러납니다. 걔들은 애가 어립니다.', note: '후배 제보자들을 보호하려 침묵', mood: 'nervous' },
+        { id: 'f4', tag: '서버 무단 접근', q: '밤에 회의실에서 뭘 했지?', kw: ['usb', '회의실', '밤', '몰래', 'cctv', '서버'], a: '회의실은 그 층에서 유일하게 결재 서버에 붙는 자리였습니다. 몰래 한 건 맞습니다. 규정 위반이죠.', note: '서버 무단 접근 — 규정 위반은 인정', mood: 'calm' },
+        { id: 'f5', tag: '아파트 보강 공사', q: '그 뒤로 어떻게 됐나?', kw: ['아파트', '철근', '건물', '결과', '그뒤', '어떻게됐'], a: '제가 죽고 반년 뒤에 그 아파트 보강 공사가 시작됐다고 들었습니다. 그거면 됐습니다.', note: '제보 후 아파트 보강 공사 시작', mood: 'calm' },
+        { id: 'f6', tag: '가족도 오해', q: '가족은 당신을 어떻게 봤나?', kw: ['가족', '아내', '죽', '사망', '심장'], a: '해고 뒤로 집에서도 배신자 소리를 들었습니다. 심장이… 좀 약했나 봅니다.', note: '가족에게도 오해받다 심장 질환으로 사망', mood: 'crying' },
       ],
       evasive: ['그건 말씀드릴 수 없습니다.', '…다음 질문 하시죠.', '회사 규정상 답변하기 어렵습니다. 습관이네요.'],
       chips: ['자료는 누구에게 넘겼지?', '계좌에 들어온 돈은?', '왜 끝까지 해명하지 않았나?', '밤에 회의실에서 뭘 했지?', '그 뒤로 어떻게 됐나?'],
@@ -487,18 +495,18 @@
       reveal: '정우현은 아파트 철근 누락 증거를 기자와 감독기관에 제보한 공익신고자였다. 입금된 돈은 퇴직금 담보 대출이었고, 함께 자료를 모은 후배들을 지키려 끝까지 침묵했다. 그의 제보로 아파트 보강 공사가 시작됐다.',
     },
     {
-      id: 'son', title: '10년 간병한 효자', name: '오준호', age: 38, sprite: 'son', truth: 'hell',
+      id: 'son', title: '10년 간병한 효자', name: '오준호', age: 38, sprite: 'son', cause: '계단 추락 (음주 상태)', truth: 'hell',
       voice: '피로와 억울함을 앞세우는 30대 남성, 존댓말, 자기 연민이 강함',
       brief: '오준호는 치매 아버지를 10년간 홀로 간병해 동네의 "효자"로 불렸다. 아버지가 돌아가신 뒤 유산은 모두 준호에게 갔다. 그런데 아버지의 마지막 1년 진료 기록은 텅 비어 있다.',
       hooks: ['마지막 1년, 왜 병원에 가지 않았나?', '유언장은 언제, 어떻게 쓰였나?', '아버지의 연금은 어디로 갔나?'],
       intro: '사신님… 저 10년이에요, 10년. 제 인생을 아버지한테 다 드렸어요.',
       facts: [
-        { id: 'f1', kw: ['병원', '진료', '치료', '마지막', '1년', '의사', '안갔'], a: '병원은… 아버지가 싫어하셨어요. 아니, 그때는 말씀도 잘 못 하셨으니까… 제가 판단한 거죠. 어차피 나아지는 병도 아니고.', note: '마지막 1년 치료를 본인 판단으로 끊음', mood: 'nervous' },
-        { id: 'f2', kw: ['유언', '유산', '상속', '도장', '서명'], a: '유언장은 아버지가 직접… 손이 떨리셔서 제가 손을 잡아 드렸어요. 도장은 제가 대신 찍었고요. 형은 10년 동안 코빼기도 안 비쳤잖아요.', note: '치매 아버지 손을 잡아 유언장 작성, 도장 대리 날인', mood: 'smug' },
-        { id: 'f3', kw: ['연금', '돈', '보험', '통장', '카드', '썼'], a: '아버지 연금은 생활비죠. 제 차 할부도… 생활비 맞잖아요. 보험금은 돌아가신 다음에 나온 거고.', note: '아버지 연금을 자기 차 할부에 사용', mood: 'nervous' },
-        { id: 'f4', kw: ['간병', '10년', '힘들', '고생', '돌봄', '기저귀'], a: '처음 몇 년은 진짜 열심히 했어요. 밤마다 기저귀 갈고… 근데 사람이 지치잖아요.', note: '초반 몇 년의 간병은 진심이었음', mood: 'crying' },
-        { id: 'f5', kw: ['형', '가족', '형제', '연락', '방문'], a: '형이요? 형이 오겠다고 할 때마다 아버지가 형 보면 흥분하신다고 제가 막았어요. 그게 아버지를 위한 거였어요.', note: '형의 방문을 막아 아버지를 고립시킴', mood: 'angry' },
-        { id: 'f6', kw: ['죽', '사망', '어떻게', '마지막날', '계단'], a: '아버지 가시고 두 달 뒤에… 술 마시고 계단에서요. 보험금 서류 보던 날이었어요.', note: '보험금 서류를 보던 날 음주 후 추락사', mood: 'calm' },
+        { id: 'f1', tag: '치료 중단(본인 판단)', q: '마지막 1년, 왜 병원에 안 갔지?', kw: ['병원', '진료', '치료', '마지막', '1년', '의사', '안갔'], a: '병원은… 아버지가 싫어하셨어요. 아니, 그때는 말씀도 잘 못 하셨으니까… 제가 판단한 거죠. 어차피 나아지는 병도 아니고.', note: '마지막 1년 치료를 본인 판단으로 끊음', mood: 'nervous' },
+        { id: 'f2', tag: '도장 대리 날인', q: '유언장은 어떻게 쓰였나?', kw: ['유언', '유산', '상속', '도장', '서명'], a: '유언장은 아버지가 직접… 손이 떨리셔서 제가 손을 잡아 드렸어요. 도장은 제가 대신 찍었고요. 형은 10년 동안 코빼기도 안 비쳤잖아요.', note: '치매 아버지 손을 잡아 유언장 작성, 도장 대리 날인', mood: 'smug' },
+        { id: 'f3', tag: '연금으로 차 할부', q: '아버지 연금은 어디에 썼지?', kw: ['연금', '돈', '보험', '통장', '카드', '썼'], a: '아버지 연금은 생활비죠. 제 차 할부도… 생활비 맞잖아요. 보험금은 돌아가신 다음에 나온 거고.', note: '아버지 연금을 자기 차 할부에 사용', mood: 'nervous' },
+        { id: 'f4', tag: '초반 간병은 진심', q: '간병은 어땠나?', kw: ['간병', '10년', '힘들', '고생', '돌봄', '기저귀'], a: '처음 몇 년은 진짜 열심히 했어요. 밤마다 기저귀 갈고… 근데 사람이 지치잖아요.', note: '초반 몇 년의 간병은 진심이었음', mood: 'crying' },
+        { id: 'f5', tag: '형 방문 차단', q: '형제와는 연락했나?', kw: ['형', '가족', '형제', '연락', '방문'], a: '형이요? 형이 오겠다고 할 때마다 아버지가 형 보면 흥분하신다고 제가 막았어요. 그게 아버지를 위한 거였어요.', note: '형의 방문을 막아 아버지를 고립시킴', mood: 'angry' },
+        { id: 'f6', tag: '보험금 서류 보던 날', q: '죽던 날 무엇을 하고 있었나?', kw: ['죽', '사망', '어떻게', '마지막날', '계단'], a: '아버지 가시고 두 달 뒤에… 술 마시고 계단에서요. 보험금 서류 보던 날이었어요.', note: '보험금 서류를 보던 날 음주 후 추락사', mood: 'calm' },
       ],
       evasive: ['그런 건 효자한테 물어볼 질문이 아니죠.', '다 아버지를 위해서였어요.', '…기억 안 나요. 10년이 하루 같았거든요.'],
       chips: ['마지막 1년, 왜 병원에 안 갔지?', '유언장은 어떻게 쓰였나?', '아버지 연금은 어디에 썼지?', '형제와는 연락했나?', '간병은 어땠나?'],
@@ -524,7 +532,7 @@
 
   const S = {
     phase: 'title', deck: [], caseNo: 0, c: null, qLeft: 5, qMax: 5, revealed: new Set(), chat: [],
-    streak: 0, best: store.get('hg.best', 0), busy: false, mood: 'calm', pleaHappened: false, pleaFlipped: false, firstVerdict: null,
+    streak: 0, run: [], best: store.get('hg.best', 0), busy: false, mood: 'calm', pleaHappened: false, pleaFlipped: false, firstVerdict: null,
     effect: null, gate: 0,
   };
 
@@ -559,6 +567,8 @@
     src.buffer = buf; src.connect(f); f.connect(g); g.connect(ac.destination); src.start();
   }
   const SFX = {
+    tag: () => { beep(1040, 0.05, 'square', 0.035); beep(1560, 0.07, 'square', 0.035, 0.06); },
+    hint: () => { beep(660, 0.05, 'triangle', 0.04); beep(990, 0.07, 'triangle', 0.04, 0.07); },
     blip: (pitch = 1) => beep((320 + Math.random() * 90) * pitch, 0.03, 'square', 0.025),
     glass: () => { beep(880, 0.06, 'triangle', 0.05); beep(660, 0.08, 'triangle', 0.05, 0.07); },
     plea: () => { [196, 185, 175, 165].forEach((f, i) => beep(f, 0.16, 'sawtooth', 0.05, i * 0.13)); },
@@ -575,7 +585,7 @@
   const ctx = cv.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   const W = 320, H = 180;
-  const REAPER_X = 76, SINNER_X = 246, FLOOR_Y = 150;
+  const REAPER_X = 64, SINNER_X = 200, FLOOR_Y = 150;
 
   function R(x, y, w, h, c, a = 1) { if (a <= 0) return; ctx.globalAlpha = a; ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); ctx.globalAlpha = 1; }
   function drawAsset(img, box, frame = 0, frames = 1, alpha = 1, dy = 0) {
@@ -913,40 +923,73 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-   *  5. 말풍선 (타자기 효과 + 블립음)
+   *  5. 말풍선 — 말하는 캐릭터 머리를 기준점(pivot)으로 커진 뒤 글자가 찍힌다
    * ════════════════════════════════════════════════════════════════ */
+  const ANCHOR = { reaper: [REAPER_X, FLOOR_Y - 68], sinner: [SINNER_X, FLOOR_Y - 66] }; // 320×180 캔버스 좌표
   const typing = new Map();
   function say(who, text, { name, plea = false } = {}) {
     const el = $(who === 'reaper' ? '#bubble-reaper' : '#bubble-sinner');
-    el.hidden = false;
+    $(who === 'reaper' ? '#bubble-sinner' : '#bubble-reaper').hidden = true; // 한 번에 한 명만 말한다
+    typing.get(el)?.finish();
+    const [ax, ay] = ANCHOR[who];
+    el.style.left = `${(ax / W) * 100}%`;
+    el.style.bottom = `calc(${100 - (ay / H) * 100}% + 12px)`;
     el.classList.toggle('plea', plea);
-    const label = name ? `<span class="who">${esc(name)}</span>` : '';
+    // ghost: 최종 크기를 먼저 잡아 두는 투명 텍스트 → 말풍선이 다 커진 뒤 typed에 한 글자씩 찍는다
+    el.innerHTML = `${name ? `<span class="who">${esc(name)}</span>` : ''}<span class="body"><span class="ghost">${esc(text)}</span><span class="typed"></span></span>`;
+    el.hidden = false;
+    el.classList.remove('grow'); void el.offsetWidth; el.classList.add('grow');
+    const typed = el.querySelector('.typed');
+    const chars = [...text];
     return new Promise((resolve) => {
-      const prev = typing.get(el); if (prev) prev.finish();
-      let i = 0, done = false;
-      const chars = [...text];
-      const finish = () => { if (done) return; done = true; clearInterval(timer); el.innerHTML = label + esc(text); typing.delete(el); resolve(); };
-      const timer = setInterval(() => {
-        i++;
-        el.innerHTML = label + esc(chars.slice(0, i).join(''));
-        if (i % 2 === 0 && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : 1);
-        if (i >= chars.length) finish();
-      }, 32);
+      let i = 0, done = false, timer = null, startT = null;
+      const finish = () => {
+        if (done) return; done = true;
+        clearTimeout(startT); clearInterval(timer);
+        typed.textContent = text; typing.delete(el); resolve();
+      };
+      startT = setTimeout(() => {
+        timer = setInterval(() => {
+          i++;
+          typed.textContent = chars.slice(0, i).join('');
+          if (i % 2 === 0 && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : 1);
+          if (i >= chars.length) finish();
+        }, 30);
+      }, 240);
       typing.set(el, { finish });
       el.onclick = finish;
     });
   }
-  function hideBubbles() { $('#bubble-reaper').hidden = true; $('#bubble-sinner').hidden = true; }
+  function hideBubbles() { for (const id of ['#bubble-reaper', '#bubble-sinner']) { typing.get($(id))?.finish(); $(id).hidden = true; } }
   async function banner(html, cls = '', ms = 1400) {
     const b = $('#banner'); b.className = `banner ${cls}`; b.innerHTML = html; b.hidden = false;
     b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
     await sleep(ms); b.hidden = true;
   }
 
+  /* ── 망자 좌/우 픽셀 정황 태그 ── */
+  function addTag(f) {
+    const n = $('#tags-left').children.length + $('#tags-right').children.length;
+    const el = document.createElement('div');
+    el.className = 'ftag';
+    el.textContent = f.tag || f.note;
+    el.title = f.note;
+    $(n % 2 === 0 ? '#tags-left' : '#tags-right').append(el);
+    SFX.tag();
+  }
+  function clearTags() { $('#tags-left').innerHTML = ''; $('#tags-right').innerHTML = ''; }
+
   /* ════════════════════════════════════════════════════════════════
    *  6. 심문 엔진 — 내장(키워드·맥락) + OpenAI(선택)
    * ════════════════════════════════════════════════════════════════ */
   const norm = (s) => s.toLowerCase().replace(/[\s?!.,~'"]/g, '');
+  function overlap(reply, fact) {
+    const grams = (t) => { const n = norm(t).replace(/[…·"“”]/g, ''); const g = new Set(); for (let i = 0; i < n.length - 1; i++) g.add(n.slice(i, i + 2)); return g; };
+    const A = grams(reply), B = grams(fact);
+    if (!B.size) return 0;
+    let hit = 0; for (const g of B) if (A.has(g)) hit++;
+    return hit / B.size;
+  }
   function builtinAnswer(c, q) {
     const n = norm(q);
     let best = null, bestScore = 0;
@@ -1015,6 +1058,8 @@
         const out = await callLLM(msgs);
         S.chat.push({ role: 'user', content: `사신의 질문: ${q}` }, { role: 'assistant', content: JSON.stringify({ reply: out.reply }) });
         const ids = (Array.isArray(out.factIds) ? out.factIds : []).filter((id) => c.facts.some((f) => f.id === id));
+        // AI가 factIds를 빠뜨려도, 답변 문장이 정황 대사와 많이 겹치면 드러난 것으로 본다 (2글자 조각 겹침 비율)
+        for (const f of c.facts) if (!ids.includes(f.id) && overlap(out.reply, f.a) >= 0.32) ids.push(f.id);
         return { reply: out.reply.trim(), factIds: ids, mood: ['calm', 'nervous', 'crying', 'angry', 'smug'].includes(out.mood) ? out.mood : 'calm' };
       } catch (err) {
         toast('AI 연결 실패 — 내장 심문 엔진으로 이어갑니다');
@@ -1039,16 +1084,15 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-   *  7. 게임 흐름
+   *  7. 게임 흐름 — 맞히면 다음 망자로 릴레이, 틀리면 게임 오버
    * ════════════════════════════════════════════════════════════════ */
   const V = { heaven: '☁ 천국', hell: '🔥 지옥' };
+  const SITE = /^https?:/.test(location.protocol) ? location.origin : 'https://hellgate-reaper.vercel.app';
   function hourglassSVG(full) {
-    // 7×11 픽셀 모래시계
     const f = full ? '#ffd35a' : '#3a2a40', fr = full ? '#f1dca7' : '#6b4f6f';
     return `<svg viewBox="0 0 7 11" shape-rendering="crispEdges" aria-hidden="true">
       <rect x="0" y="0" width="7" height="1" fill="${fr}"/><rect x="0" y="10" width="7" height="1" fill="${fr}"/>
-      <rect x="1" y="1" width="5" height="1" fill="${f}"/><rect x="2" y="2" width="3" height="1" fill="${f}"/><rect x="3" y="3" width="1" height="2" fill="${f}"/>
-      <rect x="3" y="5" width="1" height="1" fill="${full ? '#ffd35a' : '#3a2a40'}"/>
+      <rect x="1" y="1" width="5" height="1" fill="${f}"/><rect x="2" y="2" width="3" height="1" fill="${f}"/><rect x="3" y="3" width="1" height="3" fill="${f}"/>
       <rect x="2" y="7" width="3" height="1" fill="${full ? '#3a2a40' : '#ffd35a'}"/><rect x="1" y="8" width="5" height="2" fill="${full ? '#3a2a40' : '#c99a2a'}"/>
       <rect x="1" y="1" width="1" height="1" fill="${fr}"/><rect x="5" y="1" width="1" height="1" fill="${fr}"/>
       <rect x="1" y="9" width="1" height="1" fill="${fr}"/><rect x="5" y="9" width="1" height="1" fill="${fr}"/>
@@ -1057,166 +1101,192 @@
   function renderHUD() {
     $('#hourglass').innerHTML = Array.from({ length: S.qMax }, (_, i) => hourglassSVG(i < S.qLeft)).join('');
     $('#hourglass').setAttribute('aria-label', `남은 질문 ${S.qLeft}개`);
-    $('#streak').textContent = S.phase === 'title' ? (S.best ? `최고 연속 ${S.best}` : '') : `연속 정답 ${S.streak} · 최고 ${S.best}`;
+    $('#streak').textContent = S.phase === 'title' ? (S.best ? `최고 연속 ${S.best}` : '') : `연속 심판 ${S.streak} · 최고 ${S.best}`;
     $('#sound-btn').textContent = settings.sound ? '♪ ON' : '♪ OFF';
     $('#engine-tag').textContent = engineLabel();
-    const out = S.qLeft <= 0 || S.busy || S.phase !== 'ask';
-    $('#ask-input').disabled = out; $('#ask-btn').disabled = out;
-    document.querySelectorAll('.chip').forEach((b) => (b.disabled = out || b.dataset.used === '1'));
-    $('#heaven-btn').disabled = S.busy || S.phase !== 'ask'; $('#hell-btn').disabled = S.busy || S.phase !== 'ask';
-    $('#ask-input').placeholder = S.qLeft <= 0 ? '모래시계가 다 떨어졌다. 판결을 내려라.' : '망자에게 물어볼 질문을 입력하세요';
+    const off = S.qLeft <= 0 || S.busy || S.phase !== 'ask';
+    $('#ask-input').disabled = off; $('#ask-btn').disabled = off;
+    document.querySelectorAll('#chips .chip').forEach((b) => (b.disabled = off));
+    document.querySelectorAll('#heaven-btn, #hell-btn').forEach((b) => (b.disabled = S.busy || S.phase !== 'ask'));
+    $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : '망자에게 물어볼 질문';
   }
-  function addNote(html, cls) {
-    const ul = $('#notes');
-    ul.querySelector('.empty')?.remove();
-    const li = document.createElement('li'); li.className = cls; li.innerHTML = html; ul.append(li); ul.scrollTop = ul.scrollHeight;
+  function chatAdd(kind, text, who) {
+    const d = document.createElement('div');
+    d.className = `m ${kind}`;
+    d.innerHTML = (who ? `<span class="who">${esc(who)}</span>` : '') + esc(text);
+    $('#chat').append(d);
+    $('#chat').scrollTop = $('#chat').scrollHeight;
+  }
+
+  /* ── 10초 머뭇거리면 지금 상황에 맞는 질문 3개 ── */
+  let idleT = null;
+  function hideSuggest() { $('#suggest').hidden = true; }
+  function armIdle() {
+    clearTimeout(idleT); hideSuggest();
+    if (S.phase !== 'ask' || S.busy) return;
+    idleT = setTimeout(showSuggest, 10000);
+  }
+  function suggestions() {
+    if (S.qLeft <= 0) return [];
+    const left = S.c.facts.filter((f) => !S.revealed.has(f.id));
+    // 사건의 핵심 구멍(앞쪽 정황) 2개 + 나머지 중 하나를 섞어서
+    return [...left.slice(0, 2), ...shuffle(left.slice(2))].slice(0, 3).map((f) => f.q);
+  }
+  function showSuggest() {
+    if (S.phase !== 'ask' || S.busy || $('#ask-input').value.trim()) return;
+    const qs = suggestions();
+    if (!qs.length) { chatAdd('sys', S.qLeft <= 0 ? '⌛ 모래시계가 비었다. 천국인가, 지옥인가?' : '물어볼 건 다 물었다. 이제 판결이다.'); return; }
+    $('#chips').innerHTML = qs.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
+    $('#chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => ask(b.textContent)));
+    $('#suggest').hidden = false;
+    SFX.hint();
+  }
+
+  /* ── 판결 버튼 / 최후의 변론 선택 (패널 안에서) ── */
+  function setVerdictButtons() {
+    $('#verdict').innerHTML = '<button type="button" class="px-btn heaven" id="heaven-btn">☁ 천국</button><button type="button" class="px-btn hell" id="hell-btn">🔥 지옥</button>';
+    $('#heaven-btn').addEventListener('click', () => judge('heaven'));
+    $('#hell-btn').addEventListener('click', () => judge('hell'));
+  }
+  function askPleaChoice(v, style) {
+    const other = v === 'hell' ? 'heaven' : 'hell';
+    $('#verdict').innerHTML = `<p class="plea-note">‼ 최후의 변론 [${esc(style)}] — 판결을 고수할 텐가?</p>
+      <button type="button" class="px-btn ${v}" id="plea-keep">고수: ${V[v]}</button>
+      <button type="button" class="px-btn ${other}" id="plea-flip">번복: ${V[other]}</button>`;
+    return new Promise((res) => {
+      $('#plea-keep').addEventListener('click', () => res(v));
+      $('#plea-flip').addEventListener('click', () => res(other));
+    });
   }
 
   function startRun() {
-    S.streak = 0; S.caseNo = 0; S.deck = shuffle(CASES);
-    $('#title-ui').hidden = true; $('#console').hidden = false;
+    Object.assign(S, { streak: 0, caseNo: 0, run: [], deck: shuffle(CASES) });
+    $('#title-ui').hidden = true; $('#tag-reaper').hidden = false;
+    $('#chat').innerHTML = '';
     nextCase();
   }
+
   async function nextCase() {
-    if (!S.deck.length) S.deck = shuffle(CASES);
+    if (!S.deck.length) { S.deck = shuffle(CASES); chatAdd('sys', '— 명부의 망자들이 다시 줄을 선다 —'); }
     const c = S.deck.shift();
-    Object.assign(S, { c, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, firstVerdict: null, effect: null, busy: true });
+    Object.assign(S, { c, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true });
     S.caseNo++;
-    hideBubbles();
+    hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
     $('#case-no').textContent = `#${String(S.caseNo).padStart(3, '0')}`;
-    $('#case-title').textContent = c.title;
-    $('#case-who').textContent = `망자: ${c.name} (${c.age}세)`;
+    $('#case-title').textContent = `「${c.title}」`;
+    $('#case-meta').innerHTML = `망자 ${esc(c.name)} (${c.age}세) · 사인 <b>${esc(c.cause)}</b>`;
     $('#case-brief').textContent = c.brief;
-    $('#case-hooks').innerHTML = c.hooks.map((h) => `<li>${esc(h)}</li>`).join('');
-    $('#notes').innerHTML = '<li class="empty">아직 아무것도 드러나지 않았다. 모래시계를 뒤집어 질문하라.</li>';
-    $('#chips').innerHTML = c.chips.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
-    document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => { b.dataset.used = '1'; ask(b.textContent); }));
     $('#tag-sinner').hidden = false; $('#tag-sinner').textContent = `망자 ${c.name}`;
+    chatAdd('sys', `— #${String(S.caseNo).padStart(3, '0')} 「${c.title}」 ${c.name} 입장 —`);
     renderHUD();
-    await banner(`망자 입장<small>${esc(c.title)}</small>`, '', 1300);
+    await banner(`망자 입장<small>#${String(S.caseNo).padStart(3, '0')} ${esc(c.title)}</small>`, '', 1200);
     await say('sinner', c.intro, { name: c.name });
-    S.phase = 'ask'; S.busy = false; renderHUD();
+    chatAdd('s', c.intro, c.name);
+    S.phase = 'ask'; S.busy = false; renderHUD(); armIdle();
     $('#ask-input').focus({ preventScroll: true });
   }
 
   async function ask(q) {
     q = String(q || '').trim();
     if (!q || S.busy || S.phase !== 'ask' || S.qLeft <= 0) return;
+    clearTimeout(idleT); hideSuggest();
     S.busy = true; S.qLeft--; renderHUD(); SFX.glass();
     $('#ask-input').value = '';
-    addNote(`⏳ ${esc(q)}`, 'q');
+    chatAdd('r', q, '사신');
     await say('reaper', q, { name: '사신' });
     const r = await answer(S.c, q);
     S.mood = r.mood || 'calm';
     await say('sinner', r.reply, { name: S.c.name });
+    chatAdd('s', r.reply, S.c.name);
     for (const id of r.factIds || []) {
       if (S.revealed.has(id)) continue;
       S.revealed.add(id);
       const f = S.c.facts.find((x) => x.id === id);
-      if (f) addNote(`<b>정황</b> ${esc(f.note)}`, 'fact');
+      if (f) { addTag(f); chatAdd('fact', `◆ 정황: ${f.note}`); }
     }
-    if (!r.factIds?.length && r.hint) addNote(`사신의 감: "${esc(r.hint)}" 쪽을 파고들어 보자…`, 'hint');
+    if (!r.factIds?.length && r.hint) chatAdd('sys', `사신의 감: "${r.hint}" 쪽을 파고들어 보자…`);
     S.busy = false;
-    if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1500); }
-    renderHUD();
+    if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
+    renderHUD(); armIdle();
   }
 
   async function judge(v) {
     if (S.busy || S.phase !== 'ask') return;
-    S.busy = true; S.firstVerdict = v; renderHUD();
+    clearTimeout(idleT); hideSuggest();
+    S.busy = true; renderHUD();
+    chatAdd('r', `판결: ${V[v]}!`, '사신');
     if (Math.random() * 100 < (+settings.plea || 0)) {
       S.pleaHappened = true; S.phase = 'plea'; setEffect('plea', 99999); SFX.plea();
-      await banner('‼ 최후의 변론!', 'red', 1300);
+      await banner('‼ 최후의 변론!', 'red', 1200);
       const pl = await pleaLine(S.c, v);
       say('sinner', pl.line, { name: S.c.name, plea: true });
-      const other = v === 'hell' ? 'heaven' : 'hell';
-      $('#plea-style').textContent = `${S.c.name}의 [${pl.style}] — 판결을 ${v === 'hell' ? '지옥' : '천국'}으로 고수하겠습니까?`;
-      $('#plea-text').textContent = `“${pl.line}”`;
-      $('#plea-keep').textContent = `판결 고수: ${V[v]}`;
-      $('#plea-flip').textContent = `번복: ${V[other]}`;
-      const dlg = $('#plea-dlg');
-      const choice = await new Promise((res) => {
-        $('#plea-keep').onclick = () => res(v);
-        $('#plea-flip').onclick = () => res(other);
-        dlg.oncancel = (e) => { e.preventDefault(); };
-        dlg.showModal();
-      });
-      dlg.close();
+      chatAdd('s', pl.line, `${S.c.name} — 최후의 변론 [${pl.style}]`);
+      const choice = await askPleaChoice(v, pl.style);
       S.pleaFlipped = choice !== v;
+      chatAdd('r', S.pleaFlipped ? `…번복한다. ${V[choice]}!` : `고수한다. ${V[choice]}!`, '사신');
       v = choice;
     }
     finalize(v);
   }
 
-  function titleFor(correct) {
-    const used = S.qMax - S.qLeft;
-    let t;
-    if (!correct) {
-      if (S.pleaFlipped) t = '변론에 속은 견습 사신';
-      else if (used === 0) t = '성급한 낫질의 사신';
-      else t = '강등된 견습 사신';
-    } else if (S.pleaHappened && !S.pleaFlipped) t = '흔들리지 않는 낫';
-    else if (S.pleaFlipped) t = '스스로를 되돌아본 심판자';
-    else if (used <= 2) t = '꿰뚫어보는 사신';
-    else if (S.qLeft === 0) t = '끈질긴 심문관';
-    else t = '공정한 사신';
-    if (correct && S.streak >= 3) t = '명부의 ' + t;
-    return t;
-  }
+  const RANKS = [[6, '염라의 오른팔'], [5, '지옥문의 수문장'], [3, '명부의 집행관'], [2, '정식 사신'], [1, '하급 사신'], [0, '견습 사신']];
+  const rankTitle = (n) => RANKS.find(([k]) => n >= k)[1];
 
   async function finalize(v) {
     const c = S.c;
     const correct = v === c.truth;
+    const used = S.qMax - S.qLeft;
+    S.run.push({ title: c.title, name: c.name, verdict: v, truth: c.truth, correct, used, plea: S.pleaHappened, flipped: S.pleaFlipped });
     S.phase = 'verdict'; hideBubbles();
     if (correct) {
       S.streak++; S.best = Math.max(S.best, S.streak); store.set('hg.best', S.best);
-      setEffect(v === 'heaven' ? 'heaven' : 'hellwin', 2400);
+      setEffect(v === 'heaven' ? 'heaven' : 'hellwin', 2000);
       v === 'heaven' ? SFX.win() : SFX.hellwin();
-      await banner(v === 'heaven' ? '천국으로!<small>정의 집행 — 올바른 심판</small>' : '지옥으로!<small>정의 집행 — 올바른 심판</small>', v === 'heaven' ? 'blue' : '', 2400);
+      renderHUD();
+      await banner(`${v === 'heaven' ? '천국으로!' : '지옥으로!'}<small>정의 집행 — 연속 심판 ${S.streak}</small>`, v === 'heaven' ? 'blue' : '', 2000);
+      chatAdd('sys', `✅ ${c.name} → ${V[v]} 정의 집행! (연속 ${S.streak})`);
+      await sleep(250);
+      nextCase(); // 릴레이: 바로 다음 망자
     } else {
       setEffect('punish', 3200); SFX.thunder(); SFX.lose();
+      chatAdd('sys', `❌ 오판! 진실은 ${V[c.truth]}…`);
       await banner('사신 처벌!<small>판결을 그르친 대가</small>', 'red', 3000);
+      showGameOver(v);
     }
-    showResult(v, correct);
   }
 
-  function shareText(v, correct, title) {
-    const glass = '⏳'.repeat(S.qLeft) + '⌛'.repeat(S.qMax - S.qLeft);
+  function failReason(e) { return e.flipped ? '최후의 변론에 흔들림' : e.used === 0 ? '심문 없이 성급한 낫질' : '정황을 잘못 읽음'; }
+
+  function shareText(title, last) {
     return [
       '☠ 지옥문의 사신 — 심판 기록',
-      `사건 #${String(S.caseNo).padStart(3, '0')} 「${S.c.title}」 망자 ${S.c.name}`,
-      `판결: ${V[v]} ${correct ? '✅ 정답' : '❌ 오판 → 사신 처벌'}`,
-      `모래시계: ${glass} (${S.qLeft}/${S.qMax} 남음)`,
-      S.pleaHappened ? `최후의 변론: ${S.pleaFlipped ? '흔들려 번복' : '끝까지 고수'}` : null,
-      `칭호: ${title}`,
-      `연속 정답: ${S.streak}${correct ? '' : ' (게임 오버)'}`,
+      `연속 심판 성공: ${S.streak}명 · 칭호: ${title}`,
+      ...S.run.map((e) => `${e.correct ? '✅' : '❌'} 「${e.title}」 → ${V[e.verdict]} (질문 ${e.used})${e.correct ? '' : ` — 진실은 ${V[e.truth]}, ${failReason(e)}`}`),
+      `나도 심판하러 가기 ▶ ${SITE}`,
       '#지옥문의사신',
-    ].filter(Boolean).join('\n');
+    ].join('\n');
   }
 
-  function showResult(v, correct) {
-    const title = titleFor(correct);
-    const text = shareText(v, correct, title);
-    $('#r-head').textContent = correct ? '★ 올바른 심판!' : '☠ GAME OVER — 사신 처벌';
-    $('#r-head').className = correct ? 'win' : 'lose';
-    $('#r-sub').textContent = correct ? '망자는 마땅한 곳으로 떠났다.' : '지옥불과 번개가 그릇된 사신을 낙인찍었다…';
-    $('#r-case').textContent = `「${S.c.title}」 ${S.c.name}(${S.c.age}세) — ${S.c.brief.split('. ')[0]}.`;
-    $('#r-verdict').textContent = V[v] + (S.pleaHappened ? (S.pleaFlipped ? ' (최후의 변론에 번복)' : ' (최후의 변론에도 고수)') : '');
-    $('#r-judge').innerHTML = correct ? '<span style="color:var(--green)">✅ 정답</span>' : `<span style="color:var(--hell)">❌ 오답</span> — 진실은 ${V[S.c.truth]}`;
-    $('#r-glass').innerHTML = `<span class="hourglass-row">${Array.from({ length: S.qMax }, (_, i) => hourglassSVG(i < S.qLeft)).join('')}</span> ${S.qLeft}/${S.qMax} 남음`;
+  function showGameOver(v) {
+    S.phase = 'over';
+    const last = S.run[S.run.length - 1];
+    const title = rankTitle(S.streak);
+    const text = shareText(title, last);
+    $('#r-sub').textContent = `지옥불과 번개가 그릇된 사신을 낙인찍었다… (${failReason(last)})`;
+    $('#r-streak').textContent = `${S.streak}명 (최고 ${S.best})`;
     $('#r-title').textContent = title;
-    $('#r-streak').textContent = `${S.streak} (최고 ${S.best})`;
+    $('#r-case').textContent = `「${S.c.title}」 ${S.c.name}(${S.c.age}세) · 사인 ${S.c.cause}`;
+    $('#r-verdict').innerHTML = `${V[v]} <span style="color:var(--hell)">❌</span> — 진실은 ${V[S.c.truth]}${last.plea ? (last.flipped ? ' (최후의 변론에 번복)' : ' (최후의 변론에도 고수)') : ''}`;
+    $('#r-glass').innerHTML = `<span class="hourglass-row">${Array.from({ length: S.qMax }, (_, i) => hourglassSVG(i < S.qLeft)).join('')}</span> ${S.qLeft}/${S.qMax} 남음`;
+    $('#r-run').innerHTML = S.run.map((e) => `<li>${e.correct ? '✅' : '❌'} 「${esc(e.title)}」 ${esc(e.name)} → ${V[e.verdict]}</li>`).join('');
     $('#r-truth').innerHTML = `<b style="color:var(--gold)">진실</b> — ${esc(S.c.reveal)}`;
     $('#r-share').textContent = text;
-    $('#r-next').hidden = !correct;
-    $('#r-retry').textContent = correct ? '↺ 처음부터' : '↺ 다시하기';
     $('#r-native').hidden = !navigator.share;
     $('#r-copy').onclick = async () => {
       try { await navigator.clipboard.writeText(text); toast('기록을 복사했어요'); }
       catch { const r = document.createRange(); r.selectNodeContents($('#r-share')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('복사가 막혀 있어요 — 선택된 텍스트를 직접 복사하세요'); }
     };
     $('#r-native').onclick = () => navigator.share({ title: '지옥문의 사신 — 심판 기록', text }).catch(() => {});
-    if (!correct) S.streak = 0;
     renderHUD();
     $('#result-dlg').showModal();
   }
@@ -1227,9 +1297,8 @@
   $('#start-btn').addEventListener('click', () => { audio(); startRun(); });
   $('#howto-btn').addEventListener('click', () => $('#howto-dlg').showModal());
   $('#ask-form').addEventListener('submit', (e) => { e.preventDefault(); ask($('#ask-input').value); });
-  $('#heaven-btn').addEventListener('click', () => judge('heaven'));
-  $('#hell-btn').addEventListener('click', () => judge('hell'));
-  $('#r-next').addEventListener('click', () => { $('#result-dlg').close(); nextCase(); });
+  $('#ask-input').addEventListener('input', armIdle); // 입력 중이면 머뭇거림 타이머 초기화
+  setVerdictButtons();
   $('#r-retry').addEventListener('click', () => { $('#result-dlg').close(); startRun(); });
   $('#result-dlg').addEventListener('cancel', (e) => e.preventDefault());
   $('#sound-btn').addEventListener('click', () => { settings.sound = !settings.sound; store.set('hg.settings', { ...settings }); renderHUD(); if (settings.sound) SFX.glass(); });
@@ -1238,7 +1307,7 @@
   $('#settings-btn').addEventListener('click', () => {
     $('#s-key').value = apiKey; $('#s-remember').checked = !!store.get('hg.key', ''); $('#s-model').value = settings.model;
     $('#s-engine').value = settings.engine; $('#s-glass').value = String(settings.glass); $('#s-plea').value = settings.plea; $('#s-plea-v').textContent = settings.plea;
-    $('#s-server').textContent = serverAI ? '✓ 서버에 AI 키가 설정되어 있어 키 없이도 AI 심문을 쓸 수 있어요.' : '서버 AI 없음 — 키를 넣지 않으면 내장 엔진으로 플레이합니다.';
+    $('#s-server').textContent = serverAI ? '✓ 서버 AI 심문이 켜져 있어요. 키 없이도 망자가 실시간으로 답합니다.' : '서버 AI 없음 — 키를 넣지 않으면 내장 엔진으로 플레이합니다.';
     sd.showModal();
   });
   $('#s-plea').addEventListener('input', (e) => ($('#s-plea-v').textContent = e.target.value));
@@ -1248,7 +1317,7 @@
     if ($('#s-remember').checked && apiKey) store.set('hg.key', apiKey); else store.del('hg.key');
     Object.assign(settings, { model: $('#s-model').value.trim() || 'gpt-4o-mini', engine: $('#s-engine').value, glass: +$('#s-glass').value, plea: +$('#s-plea').value });
     store.set('hg.settings', { ...settings });
-    toast(S.phase === 'ask' ? '저장했어요 (모래시계 횟수는 다음 사건부터 적용)' : '저장했어요');
+    toast(S.phase === 'ask' ? '저장했어요 (모래시계 횟수는 다음 망자부터 적용)' : '저장했어요');
     renderHUD();
   });
 
@@ -1257,6 +1326,7 @@
     loadAssets();
     requestAnimationFrame(frame);
     renderHUD();
+    chatAdd('sys', '사신이여, 지옥문 앞에 망자들이 줄을 섰다. [▶ 심판 시작]을 눌러라.');
     try { const r = await fetch('api/config'); if (r.ok) serverAI = !!(await r.json()).ai; } catch { /* 파일로 열었거나 서버 없음 */ }
     renderHUD();
   })();
