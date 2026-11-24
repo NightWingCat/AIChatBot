@@ -394,7 +394,7 @@
         <li>질문할 때마다 <b>모래시계</b>가 하나씩 줄어듭니다. 대답이 끝나면 지금 상황에 맞는 질문 3개가 바로 떠오릅니다(직접 써도 됩니다).</li>
         <li>드러난 정황은 망자 양옆에 <b style="color:var(--gold)">◆ 픽셀 태그</b>로 붙습니다. 모아서 <b style="color:var(--heaven)">천국</b> 또는 <b style="color:var(--hell)">지옥</b>을 선고하세요.</li>
         <li><b>심판 기준</b> — 천국행도 작은 흠(장난·실수·규정 위반)은 있고, 지옥행도 작은 선행은 있습니다. 가를 것은 <b style="color:var(--hell)">일부러 남을 해치고 뉘우치지 않았는가</b>, <b style="color:var(--heaven)">남을 위해 무언가를 감수했는가</b>입니다.</li>
-        <li><b style="color:#8fe3ff">⚖ 진실만을 말하게 한다</b> — 망자마다 1번. 다음 질문 한 번은 무엇을 묻든 망자가 진실만 답하고, 저울의 어느 쪽이 진실인지도 알 수 있습니다.</li>
+        <li><b style="color:#8fe3ff">⚖ 진실만을 말하게 한다</b> — 게임 중 단 1번. 결정적인 망자에게 아껴 쓰세요. 다음 질문 한 번은 무엇을 묻든 망자가 진실만 답하고, 저울의 어느 쪽이 진실인지도 알 수 있습니다.</li>
         <li>판결 순간 망자가 <b>‼ 최후의 변론</b>으로 태세를 바꿀 수 있습니다. 고수할지, 번복할지.</li>
         <li>맞히면 바로 다음 망자가 이어서 옵니다(릴레이). 틀리면 <b style="color:var(--hell)">사신 처벌</b>과 함께 게임 오버 — 기록을 공유하세요.</li>
       </ol>
@@ -2434,7 +2434,7 @@
     const tb = $('#truth-btn');
     if (tb) {
       tb.disabled = S.busy || S.phase !== 'ask' || S.truthUsed || S.qLeft <= 0;
-      tb.textContent = S.truthOn ? '⚖ 다음 대답은 진실만을 말한다' : S.truthUsed ? '⚖ 진실만을 말하게 한다 (사용함)' : '⚖ 진실만을 말하게 한다 (망자당 1번)';
+      tb.textContent = S.truthOn ? '⚖ 다음 대답은 진실만을 말한다' : S.truthUsed ? '⚖ 진실만을 말하게 한다 (사용함)' : '⚖ 진실만을 말하게 한다 (게임 중 1번)';
     }
     $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : S.phase === 'ask' && !S.firstAsked ? '첫 질문은 위 5개 중에서 골라 주세요' : S.truthOn ? '⚖ 진실만을 말한다 — 가장 확인하고 싶은 것을 신중하게' : '망자에게 물어볼 질문';
   }
@@ -2525,10 +2525,10 @@
   }
 
   function startRun() {
-    Object.assign(S, { streak: 0, caseNo: 0, run: [], pools: { normal: [], group: [], animal: [] } });
+    Object.assign(S, { streak: 0, caseNo: 0, run: [], truthUsed: false, pools: { normal: [], group: [], animal: [] } });
     $('#title-ui').hidden = true; $('#tag-reaper').hidden = false; $('#scale-label').hidden = false;
     $('#chat').innerHTML = '';
-    chatAdd('sys', '⚖ 우측 상단의 저울은 망자의 대답이 진실인지 거짓인지에 따라 기운다. 단, 어느 쪽 접시가 진실인지는 망자마다 바뀐다 — [⚖ 진실만을 말하게 한다](망자당 1번)로 가늠하라.');
+    chatAdd('sys', '⚖ 우측 상단의 저울은 망자의 대답이 진실인지 거짓인지에 따라 기운다. 단, 어느 쪽 접시가 진실인지는 망자마다 바뀐다 — [⚖ 진실만을 말하게 한다](게임 중 단 1번)를 아껴 쓰라.');
     nextCase();
   }
 
@@ -2555,7 +2555,7 @@
   async function nextCase() {
     const c = pickCase();
     const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite, look: c.look }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
-    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null, qAsked: 0, truthOn: false, truthUsed: false, lied: new Set(), scaleSide: Math.random() < 0.5 ? 'L' : 'R', scaleTarget: 0, scaleLog: [] });
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null, qAsked: 0, truthOn: false, lied: new Set(), scaleSide: Math.random() < 0.5 ? 'L' : 'R', scaleTarget: 0, scaleLog: [] });
     renderScaleLog();
     endTruth();
     S.caseNo++;
@@ -2626,7 +2626,7 @@
     if (missed && S.qLeft > 0) showSuggest('miss'); // 맥락을 놓쳤으면 바로 방향을 잡아 준다
   }
 
-  // [⚖ 진실만을 말하게 한다]: 망자마다 1번. 다음 질문 한 번은 무엇을 묻든 진실만 답한다
+  // [⚖ 진실만을 말하게 한다]: 게임 중 단 1번. 다음 질문 한 번은 무엇을 묻든 진실만 답한다
   function useTruth() {
     if (S.busy || S.phase !== 'ask' || S.truthUsed || S.qLeft <= 0) return;
     S.truthUsed = true;
