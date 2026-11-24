@@ -5,7 +5,7 @@ import express from 'express';
 import OpenAI from 'openai';
 import { inspect, aiMode, GREETING, MODEL } from './src/llm.js';
 import { extractHandoff, schema } from './src/handoff.js';
-import { buildHandoff } from './src/kits.js';
+import { SHOWCASE } from './src/showcase.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -18,13 +18,8 @@ app.get('/api/config', (_req, res) => {
 
 app.get('/api/schema', (_req, res) => res.json(schema));
 
-// 숍 진열용 샘플 키트 (상품 카드 썸네일)
-const SAMPLE_KITS = [
-  { key: 'cat', type: 'quadruped', grade: 'HG', subject: '우리집 고양이 모찌', palette: ['#8A7F72', '#D9CBB8', '#4A4440'] },
-  { key: 'oc', type: 'humanoid', grade: 'MG', subject: '나만의 오리지널 캐릭터', palette: ['#EE6C4D', '#3D5A80', '#293241'], views: ['front', 'side'] },
-  { key: 'mug', type: 'object', grade: 'SD', subject: '최애 머그컵', palette: ['#4AACFF', '#FFC34A', '#FFFFFF'] },
-].map((k) => ({ key: k.key, kit: buildHandoff({ ...k, id: `KIT-SAMPL${'123'[['cat', 'oc', 'mug'].indexOf(k.key)]}` }) }));
-app.get('/api/sample-kits', (_req, res) => res.json(SAMPLE_KITS));
+// "이런 의뢰가 많아요" 진열 키트: 두상 · 전신 · 고양이
+app.get('/api/sample-kits', (_req, res) => res.json(SHOWCASE));
 
 const IMAGE_RE = /^data:image\/(png|jpe?g|webp|gif);base64,/;
 

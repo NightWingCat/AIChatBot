@@ -11,7 +11,8 @@
 을 돌려줍니다. 정석 조립뿐 아니라 역관절·크기 왜곡·부위 바꿔 끼우기 같은 **괴작 조립**도 전제로 설계합니다.
 
 - 디자인: Figma **kg-design-system**(Kigle Web Design System) 토큰 — 플레이 팔레트, 크림 서피스, 그라운드 섀도 버튼, Nunito + Noto Sans KR
-- 화면 구성: 공지 띠 → 숍 GNB·카테고리 → 히어로 배너 → "이런 의뢰가 많아요" 상품 카드 → 설계 상담 카운터
+- 화면 구성: 구글처럼 심플하게 — 로고 · 한 줄 소개 · **설계 상담 시작하기** 버튼 · "이런 의뢰가 많아요"(두상·전신·고양이) 카드. 버튼을 누르면 상담 화면으로 바뀝니다.
+- **관절 포즈**: 완성 프리뷰에서 [관절 움직이기]를 켜고 팔·다리·머리·꼬리를 잡아 돌리면 그 관절에 달린 파츠가 함께 움직입니다. 뼈대는 `parentId`·`pivot`(선택) 또는 `connectsTo`에서 만들고, `jointType`이 ball·hinge인 관절만 돌아갑니다.
 
 ## 두 가지 사용 방법
 
@@ -83,7 +84,7 @@ npm start              # http://localhost:3100
 | `colorHex` | `#8A7F72` | 성형색 |
 | `finish` | `matte` | matte · gloss · clear |
 
-선택 필드 `connectsTo`(정석 연결 파츠 → 스냅 힌트), `jointType`(ball/hinge/peg/snap/fixed), `cautionNote`(주의 파츠 사유), `approxSize`(파츠 대략 크기 cm → 완성 프리뷰), 키트 단위 `weirdAssemblyPresets`(괴작 프리셋)도 함께 넘깁니다.
+선택 필드 `connectsTo`(정석 연결 파츠 → 스냅 힌트), `jointType`(ball/hinge/peg/snap/fixed), `cautionNote`(주의 파츠 사유), `approxSize`(파츠 대략 크기 cm → 완성 프리뷰), `parentId`·`pivot`(관절 부모와 회전 중심 → 포즈), 키트 단위 `weirdAssemblyPresets`(괴작 프리셋)도 함께 넘깁니다.
 2.5D 프리뷰에서 x·y는 화면 위치, z는 앞뒤 깊이(레이어 순서)로 쓰입니다.
 
 서버는 스키마 검증 외에 **gate ↔ runnerId ↔ partId 일치, partId 중복, 없는 파츠를 가리키는 connectsTo**까지 교차 검사합니다.
@@ -111,7 +112,8 @@ src/
   llm.js               OpenAI Responses API 호출 (비전 + image_generation)
   handoff.js           ```json 추출 + 스키마/교차 검증
   mock.js              키 없이 쓰는 규칙 기반 목업 검수
-  kits.js              피사체 유형별(네발 동물/인물·캐릭터/사물) 파츠 템플릿
+  kits.js              피사체 유형별(네발 동물/인물·캐릭터/사물) 파츠 템플릿 (목업 검수용)
+  showcase.js          "이런 의뢰가 많아요" 진열 키트 3종(두상·전신·고양이)
 public/
   index.html · app.js · style.css   채팅 UI
   runner-sheet.js      핸드오프 JSON → 2.5D 런너 도면 SVG (브라우저·Node 공용)
