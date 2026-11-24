@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NightWingCat/AIChatBot/schema/handoff.schema.json",
+  "title": "PlamoKitHandoff",
+  "description": "프라모델 설계 검수 챗봇 → 3D 프리뷰 조립 마이크로서비스 입력 데이터",
+  "type": "object",
+  "required": ["schemaVersion", "kitId", "kitName", "grade", "verdict", "units", "runners"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "kitId": { "type": "string", "pattern": "^KIT-[A-Z0-9]{6}$" },
+    "kitName": { "type": "string", "minLength": 1 },
+    "grade": { "enum": ["SD", "HG", "MG"] },
+    "verdict": { "const": "OK" },
+    "source": {
+      "type": "object",
+      "properties": {
+        "type": { "enum": ["photo", "cross-section", "sketch"] },
+        "subject": { "type": "string" },
+        "views": {
+          "type": "array",
+          "items": { "enum": ["front", "side", "back", "top", "section"] },
+          "uniqueItems": true
+        }
+      }
+    },
+    "units": {
+      "type": "object",
+      "required": ["position", "rotation", "scale"],
+      "properties": {
+        "position": { "const": "cm" },
+        "rotation": { "const": "deg" },
+        "scale": { "const": "ratio" }
+      }
+    },
+    "runners": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 26,
+      "items": { "$ref": "#/$defs/runner" }
+    },
+    "weirdAssemblyPresets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "description"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "label": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "gate": { "type": "string", "pattern": "^[A-Z]$" },
+    "vec3": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "runner": {
+      "type": "object",
+      "required": ["runnerId", "gate", "parts"],
+      "properties": {
+        "runnerId": { "type": "string", "pattern": "^RN-[A-Z]$" },
+        "gate": { "$ref": "#/$defs/gate" },
+        "runnerName": { "type": "string" },
+        "parts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/part" } }
+      }
+    },
+    "part": {
+      "type": "object",
+      "required": [
+        "runnerId", "gate", "partId", "partName", "category",
+        "suggestedPosition", "suggestedRotation", "suggestedScale",
+        "allowWeirdAssembly", "colorHex", "finish"
+      ],
+      "properties": {
+        "runnerId": { "type": "string", "pattern": "^RN-[A-Z]$" },
+        "gate": { "$ref": "#/$defs/gate" },
+        "partId": { "type": "string", "pattern": "^[A-Z][0-9]{1,3}$" },
+        "partName": { "type": "string", "minLength": 1 },
+        "category": {
+          "enum": ["head", "torso", "limb", "hand", "foot", "tail", "wing", "prop", "accessory", "frame", "base", "other"]
+        },
+        "suggestedPosition": { "$ref": "#/$defs/vec3" },
+        "suggestedRotation": { "$ref": "#/$defs/vec3" },
+        "suggestedScale": { "$ref": "#/$defs/vec3" },
+        "allowWeirdAssembly": { "const": true },
+        "colorHex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "finish": { "enum": ["matte", "gloss", "clear"] },
+        "connectsTo": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Z][0-9]{1,3}$" },
+          "uniqueItems": true
+        },
+        "jointType": { "enum": ["ball", "hinge", "peg", "snap", "fixed"] },
+        "cautionNote": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
