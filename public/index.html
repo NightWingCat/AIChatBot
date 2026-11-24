@@ -215,6 +215,8 @@
     .scale-log { margin-top: 2px; color: #ffffff; letter-spacing: .5px; }
     .truth-next { flex: none; font-size: 15px; color: #cfefff; background: #12304a; padding: 6px 10px; border-left: 3px solid #8fe3ff; animation: truthglow 1.4s ease-in-out infinite; }
     .truth-next b { color: #ffffff; font-weight: normal; }
+    .ask-row.truth-mode input { box-shadow: 0 -3px 0 0 #8fe3ff, 0 3px 0 0 #8fe3ff, -3px 0 0 0 #8fe3ff, 3px 0 0 0 #8fe3ff, 0 0 18px rgba(143, 227, 255, .6); background: #0d1a26; }
+    .ask-row.truth-mode .px-btn { --line: #8fe3ff; background: #12304a; }
     @keyframes truthglow { 50% { box-shadow: 0 0 14px rgba(143, 227, 255, .55); } }
     .bubble.sinner.truth { background: #eef9ff; box-shadow: 0 -3px 0 0 #3a8ac0, 0 3px 0 0 #3a8ac0, -3px 0 0 0 #3a8ac0, 3px 0 0 0 #3a8ac0, 0 0 22px rgba(143, 227, 255, .9); }
     .crow-say .who { display: block; font-size: .62em; color: #ffd35a; letter-spacing: .5px; margin-bottom: 2px; }
@@ -306,7 +308,7 @@
     <aside class="side px-box">
       <h2>🔥 심문 <small class="engine-tag" id="engine-tag"></small></h2>
       <div class="chat" id="chat" aria-live="polite"></div>
-      <div class="truth-next" id="truth-next" hidden>⚖ 다음 질문은 <b>진실의 시간</b> — 무엇을 묻든 진실만 답한다</div>
+      <div class="truth-next" id="truth-next" hidden>⚖ <b>진실의 시간</b> — 이번 질문 한 번은 무엇을 묻든 진실만 답한다. 신중하게!</div>
       <div class="suggest" id="suggest" hidden>
         <span class="lbl">⌛ 머뭇거리는 사신에게 떠오른 질문…</span>
         <div class="chips" id="chips"></div>
@@ -1206,8 +1208,8 @@
     if (m === 'crying') for (const s of [-3, 3]) R(ex + s, ey + 3 + ((t * 25 + s * 4) % 7), 1, 2, '#7fd8ff');
     if (m === 'nervous') R(ex + 6, ey - 3, 1, 3, '#9ff3ff');
   }
-  function drawDog(x, y, t, mood, plea) {
-    const F = '#efe6d2', D = '#d4c6aa', E = '#b08a5a';
+  function drawDog(x, y, t, mood, plea, L = {}) {
+    const F = L.fur || '#efe6d2', D = L.shade || '#d4c6aa', E = L.ear || '#b08a5a';
     animalWisp(x, y, t, F);
     R(x - 10, y - 20, 18, 13, F); R(x + 4, y - 20, 4, 13, D);                 // 엉덩이·몸
     R(x - 6, y - 30, 11, 14, F); R(x + 2, y - 30, 3, 14, D);                   // 가슴
@@ -1220,12 +1222,12 @@
     R(x + 3, y - 32, 6, 1, '#1a0e14'); R(x + 4, y - 31, 1, 1, '#ffffff'); R(x + 7, y - 31, 1, 1, '#ffffff'); // 으르렁 이빨
     R(x - 10, y - 43, 4, 9, E); R(x + 5, y - 44, 4, 8, E);                     // 귀
     R(x + 5, y - 45, 4, 2, '#ffffff'); R(x + 6, y - 45, 1, 2, '#e23a3a');      // 귀 반창고
-    R(x - 6, y - 31, 11, 2, '#d23a3a'); R(x - 1, y - 29, 2, 2, '#ffd35a');     // 목줄·이름표
+    R(x - 6, y - 31, 11, 2, L.accent || '#d23a3a'); R(x - 1, y - 29, 2, 2, '#ffd35a');     // 목줄·이름표
     R(x - 6, y - 40, 3, 1, '#4a3020'); R(x + 1, y - 40, 3, 1, '#4a3020');      // 사나운 눈썹
     animalFace(mood, plea, x - 1, y - 38, t);
   }
-  function drawCat(x, y, t, mood, plea) {
-    const F = '#f8f6f2', D = '#dcd8d0';
+  function drawCat(x, y, t, mood, plea, L = {}) {
+    const F = L.fur || '#f8f6f2', D = L.shade || '#dcd8d0', B = L.accent || '#ff7aa8';
     animalWisp(x, y, t, F);
     const sway = Math.round(Math.sin(t * 2) * 2);
     R(x + 8, y - 24, 3, 12, F); R(x + 9 + sway, y - 30, 3, 7, F); R(x + 10 + sway, y - 31, 2, 2, D); // 꼬리
@@ -1234,19 +1236,19 @@
     R(x - 6, y - 9, 4, 2, F); R(x + 1, y - 9, 4, 2, F);
     R(x - 9, y - 42, 17, 14, F); R(x + 5, y - 42, 3, 14, D);
     R(x - 9, y - 47, 4, 5, F); R(x + 4, y - 47, 4, 5, F); R(x - 8, y - 46, 2, 3, '#ffb0c8'); R(x + 5, y - 46, 2, 3, '#ffb0c8');
-    R(x - 4, y - 47, 3, 3, '#ff7aa8'); R(x + 0, y - 47, 3, 3, '#ff7aa8'); R(x - 1, y - 46, 2, 2, '#e0508a'); // 리본
+    R(x - 4, y - 47, 3, 3, B); R(x + 0, y - 47, 3, 3, B); R(x - 1, y - 46, 2, 2, '#000', 0.25); // 리본
     R(x - 1, y - 33, 2, 1, '#ff8ab0'); R(x - 2, y - 31, 1, 1, '#c08090'); R(x + 1, y - 31, 1, 1, '#c08090');
     for (const s of [-1, 1]) { R(x + s * 6 - (s < 0 ? 4 : 0), y - 33, 4, 1, '#b8b4ac'); R(x + s * 6 - (s < 0 ? 4 : 0), y - 31, 4, 1, '#b8b4ac'); }
     animalFace(mood, plea, x - 1, y - 37, t, '#3a7ad0', true);
   }
-  function drawMonkey(x, y, t, mood, plea) {
-    const F = '#7a4a2a', D = '#5a3420', S = '#e0b48a';
+  function drawMonkey(x, y, t, mood, plea, L = {}) {
+    const F = L.fur || '#7a4a2a', D = L.shade || '#5a3420', S = L.face || '#e0b48a', I = L.accent || '#ffd35a';
     animalWisp(x, y, t, F);
     const sway = Math.round(Math.sin(t * 2.5) * 2);
     R(x + 8, y - 16, 2, 8, F); R(x + 9 + sway, y - 22, 2, 7, F); R(x + 7 + sway, y - 24, 3, 2, F); // 꼬리
     R(x - 8, y - 30, 16, 22, F); R(x + 4, y - 30, 4, 22, D); R(x - 5, y - 26, 9, 12, S);
     R(x - 11, y - 28, 3, 14, F); R(x + 8, y - 34, 3, 10, F);                  // 팔 (오른팔 들어 바나나)
-    R(x + 7, y - 40, 3, 7, '#ffd35a'); R(x + 9, y - 42, 2, 3, '#ffd35a'); R(x + 7, y - 34, 2, 1, '#8a6a20'); // 바나나
+    R(x + 7, y - 40, 3, 7, I); R(x + 9, y - 42, 2, 3, I); R(x + 7, y - 34, 2, 1, '#000', 0.3); // 들고 있는 물건
     R(x - 9, y - 46, 18, 15, F); R(x + 5, y - 46, 4, 15, D);
     R(x - 12, y - 41, 4, 5, F); R(x + 8, y - 41, 4, 5, F); R(x - 11, y - 40, 2, 3, S); R(x + 9, y - 40, 2, 3, S); // 귀
     R(x - 6, y - 41, 12, 10, S);
@@ -1269,7 +1271,9 @@
       R(x - w, y - 62 + yy, w * 2, 2, '#9ff3ff', (st.speaking ? 0.06 : 0.03) * alpha);
     }
     const fn = kind === 'dog' ? drawDog : kind === 'cat' ? drawCat : kind === 'monkey' ? drawMonkey : null;
-    drawSprite((cx, cy) => (fn ? fn(cx, cy, t, st.mood, st.plea) : drawPerson(PEOPLE[kind] || PEOPLE.woman, cx, cy, t, st.mood, st.plea)), x, y, alpha * 0.96);
+    const look = st.look || {};
+    const spec = fn ? null : { ...(PEOPLE[kind] || PEOPLE.woman), ...look };
+    drawSprite((cx, cy) => (fn ? fn(cx, cy, t, st.mood, st.plea, look) : drawPerson(spec, cx, cy, t, st.mood, st.plea)), x, y, alpha * 0.96);
     if (st.plea) { const b = Math.floor(t * 6) % 2; R(x + 12, y - 70 - b, 3, 8, '#ffd35a'); R(x + 12, y - 60 - b, 3, 3, '#ffd35a'); }
   }
 
@@ -1404,7 +1408,7 @@
         if (e && e.kind === 'heaven') { st.dy = -p * 90; st.alpha = 1 - p; }
         if (e && e.kind === 'hellwin') { st.dy = p * 40; st.alpha = 1 - p * 0.9; }
         if (e && e.kind === 'execute') { st.alpha = Math.max(0, 1 - p * 1.6); st.mood = 'nervous'; }
-        drawSinner(m.sprite, m.x, FLOOR_Y, t, st);
+        drawSinner(m.sprite, m.x, FLOOR_Y, t, { ...st, look: m.look });
       });
       if (S.truthOn) {
         const m = members[S.speaker] || members[0];
@@ -1783,7 +1787,7 @@
     document.querySelectorAll('#heaven-btn, #hell-btn').forEach((b) => (b.disabled = S.busy || S.phase !== 'ask'));
     const ex = $('#exec-btn');
     if (ex) { ex.disabled = S.busy || S.phase !== 'ask' || S.execUsed; ex.textContent = S.execUsed ? '⚔ 처형! (사용함)' : '⚔ 처형! (게임 중 1회 · 이번 망자 무효)'; }
-    $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : S.phase === 'ask' && !S.firstAsked ? '첫 질문은 위 5개 중에서 골라 주세요' : '망자에게 물어볼 질문';
+    $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : S.phase === 'ask' && !S.firstAsked ? '첫 질문은 위 5개 중에서 골라 주세요' : S.truthOn ? '⚖ 진실의 시간 — 가장 확인하고 싶은 것을 신중하게' : '망자에게 물어볼 질문';
   }
   function chatAdd(kind, text, who) {
     const d = document.createElement('div');
@@ -1882,21 +1886,29 @@
   // 사건 풀: 동물은 약 5번에 1번, 함께 죽은 망자들은 가끔
   const POOL_OF = (c) => (c.species ? 'animal' : c.group ? 'group' : 'normal');
   function pickCase() {
-    const take = (k) => {
-      if (!S.pools[k].length) S.pools[k] = shuffle(CASES.filter((c) => POOL_OF(c) === k));
-      return S.pools[k].shift();
-    };
     const r = Math.random();
-    return take(r < 0.2 ? 'animal' : r < 0.35 ? 'group' : 'normal');
+    const kind = r < 0.2 ? 'animal' : r < 0.35 ? 'group' : 'normal';
+    const pool = CASES.filter((c) => POOL_OF(c) === kind);
+    const seen = new Set(store.get('hg.seen', []));
+    let fresh = pool.filter((c) => !seen.has(c.id) && c.id !== S.c?.id);
+    if (!fresh.length) { // 이 종류를 다 봤으면 이 종류만 기록을 비우고 다시
+      pool.forEach((c) => seen.delete(c.id));
+      fresh = pool.filter((c) => c.id !== S.c?.id);
+    }
+    const lastSprite = S.c?.sprite;
+    const varied = fresh.filter((c) => !lastSprite || c.sprite !== lastSprite); // 직전 망자와 같은 체형은 피함
+    const c = pick(varied.length ? varied : fresh);
+    seen.add(c.id); store.set('hg.seen', [...seen]);
+    return c;
   }
   const SLOTS = { 1: [240], 2: [228, 260], 3: [212, 240, 268] };
 
   async function nextCase() {
     const c = pickCase();
-    const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
+    const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite, look: c.look }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
     Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null, qAsked: 0, truthOn: false, lied: new Set(), scaleSide: Math.random() < 0.5 ? 'L' : 'R', scaleTarget: 0, scaleLog: [] });
     renderScaleLog();
-    $('#truth-next').hidden = true;
+    endTruth();
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
     $('#stage-wrap').classList.toggle('group', members.length > 1);
@@ -1922,18 +1934,12 @@
     clearTimeout(idleT); hideSuggest();
     const truth = S.qAsked === 2; // 세 번째 질문 = 진실의 시간
     S.qAsked++;
-    $('#truth-next').hidden = true;
     const wasFirst = !S.firstAsked;
     S.firstAsked = true;
     S.busy = true; S.qLeft--; renderHUD(); SFX.glass();
     $('#ask-input').value = '';
     chatAdd('r', q, '사신');
-    if (truth) {
-      S.truthOn = true; SFX.truth();
-      chatAdd('fact', '⚖ 진실의 시간! 이 질문에 망자는 거짓을 말할 수 없다');
-      hideBubbles(); // 말풍선에 가리지 않게 잠시 끄고 배너
-      await banner('⚖ 진실의 시간!<small>이 질문엔 거짓을 말할 수 없다</small>', 'blue', 1400);
-    }
+    if (truth) { S.truthOn = true; beep(1568, 0.4, 'sine', 0.05); beep(2093, 0.5, 'sine', 0.04, 0.1); } // 예고는 이미 했으니 짧은 종소리만
     await say('reaper', q, { name: '사신' });
     const before = new Set(S.revealed);
     const r = await answer(S.c, q, { truth });
@@ -1943,7 +1949,7 @@
     await say('sinner', r.reply, { name: truth ? `${who.name} — 진실만을 말한다` : who.name, by: r.by || 0 });
     chatAdd('s', r.reply, truth ? `${who.name} (진실의 시간)` : who.name);
     tiltScale(truth ? true : r.lie === true ? false : r.lie === false ? true : null, q, truth);
-    if (truth) { S.truthOn = false; setTimeout(() => $('#bubble-sinner').classList.remove('truth'), 2500); }
+    if (truth) { endTruth(); setTimeout(() => $('#bubble-sinner').classList.remove('truth'), 2500); }
     S.nearFact = r.near || null;
     for (const id of r.factIds || []) {
       S.lastFact = id;
@@ -1967,13 +1973,32 @@
     if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
     renderHUD(); armIdle();
     if (wasFirst) { chatAdd('sys', '이제 자유롭게 심문할 수 있다. 직접 질문을 써 보라.'); $('#ask-input').focus({ preventScroll: true }); }
-    if (S.qAsked === 2 && S.qLeft > 0) { $('#truth-next').hidden = false; chatAdd('sys', '⚖ 다음 질문은 진실의 시간 — 망자는 무엇을 묻든 진실만 답해야 한다'); }
+    if (S.qAsked === 2 && S.qLeft > 0) await announceTruth();
     const missed = !(r.factIds || []).some((id) => !before.has(id));
     if (missed && S.qLeft > 0) showSuggest('miss'); // 맥락을 놓쳤으면 바로 방향을 잡아 준다
   }
 
+  // 진실의 시간 예고: 세 번째 질문을 쓰기 '전에' 연출과 찬스 설명을 띄운다
+  async function announceTruth() {
+    S.busy = true; renderHUD();
+    hideBubbles(); hideSuggest(); clearTimeout(idleT);
+    S.truthOn = true; SFX.truth();
+    await banner('⚖ 진실의 시간!<small>다음 질문 단 한 번 — 망자는 무엇을 묻든 진실만 답한다</small>', 'blue', 2200);
+    chatAdd('fact', '⚖ 진실의 시간! 다음 질문 단 한 번, 망자는 거짓말도 얼버무림도 할 수 없다. 가장 확인하고 싶은 것을 신중하게 물어라.');
+    $('#truth-next').hidden = false;
+    $('#ask-form').classList.add('truth-mode');
+    S.busy = false; renderHUD(); armIdle();
+    $('#ask-input').focus({ preventScroll: true });
+  }
+  function endTruth() {
+    S.truthOn = false;
+    $('#truth-next').hidden = true;
+    $('#ask-form').classList.remove('truth-mode');
+  }
+
   async function judge(v) {
     if (S.busy || S.phase !== 'ask') return;
+    endTruth();
     clearTimeout(idleT); hideSuggest();
     S.busy = true; renderHUD();
     chatAdd('r', `판결: ${V[v]}!`, '사신');
@@ -1996,7 +2021,7 @@
   // ⚔ 처형!: 게임 중 딱 1번. 천국도 지옥도 아닌, 이번 망자를 무효로 하고 다음 망자로.
   async function execute() {
     if (S.busy || S.phase !== 'ask' || S.execUsed) return;
-    S.execUsed = true; S.busy = true; clearTimeout(idleT); hideSuggest(); hideBubbles(); renderHUD();
+    S.execUsed = true; S.busy = true; clearTimeout(idleT); hideSuggest(); hideBubbles(); endTruth(); renderHUD();
     const c = S.c;
     S.run.push({ title: c.title, name: c.name, verdict: 'void', truth: c.truth, correct: null, used: S.qMax - S.qLeft, plea: false, flipped: false });
     chatAdd('r', '…이 판결은 내리지 않겠다. 처형!', '사신');
