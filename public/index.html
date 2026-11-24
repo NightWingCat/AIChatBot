@@ -156,6 +156,7 @@
     .suggest { flex: none; display: flex; flex-direction: column; gap: 3px; }
     .suggest .lbl { font-size: 14.5px; color: var(--heaven); animation: blink 1.2s steps(2) 3; }
     .suggest .chips { display: flex; flex-direction: column; gap: 2px; }
+    .chip.picked { background: #6b4a00; color: #fff6d6; opacity: 1 !important; }
     .chip { font-size: 15.5px; padding: 6px 11px; text-align: left; animation: tagpop .25s steps(3) both; }
     .ask-row { flex: none; display: flex; gap: 4px; align-items: stretch; }
     .ask-row input {
@@ -1626,9 +1627,10 @@
     $('#sound-btn').textContent = settings.sound ? '♪ ON' : '♪ OFF';
     $('#engine-tag').textContent = engineLabel();
     const off = S.qLeft <= 0 || S.busy || S.phase !== 'ask';
-    const locked = off || (S.phase === 'ask' && !S.firstAsked); // 첫 질문은 5개 보기 중에서만
-    $('#ask-input').disabled = locked; $('#ask-btn').disabled = locked;
-    document.querySelectorAll('#chips .chip').forEach((b) => (b.disabled = off));
+    const firstPick = (S.phase === 'ask' || S.phase === 'brief') && !S.firstAsked; // 첫 질문은 5개 보기 중에서만
+    $('#ask-form').hidden = firstPick;
+    $('#ask-input').disabled = off || firstPick; $('#ask-btn').disabled = off || firstPick;
+    document.querySelectorAll('#chips .chip').forEach((b) => (b.disabled = firstPick ? S.pendingQ != null : off));
     document.querySelectorAll('#heaven-btn, #hell-btn').forEach((b) => (b.disabled = S.busy || S.phase !== 'ask'));
     const ex = $('#exec-btn');
     if (ex) { ex.disabled = S.busy || S.phase !== 'ask' || S.execUsed; ex.textContent = S.execUsed ? '⚔ 처형! (사용함)' : '⚔ 처형! (게임 중 1회 · 이번 망자 무효)'; }
@@ -1665,15 +1667,26 @@
     return nextFacts(3).map((f) => f.q);
   }
   function showSuggest(reason) {
-    if (S.phase !== 'ask' || S.busy || (reason !== 'first' && $('#ask-input').value.trim())) return;
+    if (reason !== 'first' && (S.phase !== 'ask' || S.busy || $('#ask-input').value.trim())) return;
     $('#suggest .lbl').textContent = reason === 'first' ? '⌛ 첫 질문 — 무엇부터 캐물을까? (하나를 고르세요)' : reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 머뭇거리는 사신에게 떠오른 질문…';
     // 첫 질문: 사건의 핵심 단서 5개와 바로 이어지는 질문만 (스토리에서 동떨어진 실마리 방지)
     const qs = reason === 'first' ? shuffle(S.c.facts).map((f) => f.q) : suggestions();
     if (!qs.length) { chatAdd('sys', S.qLeft <= 0 ? '⌛ 모래시계가 비었다. 천국인가, 지옥인가?' : '물어볼 건 다 물었다. 이제 판결이다.'); return; }
     $('#chips').innerHTML = qs.map((q) => `<button type="button" class="px-btn chip">${esc(q)}</button>`).join('');
-    $('#chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => ask(b.textContent)));
+    $('#chips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => pickChip(b.textContent)));
     $('#suggest').hidden = false;
     SFX.hint();
+  }
+
+  // 보기 클릭: 입장 연출(까마귀·첫마디) 중이면 대사를 건너뛰고 끝나는 즉시 그 질문을 던진다
+  function pickChip(q) {
+    if (S.phase === 'brief' && !S.firstAsked) {
+      S.pendingQ = q;
+      for (const id of ['#crow-say', '#bubble-sinner']) typing.get($(id))?.finish();
+      document.querySelectorAll('#chips .chip').forEach((b) => { b.disabled = true; if (b.textContent === q) b.classList.add('picked'); });
+      return;
+    }
+    ask(q);
   }
 
   /* ── 판결 버튼 / 최후의 변론 선택 (패널 안에서) ── */
@@ -1717,7 +1730,7 @@
   async function nextCase() {
     const c = pickCase();
     const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
-    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false });
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null });
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
     $('#stage-wrap').classList.toggle('group', members.length > 1);
@@ -1725,15 +1738,16 @@
     tagS.hidden = false;
     tagS.textContent = c.group ? `망자 ${members.length}인` : `망자 ${c.name}`;
     tagS.style.left = `${(members.reduce((n, m) => n + m.x, 0) / members.length / W) * 100}%`;
+    showSuggest('first'); // 망자와 만나자마자 첫 질문 보기 5개
     chatAdd('sys', `— #${String(S.caseNo).padStart(3, '0')} 「${c.title}」 ${c.group ? c.members.map((m) => m.name).join('·') : c.name} 입장 —${c.species ? ' 🐾' : c.group ? ' 👥' : ''}`);
     renderHUD();
     await banner(`${c.species ? '이변! 동물 망자' : c.group ? '이변! 망자 ' + members.length + '인' : '망자 입장'}<small>#${String(S.caseNo).padStart(3, '0')} ${esc(c.title)}</small>`, c.species || c.group ? 'blue' : '', 1200);
     await say('crow', crowFull(c), { name: '까악~ 전령이 도착했소' });
-    await sleep(500);
+    if (S.pendingQ == null) await sleep(500);
     await say('sinner', c.intro, { name: members[0].name, by: 0 });
     chatAdd('s', c.intro, members[0].name);
     S.phase = 'ask'; S.busy = false; renderHUD();
-    showSuggest('first');
+    if (S.pendingQ != null) { const q = S.pendingQ; S.pendingQ = null; ask(q); }
   }
 
   async function ask(q) {
