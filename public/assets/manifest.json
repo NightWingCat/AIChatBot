@@ -1,0 +1,4 @@
+{
+  "_설명": "public/assets/ 에 넣은 이미지 파일명을 available 에 적으면 그 슬롯만 이미지로 바뀝니다. 예: [\"judgment_hall_bg.png\", \"reaper_spritesheet.png\"]",
+  "available": []
+}
