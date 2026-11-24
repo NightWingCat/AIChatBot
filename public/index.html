@@ -1973,9 +1973,26 @@
     if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
     renderHUD(); armIdle();
     if (wasFirst) { chatAdd('sys', '이제 자유롭게 심문할 수 있다. 직접 질문을 써 보라.'); $('#ask-input').focus({ preventScroll: true }); }
-    if (S.qAsked === 2 && S.qLeft > 0) await announceTruth();
+    if (S.qAsked === 2 && S.qLeft > 0) {
+      // 두 번째 답을 다 읽을 시간을 준 뒤에 진실의 시간 연출 (클릭·키 입력으로 건너뛰기 가능)
+      S.busy = true; renderHUD();
+      await readPause(r.reply);
+      await announceTruth();
+    }
     const missed = !(r.factIds || []).some((id) => !before.has(id));
     if (missed && S.qLeft > 0) showSuggest('miss'); // 맥락을 놓쳤으면 바로 방향을 잡아 준다
+  }
+
+  // 대사를 읽을 시간: 글자 수에 비례(최소 2초, 최대 6.5초), 무대를 클릭하거나 아무 키나 누르면 바로 넘어감
+  function readPause(text = '') {
+    const ms = Math.min(6500, Math.max(2000, 1400 + [...text].length * 55));
+    return new Promise((resolve) => {
+      const wrap = $('#stage-wrap');
+      let t = 0;
+      const done = () => { clearTimeout(t); removeEventListener('keydown', done); wrap.removeEventListener('click', done); resolve(); };
+      t = setTimeout(done, ms);
+      setTimeout(() => { addEventListener('keydown', done); wrap.addEventListener('click', done); }, 300); // 직전 클릭이 바로 넘기지 않게
+    });
   }
 
   // 진실의 시간 예고: 세 번째 질문을 쓰기 '전에' 연출과 찬스 설명을 띄운다
