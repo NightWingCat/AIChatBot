@@ -310,7 +310,7 @@
       <div class="chat" id="chat" aria-live="polite"></div>
       <div class="truth-next" id="truth-next" hidden>⚖ <b>진실의 시간</b> — 이번 질문 한 번은 무엇을 묻든 진실만 답한다. 신중하게!</div>
       <div class="suggest" id="suggest" hidden>
-        <span class="lbl">⌛ 머뭇거리는 사신에게 떠오른 질문…</span>
+        <span class="lbl">⌛ 떠오른 질문</span>
         <div class="chips" id="chips"></div>
       </div>
       <form class="ask-row" id="ask-form">
@@ -391,7 +391,7 @@
       <h2 style="color:var(--gold)">? 플레이 방법</h2>
       <ol class="help-list">
         <li>오른쪽 <b>사건 기록부</b>에 망자의 사인과 사건이 뜹니다. 줄거리엔 일부러 비워 둔 <b style="color:var(--ember)">구멍</b>이 있습니다.</li>
-        <li>질문할 때마다 <b>모래시계</b>가 하나씩 줄어듭니다. 10초 머뭇거리면 지금 상황에 맞는 질문 3개가 떠오릅니다.</li>
+        <li>질문할 때마다 <b>모래시계</b>가 하나씩 줄어듭니다. 대답이 끝나면 지금 상황에 맞는 질문 3개가 바로 떠오릅니다(직접 써도 됩니다).</li>
         <li>드러난 정황은 망자 양옆에 <b style="color:var(--gold)">◆ 픽셀 태그</b>로 붙습니다. 모아서 <b style="color:var(--heaven)">천국</b> 또는 <b style="color:var(--hell)">지옥</b>을 선고하세요.</li>
         <li>판결 순간 망자가 <b>‼ 최후의 변론</b>으로 태세를 바꿀 수 있습니다. 고수할지, 번복할지.</li>
         <li>맞히면 바로 다음 망자가 이어서 옵니다(릴레이). 틀리면 <b style="color:var(--hell)">사신 처벌</b>과 함께 게임 오버 — 기록을 공유하세요.</li>
@@ -2452,7 +2452,7 @@
     clearTimeout(refillFx.t); refillFx.t = setTimeout(() => (pop.hidden = true), 1850);
   }
 
-  /* ── 10초 머뭇거리면 지금 상황에 맞는 질문 3개 ── */
+  /* ── 대답이 끝나면 바로 지금 상황에 맞는 질문 3개 ── */
   let idleT = null;
   function hideSuggest() { $('#suggest').hidden = true; }
   function armIdle() {
@@ -2460,7 +2460,7 @@
     if (S.phase === 'ask' && !S.firstAsked) return; // 첫 질문 보기 5개는 고를 때까지 그대로
     hideSuggest();
     if (S.phase !== 'ask' || S.busy) return;
-    idleT = setTimeout(showSuggest, 10000);
+    if (!$('#ask-input').value.trim()) showSuggest(); // 기다리지 않고 바로 떠오른 질문 (입력 중이면 숨김)
   }
   // 마지막으로 드러난 단서 다음 순서부터 이어지는 미공개 단서 (대화 흐름을 따라가도록)
   function nextFacts(k = 3) {
@@ -2476,7 +2476,7 @@
   }
   function showSuggest(reason) {
     if (reason !== 'first' && (S.phase !== 'ask' || S.busy || $('#ask-input').value.trim())) return;
-    $('#suggest .lbl').textContent = reason === 'first' ? '⌛ 첫 질문 — 무엇부터 캐물을까? (하나를 고르세요)' : reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 머뭇거리는 사신에게 떠오른 질문…';
+    $('#suggest .lbl').textContent = reason === 'first' ? '⌛ 첫 질문 — 무엇부터 캐물을까? (하나를 고르세요)' : reason === 'miss' ? '⌛ 이 방향은 아닌 것 같다… 이렇게 물어보는 건 어떨까?' : '⌛ 떠오른 질문 — 골라도 되고, 직접 써도 된다';
     // 첫 질문: 사건의 핵심 단서 5개와 바로 이어지는 질문만 (스토리에서 동떨어진 실마리 방지)
     const qs = reason === 'first' ? shuffle(S.c.facts).map((f) => f.q) : suggestions();
     if (!qs.length) { chatAdd('sys', S.qLeft <= 0 ? '⌛ 모래시계가 비었다. 천국인가, 지옥인가?' : '물어볼 건 다 물었다. 이제 판결이다.'); return; }
@@ -2759,7 +2759,7 @@
   $('#start-btn').addEventListener('click', () => { audio(); startRun(); });
   $('#howto-btn').addEventListener('click', () => $('#howto-dlg').showModal());
   $('#ask-form').addEventListener('submit', (e) => { e.preventDefault(); ask($('#ask-input').value); });
-  $('#ask-input').addEventListener('input', armIdle); // 입력 중이면 머뭇거림 타이머 초기화
+  $('#ask-input').addEventListener('input', armIdle); // 입력 중이면 떠오른 질문을 숨기고, 비우면 다시 보여 줌
   setVerdictButtons();
   $('#r-retry').addEventListener('click', () => { $('#result-dlg').close(); startRun(); });
   $('#result-dlg').addEventListener('cancel', (e) => e.preventDefault());
