@@ -1,4 +1,5 @@
 import { runnerSheetSVG } from './runner-sheet.js';
+import { mountTurntable } from './assembly-preview.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const chat = $('#chat');
@@ -27,14 +28,14 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 
 /* ───────── 설정 (톤·등급) ───────── */
 function syncControls() {
-  document.querySelectorAll('.seg button').forEach((b) => {
+  document.querySelectorAll('.tone button').forEach((b) => {
     const on = b.dataset.tone === state.tone;
     b.classList.toggle('on', on);
     b.setAttribute('aria-checked', String(on));
   });
   $('#grade').value = state.grade;
 }
-document.querySelectorAll('.seg button').forEach((b) =>
+document.querySelectorAll('.tone button').forEach((b) =>
   b.addEventListener('click', () => { state.tone = b.dataset.tone; store.set('rl.tone', state.tone); syncControls(); }),
 );
 $('#grade').addEventListener('change', (e) => { state.grade = e.target.value; store.set('rl.grade', state.grade); });
@@ -54,13 +55,13 @@ function addUser(text, image) {
 function addBot(html, cls = '') {
   const el = document.createElement('div');
   el.className = `msg bot ${cls}`;
-  el.innerHTML = `<div class="avatar" aria-hidden="true">박</div><div class="bubble">${html}</div>`;
+  el.innerHTML = `<div class="avatar" aria-hidden="true">손</div><div class="bubble">${html}</div>`;
   chat.append(el);
   scrollDown();
   return el;
 }
 
-const WAIT = ['니퍼로 게이트 자르는 중…', '런너 배치 고민하는 중…', '파츠 번호 각인하는 중…', '먹선 넣는 중…', '유격 체크하는 중…'];
+const WAIT = ['손프라가 살펴보는 중…', '니퍼로 게이트 자르는 중…', '런너 배치 고민하는 중…', '파츠 번호 새기는 중…', '먹선 넣는 중…'];
 function addTyping() {
   const el = addBot(`<span class="dots"><i></i><i></i><i></i></span><span class="label">${WAIT[0]}</span>`, 'typing');
   let i = 0;
@@ -82,7 +83,7 @@ function renderReply(data) {
     for (const src of data.images) {
       const fig = document.createElement('div');
       fig.className = 'sheet-img';
-      fig.innerHTML = `<img src="${src}" alt="A~Z 게이트 런너 분해 시안" /><div class="bar"><button type="button" data-dl>이미지 저장</button></div>`;
+      fig.innerHTML = `<img src="${src}" alt="A~Z 게이트 런너 분해 시안 (2.5D)" /><div class="bar"><button type="button" class="btn btn-secondary s" data-dl>시안 저장</button></div>`;
       $('img', fig).addEventListener('click', () => window.open().document.write(`<img src="${src}" style="max-width:100%">`));
       $('[data-dl]', fig).addEventListener('click', () => download(src, `${data.handoff?.kitId || 'runner-sheet'}.${src.includes('svg') ? 'svg' : 'png'}`));
       box.append(fig);
@@ -110,10 +111,16 @@ function handoffCard({ handoff: kit, handoffErrors = [], handoffRaw }) {
       <span>런너 ${kit.runners.length}장 · 파츠 ${parts.length}개</span>
       <span class="valid ${ok ? 'ok' : 'bad'}">${ok ? '✓ 스키마 검증 통과' : `✗ 검증 오류 ${handoffErrors.length}건`}</span></div>
     <div class="gates">${kit.runners.map((r) => `<span><b>${esc(r.gate)}</b>${esc(r.runnerName || r.runnerId)} ${r.parts.length}</span>`).join('')}</div>
+    <div class="glance mini">
+      <div class="pane-runner">${runnerSheetSVG(kit, { cols: 2 })}<span class="pane-tag">런너</span></div>
+      <span class="glance-arrow" aria-hidden="true">→</span>
+      <div class="pane-built"><div class="tt"></div><span class="pane-tag hot">완성 3D 프리뷰 · 드래그</span></div>
+    </div>
     <div class="actions">
-      <button type="button" class="primary" data-open>🧩 3D 조립 마이크로서비스로 넘길 설계 데이터 보기</button>
-      <button type="button" data-copy>JSON 복사</button>
+      <button type="button" class="btn btn-primary s" data-open>🧩 조립 마이크로서비스로 넘길 설계 데이터 보기</button>
+      <button type="button" class="btn btn-secondary s" data-copy>JSON 복사</button>
     </div>`;
+  mountTurntable($('.tt', card), kit);
   $('[data-open]', card).addEventListener('click', () => openHandoff(kit, handoffErrors));
   $('[data-copy]', card).addEventListener('click', (e) => copyJSON(kit, e.currentTarget));
   return card;
@@ -125,6 +132,10 @@ function openHandoff(kit, errors) {
   current = kit;
   $('#h-title').textContent = `${kit.kitName} · ${kit.kitId}`;
   $('.pane.sheet', dialog).innerHTML = runnerSheetSVG(kit);
+  $('.pane.glance', dialog).innerHTML = `<div class="pane-runner">${runnerSheetSVG(kit, { cols: 2 })}<span class="pane-tag">런너</span></div>
+    <span class="glance-arrow" aria-hidden="true">→</span>
+    <div class="pane-built"><div class="tt"></div><span class="pane-tag hot">완성 3D 프리뷰 · 드래그해서 돌려 보기</span></div>`;
+  mountTurntable($('.pane.glance .tt', dialog), kit);
 
   const rows = kit.runners.flatMap((r) => r.parts).map((p) => {
     const v = (o) => `${o.x}, ${o.y}, ${o.z}`;
@@ -141,7 +152,7 @@ function openHandoff(kit, errors) {
   const valid = $('#h-valid');
   valid.className = `valid ${errors.length ? 'bad' : 'ok'}`;
   valid.innerHTML = errors.length ? `✗ ${errors.slice(0, 3).map(esc).join(' / ')}${errors.length > 3 ? ` 외 ${errors.length - 3}건` : ''}` : '✓ schema/handoff.schema.json 검증 통과';
-  showTab('sheet');
+  showTab('glance');
   dialog.showModal();
 }
 function showTab(name) {
@@ -250,8 +261,8 @@ document.querySelector('.attach').addEventListener('keydown', (e) => { if (e.key
 /* ───────── 샘플 이미지 (캔버스로 그림) ───────── */
 const SAMPLES = {
   cat: { text: '우리집 고양이 모찌 정면 사진이에요. 꼬리 끝까지 다 나왔어요!', w: 1200, h: 900, draw: drawCat },
-  oc: { text: '내 오리지널 캐릭터 설정화예요. 정면이랑 측면 같이 그렸어요.', w: 1400, h: 1000, draw: drawOC },
-  blur: { text: '강아지 사진인데 좀 흐리고 꼬리가 잘렸어요 ㅠ', w: 360, h: 300, draw: drawBlurDog },
+  oc: { text: '제가 그린 오리지널 캐릭터 설정화예요. 정면이랑 측면 같이 그렸어요.', w: 1400, h: 1000, draw: drawOC },
+  mug: { text: '제일 아끼는 머그컵이에요. 책상에 미니어처로 두고 싶어요!', w: 1200, h: 900, draw: drawMug },
 };
 function drawCat(ctx, w, h) {
   ctx.fillStyle = '#F4F1EC'; ctx.fillRect(0, 0, w, h);
@@ -279,25 +290,94 @@ function drawOC(ctx, w, h) {
   fig(w * 0.3, false); fig(w * 0.72, true);
   ctx.fillStyle = '#888'; ctx.font = '28px sans-serif'; ctx.fillText('FRONT', w * 0.26, h - 40); ctx.fillText('SIDE', w * 0.69, h - 40);
 }
-function drawBlurDog(ctx, w, h) {
-  ctx.fillStyle = '#7d8c6a'; ctx.fillRect(0, 0, w, h);
-  ctx.filter = 'blur(6px)';
-  ctx.fillStyle = '#C69C6D';
-  ctx.beginPath(); ctx.ellipse(w * 0.62, h * 0.62, 130, 80, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(w * 0.3, h * 0.42, 62, 0, Math.PI * 2); ctx.fill();
-  ctx.filter = 'none';
+function drawMug(ctx, w, h) {
+  ctx.fillStyle = '#FFF9EC'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#E2D3C5'; ctx.beginPath(); ctx.ellipse(w * 0.48, h * 0.86, 260, 34, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#4AACFF'; ctx.lineWidth = 46;
+  ctx.beginPath(); ctx.ellipse(w * 0.68, h * 0.5, 90, 120, 0, -Math.PI / 2, Math.PI / 2); ctx.stroke();
+  ctx.fillStyle = '#4AACFF'; ctx.fillRect(w * 0.3, h * 0.18, 340, 520);
+  ctx.beginPath(); ctx.ellipse(w * 0.3 + 170, h * 0.18 + 520, 170, 40, 0, 0, Math.PI); ctx.fill();
+  ctx.fillStyle = '#1F6FB5'; ctx.beginPath(); ctx.ellipse(w * 0.3 + 170, h * 0.18, 170, 40, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#FFC34A'; ctx.beginPath(); ctx.arc(w * 0.3 + 170, h * 0.52, 70, 0, Math.PI * 2); ctx.fill();
 }
-document.querySelectorAll('[data-sample]').forEach((b) =>
-  b.addEventListener('click', async () => {
-    const s = SAMPLES[b.dataset.sample];
-    const c = document.createElement('canvas');
-    c.width = s.w; c.height = s.h;
-    s.draw(c.getContext('2d'), s.w, s.h);
-    await attach(c.toDataURL('image/png'));
-    textEl.value = s.text;
-    autosize();
-  }),
-);
+async function loadSample(key) {
+  const s = SAMPLES[key];
+  if (!s) return;
+  const c = document.createElement('canvas');
+  c.width = s.w; c.height = s.h;
+  s.draw(c.getContext('2d'), s.w, s.h);
+  await attach(c.toDataURL('image/png'));
+  textEl.value = s.text;
+  autosize();
+  focusChat();
+}
+
+/* ───────── 숍 화면: 상품 카드 · 빠른 답변 · 공지 ───────── */
+const KIT_COPY = {
+  cat: { brand: '반려동물 키트', badges: ['<span class="badge badge-red">인기 의뢰</span>', '<span class="badge badge-grow">HG</span>'] },
+  oc: { brand: '나만의 캐릭터', badges: ['<span class="badge badge-sun">정면+측면</span>', '<span class="badge badge-sky">MG</span>'] },
+  mug: { brand: '사물 키트', badges: ['<span class="badge badge-mute">입문 추천</span>', '<span class="badge badge-sun">SD</span>'] },
+};
+async function renderKits() {
+  const grid = $('#kit-grid');
+  try {
+    const list = await (await fetch('/api/sample-kits')).json();
+    grid.innerHTML = '';
+    for (const { key, kit } of list) {
+      const copy = KIT_COPY[key] || { brand: '키트', badges: [] };
+      const parts = kit.runners.reduce((n, r) => n + r.parts.length, 0);
+      const el = document.createElement('article');
+      el.className = 'kit';
+      el.innerHTML = `<div class="kit-img glance">
+          <div class="pane-runner">${runnerSheetSVG(kit, { cols: 2 })}<span class="pane-tag">런너</span></div>
+          <span class="glance-arrow" aria-hidden="true">→</span>
+          <div class="pane-built"><div class="tt"></div><span class="pane-tag hot">완성 3D 프리뷰</span></div>
+        </div>
+        <button type="button" class="kit-bar">이 의뢰로 상담 맛보기 →</button>
+        <div class="kit-meta">
+          <div class="kit-badges">${copy.badges.join('')}</div>
+          <span class="kit-brand">${esc(copy.brand)}</span>
+          <span class="kit-name">${esc(kit.kitName)}</span>
+          <span class="kit-spec">${parts}<small>파츠</small> · ${kit.runners.length}<small>런너</small></span>
+        </div>`;
+      $('.kit-bar', el).addEventListener('click', () => loadSample(key));
+      $('.kit-meta', el).addEventListener('click', () => loadSample(key));
+      grid.append(el);
+      mountTurntable($('.tt', el), kit);
+    }
+  } catch {
+    grid.innerHTML = '<p class="hint">샘플 키트를 불러오지 못했어요.</p>';
+  }
+}
+
+const QUICK = [
+  '🎨 만들고 싶은 디자인이 있어요',
+  '🐾 반려동물을 키트로 만들고 싶어요',
+  '🤪 괴작 조립하러 왔어요',
+  '👀 그냥 구경 왔어요',
+  '📏 등급 차이가 궁금해요',
+];
+function quickReplies(container) {
+  const box = document.createElement('div');
+  box.className = 'quick';
+  for (const q of QUICK) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = q;
+    b.addEventListener('click', () => { if (!state.busy) { box.querySelectorAll('button').forEach((x) => (x.disabled = true)); send(q); } });
+    box.append(b);
+  }
+  container.append(box);
+}
+
+function focusChat() {
+  $('#consult').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  setTimeout(() => textEl.focus({ preventScroll: true }), 350);
+}
+document.querySelectorAll('[data-focus-chat]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); focusChat(); }));
+document.querySelectorAll('[data-quick]').forEach((b) => b.addEventListener('click', () => { focusChat(); send(b.dataset.quick); }));
+$('.notice-x').addEventListener('click', () => { $('#notice').hidden = true; store.set('rl.notice', 'off'); });
+if (store.get('rl.notice') === 'off') $('#notice').hidden = true;
 
 /* ───────── 전송 ───────── */
 function autosize() { textEl.style.height = 'auto'; textEl.style.height = `${Math.min(textEl.scrollHeight, 160)}px`; }
@@ -305,17 +385,17 @@ textEl.addEventListener('input', autosize);
 textEl.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); }
 });
-
-form.addEventListener('submit', async (e) => {
+form.addEventListener('submit', (e) => {
   e.preventDefault();
-  if (state.busy) return;
-  const text = textEl.value.trim();
-  const att = state.attachment;
-  if (!text && !att) return;
+  send(textEl.value.trim(), state.attachment);
+});
 
+async function send(text, att = null) {
+  if (state.busy || (!text && !att)) return;
   state.busy = true; sendBtn.disabled = true;
   addUser(text, att?.dataURL);
-  textEl.value = ''; autosize(); clearAttachment();
+  textEl.value = ''; autosize();
+  if (att) clearAttachment();
   const stop = addTyping();
 
   try {
@@ -334,22 +414,25 @@ form.addEventListener('submit', async (e) => {
     stop();
     addBot(esc(err.message), 'error');
   } finally {
-    state.busy = false; sendBtn.disabled = false; textEl.focus();
+    state.busy = false; sendBtn.disabled = false;
   }
-});
+}
 
 /* ───────── 시작 ───────── */
 (async function init() {
+  renderKits();
   try {
     const cfg = await (await fetch('/api/config')).json();
     const mode = $('#mode');
-    mode.textContent = cfg.mode === 'live' ? `LIVE · ${cfg.model}` : 'MOCK';
-    mode.className = `mode ${cfg.mode}`;
+    mode.textContent = cfg.mode === 'live' ? '● 실시간 상담' : '● 체험 모드';
+    mode.className = `badge ${cfg.mode === 'live' ? 'badge-grow' : 'badge-sun'}`;
+    mode.title = cfg.mode === 'live' ? `모델: ${cfg.model}` : 'API 키 없이 동작하는 목업 모드';
     $('#hint').textContent = cfg.mode === 'live'
-      ? 'Enter 전송 · Shift+Enter 줄바꿈 · 사진은 드래그·붙여넣기도 돼요'
-      : '목업 모드: 실제 이미지를 보지 않고 사진 해상도·대표색과 설명 문구로 판정해요. .env에 OPENAI_API_KEY를 넣으면 실제 비전 검수 + 시안 생성으로 바뀝니다.';
-    addBot(md(cfg.greeting));
+      ? 'Enter 전송 · Shift+Enter 줄바꿈 · 사진은 드래그하거나 붙여넣어도 돼요'
+      : '체험 모드예요: 사진을 직접 보지는 않고, 해상도·대표색과 함께 적어 주신 설명으로 판정해요.';
+    const el = addBot(md(cfg.greeting));
+    quickReplies($('.bubble', el));
   } catch {
-    addBot('서버에 연결하지 못했어요. <code>npm start</code>로 서버를 켠 뒤 http://localhost:3100 에서 열어 주세요.', 'error');
+    addBot('서버에 연결하지 못했어요. 잠시 뒤 새로고침해 주세요.', 'error');
   }
 })();

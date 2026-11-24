@@ -5,6 +5,7 @@ import express from 'express';
 import OpenAI from 'openai';
 import { inspect, aiMode, GREETING, MODEL } from './src/llm.js';
 import { extractHandoff, schema } from './src/handoff.js';
+import { buildHandoff } from './src/kits.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -16,6 +17,14 @@ app.get('/api/config', (_req, res) => {
 });
 
 app.get('/api/schema', (_req, res) => res.json(schema));
+
+// 숍 진열용 샘플 키트 (상품 카드 썸네일)
+const SAMPLE_KITS = [
+  { key: 'cat', type: 'quadruped', grade: 'HG', subject: '우리집 고양이 모찌', palette: ['#8A7F72', '#D9CBB8', '#4A4440'] },
+  { key: 'oc', type: 'humanoid', grade: 'MG', subject: '나만의 오리지널 캐릭터', palette: ['#EE6C4D', '#3D5A80', '#293241'], views: ['front', 'side'] },
+  { key: 'mug', type: 'object', grade: 'SD', subject: '최애 머그컵', palette: ['#4AACFF', '#FFC34A', '#FFFFFF'] },
+].map((k) => ({ key: k.key, kit: buildHandoff({ ...k, id: `KIT-SAMPL${'123'[['cat', 'oc', 'mug'].indexOf(k.key)]}` }) }));
+app.get('/api/sample-kits', (_req, res) => res.json(SAMPLE_KITS));
 
 const IMAGE_RE = /^data:image\/(png|jpe?g|webp|gif);base64,/;
 
@@ -47,7 +56,12 @@ app.post('/api/inspect', async (req, res) => {
   }
 });
 
-const PORT = Number(process.env.PORT) || 3100;
-app.listen(PORT, () => {
-  console.log(`🔧 Runner Lab 설계 검수 챗봇: http://localhost:${PORT}  (모드: ${aiMode()})`);
-});
+// Vercel은 default export된 앱을 함수로 실행하고 public/ 은 CDN으로 서빙합니다.
+export default app;
+
+if (!process.env.VERCEL) {
+  const PORT = Number(process.env.PORT) || 3100;
+  app.listen(PORT, () => {
+    console.log(`🧡 손프라 설계 상담: http://localhost:${PORT}  (모드: ${aiMode()})`);
+  });
+}

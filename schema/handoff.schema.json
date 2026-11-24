@@ -100,6 +100,10 @@
           "uniqueItems": true
         },
         "jointType": { "enum": ["ball", "hinge", "peg", "snap", "fixed"] },
+        "approxSize": {
+          "$ref": "#/$defs/vec3",
+          "description": "파츠 대략 크기(cm, x=폭 y=높이 z=깊이). 2.5D 완성 프리뷰·런너 배치용 힌트, 없으면 category 기본값 사용"
+        },
         "cautionNote": { "type": ["string", "null"] }
       }
     }

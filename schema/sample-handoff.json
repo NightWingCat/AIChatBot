@@ -50,6 +50,11 @@
           "connectsTo": [
             "B3"
           ],
+          "approxSize": {
+            "x": 4.2,
+            "y": 3.8,
+            "z": 3.6
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -80,6 +85,11 @@
           "connectsTo": [
             "A1"
           ],
+          "approxSize": {
+            "x": 1.2,
+            "y": 1.6,
+            "z": 0.5
+          },
           "jointType": "peg",
           "cautionNote": "얇은 귀 끝 — 게이트 컷 시 백화 주의"
         },
@@ -110,6 +120,11 @@
           "connectsTo": [
             "A1"
           ],
+          "approxSize": {
+            "x": 1.2,
+            "y": 1.6,
+            "z": 0.5
+          },
           "jointType": "peg",
           "cautionNote": "얇은 귀 끝 — 게이트 컷 시 백화 주의"
         },
@@ -140,6 +155,11 @@
           "connectsTo": [
             "A1"
           ],
+          "approxSize": {
+            "x": 2,
+            "y": 1.3,
+            "z": 1.2
+          },
           "jointType": "snap",
           "cautionNote": null
         },
@@ -170,6 +190,11 @@
           "connectsTo": [
             "A1"
           ],
+          "approxSize": {
+            "x": 2.4,
+            "y": 0.8,
+            "z": 0.3
+          },
           "jointType": "snap",
           "cautionNote": null
         }
@@ -207,6 +232,11 @@
           "connectsTo": [
             "B2"
           ],
+          "approxSize": {
+            "x": 4.4,
+            "y": 4.2,
+            "z": 4.6
+          },
           "jointType": "snap",
           "cautionNote": null
         },
@@ -237,6 +267,11 @@
           "connectsTo": [
             "B1"
           ],
+          "approxSize": {
+            "x": 4.6,
+            "y": 4.4,
+            "z": 4.8
+          },
           "jointType": "snap",
           "cautionNote": null
         },
@@ -268,6 +303,11 @@
             "B1",
             "A1"
           ],
+          "approxSize": {
+            "x": 1.6,
+            "y": 1.4,
+            "z": 1.4
+          },
           "jointType": "ball",
           "cautionNote": null
         }
@@ -305,6 +345,11 @@
           "connectsTo": [
             "B1"
           ],
+          "approxSize": {
+            "x": 1.3,
+            "y": 4.2,
+            "z": 1.3
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -335,6 +380,11 @@
           "connectsTo": [
             "B1"
           ],
+          "approxSize": {
+            "x": 1.3,
+            "y": 4.2,
+            "z": 1.3
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -365,6 +415,11 @@
           "connectsTo": [
             "C1"
           ],
+          "approxSize": {
+            "x": 1.6,
+            "y": 0.9,
+            "z": 1.8
+          },
           "jointType": "hinge",
           "cautionNote": null
         },
@@ -395,6 +450,11 @@
           "connectsTo": [
             "C2"
           ],
+          "approxSize": {
+            "x": 1.6,
+            "y": 0.9,
+            "z": 1.8
+          },
           "jointType": "hinge",
           "cautionNote": null
         }
@@ -432,6 +492,11 @@
           "connectsTo": [
             "B2"
           ],
+          "approxSize": {
+            "x": 1.5,
+            "y": 4.4,
+            "z": 1.6
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -462,6 +527,11 @@
           "connectsTo": [
             "B2"
           ],
+          "approxSize": {
+            "x": 1.5,
+            "y": 4.4,
+            "z": 1.6
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -492,6 +562,11 @@
           "connectsTo": [
             "D1"
           ],
+          "approxSize": {
+            "x": 1.6,
+            "y": 0.9,
+            "z": 1.8
+          },
           "jointType": "hinge",
           "cautionNote": null
         },
@@ -522,6 +597,11 @@
           "connectsTo": [
             "D2"
           ],
+          "approxSize": {
+            "x": 1.6,
+            "y": 0.9,
+            "z": 1.8
+          },
           "jointType": "hinge",
           "cautionNote": null
         }
@@ -559,6 +639,11 @@
           "connectsTo": [
             "B2"
           ],
+          "approxSize": {
+            "x": 1.1,
+            "y": 3.2,
+            "z": 1.1
+          },
           "jointType": "ball",
           "cautionNote": null
         },
@@ -589,6 +674,11 @@
           "connectsTo": [
             "E1"
           ],
+          "approxSize": {
+            "x": 0.9,
+            "y": 3.2,
+            "z": 0.9
+          },
           "jointType": "ball",
           "cautionNote": "가장 얇은 파츠 — 니퍼 두 번 컷 권장"
         }
@@ -621,9 +711,14 @@
             "z": 1
           },
           "allowWeirdAssembly": true,
-          "colorHex": "#2B2B2E",
+          "colorHex": "#6E3B2C",
           "finish": "gloss",
           "connectsTo": [],
+          "approxSize": {
+            "x": 13,
+            "y": 0.6,
+            "z": 13
+          },
           "jointType": "fixed",
           "cautionNote": null
         }

@@ -13,6 +13,7 @@ export const MODEL = process.env.OPENAI_MODEL || 'gpt-6.1-terra';
 const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || ''; // 비우면 기본 이미지 모델
 const IMAGE_QUALITY = process.env.OPENAI_IMAGE_QUALITY || 'medium';
 const IMAGE_SIZE = process.env.OPENAI_IMAGE_SIZE || '1536x1024';
+const IMAGE_FORMAT = process.env.OPENAI_IMAGE_FORMAT || 'webp';
 
 const hasKey = () => Boolean(process.env.OPENAI_API_KEY);
 // 키가 없으면 목업. 키가 있어도 MOCK_AI=true 이면 목업.
@@ -41,7 +42,8 @@ export async function inspect({ history = [], text = '', image = null, imageMeta
   const userContent = [{ type: 'input_text', text: text || (image ? '이 이미지 검수해 주세요.' : '안녕하세요') }];
   if (image) userContent.push({ type: 'input_image', image_url: image, detail: 'high' });
 
-  const tool = { type: 'image_generation', size: IMAGE_SIZE, quality: IMAGE_QUALITY };
+  // webp: Vercel 응답 한도(4.5MB) 안에 시안 이미지가 들어가도록
+  const tool = { type: 'image_generation', size: IMAGE_SIZE, quality: IMAGE_QUALITY, output_format: IMAGE_FORMAT };
   if (IMAGE_MODEL) tool.model = IMAGE_MODEL;
 
   const res = await getClient().responses.create({
