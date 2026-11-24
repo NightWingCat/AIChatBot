@@ -1297,7 +1297,7 @@
   const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
   function renderScaleLog() {
     $('#scale-log').textContent = S.scaleLog?.length
-      ? S.scaleLog.map((e) => `${CIRCLED[e.n - 1] || e.n}${e.side === 'L' ? '◀' : e.side === 'R' ? '▶' : '─'}${e.truth ? '✦' : ''}`).join(' ')
+      ? '기록: ' + S.scaleLog.map((e) => `${e.side === 'L' ? '좌' : e.side === 'R' ? '우' : '수평'}${e.truth ? '(진실)' : ''}`).join(', ')
       : '아직 기울지 않았다';
   }
   function tiltScale(isTruth, q = '', truthTime = false) {
