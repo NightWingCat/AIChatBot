@@ -148,14 +148,16 @@
     @keyframes tagpop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .banner {
-      position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 4; text-align: center; pointer-events: none;
-      font-family: 'Jua', sans-serif; font-size: clamp(20px, 4.4vw, 50px); color: var(--gold); white-space: nowrap;
-      text-shadow: 3px 3px 0 #6b1a1a, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000; animation: pop .35s steps(4) both;
+      position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 6; text-align: center; pointer-events: none;
+      font-family: 'Jua', sans-serif; font-size: clamp(22px, 4.2vw, 50px); line-height: 1.15; color: var(--gold); white-space: nowrap;
+      padding: 10px 34px 12px; border-radius: 10px; background: rgba(12, 4, 16, .82); box-shadow: 0 0 0 2px rgba(255, 211, 90, .5), 0 8px 30px rgba(0, 0, 0, .6);
+      text-shadow: 0 3px 0 #6b1a1a, 0 0 12px rgba(0, 0, 0, .8); animation: pop .5s cubic-bezier(.2, 1.35, .4, 1) both;
     }
     .banner.red { color: var(--hell); }
-    .banner.blue { color: var(--heaven); text-shadow: 3px 3px 0 #123b55, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000; }
+    .banner.blue { color: #dff6ff; text-shadow: 0 3px 0 #123b55, 0 0 14px rgba(143, 227, 255, .9); box-shadow: 0 0 0 2px rgba(143, 227, 255, .7), 0 0 34px rgba(143, 227, 255, .45); }
+    .banner.red { box-shadow: 0 0 0 2px rgba(255, 77, 58, .6), 0 8px 30px rgba(0, 0, 0, .6); }
     .banner small { display: block; font-family: 'Jua', sans-serif; font-size: .4em; color: var(--ink); margin-top: 6px; }
-    @keyframes pop { from { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+    @keyframes pop { from { transform: translate(-50%, -50%) scale(.6); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 
     /* 타이틀 */
     .title-ui { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 12px; }
@@ -206,8 +208,11 @@
       color: #fff4d0; font-size: clamp(15px, 1.55vw, 22px); line-height: 1.38; white-space: pre-wrap; word-break: keep-all;
       text-shadow: 2px 0 0 #120610, -2px 0 0 #120610, 0 2px 0 #120610, 0 -2px 0 #120610, 2px 2px 0 #120610, -2px -2px 0 #120610, 2px -2px 0 #120610, -2px 2px 0 #120610, 0 0 10px rgba(0,0,0,.8);
     }
-    .scale-label { position: absolute; right: 1.2%; top: 27%; z-index: 2; font-size: clamp(11px, 1.05vw, 14px); color: #ffe27a; pointer-events: none;
-      text-shadow: 1px 0 0 #120610, -1px 0 0 #120610, 0 1px 0 #120610, 0 -1px 0 #120610; }
+    .scale-label { position: absolute; right: .5%; top: 27%; z-index: 4; width: 20%; text-align: center; pointer-events: none; line-height: 1.25;
+      font-size: clamp(10px, .95vw, 13px); color: #f3e6c4; text-shadow: 1px 0 0 #120610, -1px 0 0 #120610, 0 1px 0 #120610, 0 -1px 0 #120610, 0 0 6px #000; }
+    .scale-label b { display: block; font-weight: normal; color: #ffe27a; font-size: 1.12em; }
+    .scale-label span { display: block; }
+    .scale-log { margin-top: 2px; color: #ffffff; letter-spacing: .5px; }
     .truth-next { flex: none; font-size: 15px; color: #cfefff; background: #12304a; padding: 6px 10px; border-left: 3px solid #8fe3ff; animation: truthglow 1.4s ease-in-out infinite; }
     .truth-next b { color: #ffffff; font-weight: normal; }
     @keyframes truthglow { 50% { box-shadow: 0 0 14px rgba(143, 227, 255, .55); } }
@@ -277,7 +282,11 @@
           <div class="tags left" id="tags-left" aria-label="드러난 정황"></div>
           <div class="tags right" id="tags-right"></div>
           <div id="crow-say" class="crow-say" hidden aria-live="polite"></div>
-          <div class="scale-label" id="scale-label" hidden>진실·거짓의 저울</div>
+          <div class="scale-label" id="scale-label" hidden>
+            <b>⚖ 진실·거짓의 저울</b>
+            <span>진실 쪽은 망자마다 바뀐다</span>
+            <span id="scale-log" class="scale-log">아직 기울지 않았다</span>
+          </div>
           <div id="bubble-reaper" class="bubble reaper" hidden></div>
           <div id="bubble-sinner" class="bubble sinner" hidden></div>
           <div id="banner" class="banner" hidden></div>
@@ -1284,12 +1293,28 @@
       R(ex - 1, ey + 9, 3, 3, i === 0 ? '#5ab0ff' : '#4ade80'); R(ex - 1, ey + 9, 1, 1, '#ffffff');
     });
   }
-  function tiltScale(isTruth) {
+  // 저울 기울기 기록: 질문 번호별로 ◀ / ▶ / ─ 를 남겨 유저가 기억하지 않아도 되게
+  const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+  function renderScaleLog() {
+    $('#scale-log').textContent = S.scaleLog?.length
+      ? S.scaleLog.map((e) => `${CIRCLED[e.n - 1] || e.n}${e.side === 'L' ? '◀' : e.side === 'R' ? '▶' : '─'}${e.truth ? '✦' : ''}`).join(' ')
+      : '아직 기울지 않았다';
+  }
+  function tiltScale(isTruth, q = '', truthTime = false) {
     SFX.scale();
-    if (isTruth === null) { S.scaleTarget = 0; S.scaleVel = (S.scaleVel || 0) + (Math.random() < 0.5 ? -0.09 : 0.09); chatAdd('sys', '⚖ 저울이 흔들리다 제자리로 — 얼버무렸다'); return; }
+    const short = q.length > 16 ? q.slice(0, 15) + '…' : q;
+    const tag = short ? `「${short}」 → ` : '';
+    if (isTruth === null) {
+      S.scaleTarget = 0; S.scaleVel = (S.scaleVel || 0) + (Math.random() < 0.5 ? -0.09 : 0.09);
+      S.scaleLog.push({ n: S.qAsked, side: '-' }); renderScaleLog();
+      chatAdd('sys', `⚖ ${tag}저울이 흔들리다 제자리로 — 얼버무렸다`);
+      return;
+    }
     const side = isTruth ? S.scaleSide : S.scaleSide === 'L' ? 'R' : 'L';
     S.scaleTarget = side === 'L' ? -0.36 : 0.36;
-    chatAdd('sys', `⚖ 저울이 ${side === 'L' ? '◀ 푸른 접시' : '초록 접시 ▶'} 쪽으로 기울었다`);
+    S.scaleLog.push({ n: S.qAsked, side, truth: truthTime }); renderScaleLog();
+    const where = side === 'L' ? '◀ 좌측(푸른 접시)' : '우측(초록 접시) ▶';
+    chatAdd('fact', `⚖ ${tag}저울이 ${where}으로 기울었다!${truthTime ? ' — 진실의 시간의 답이니, 이쪽이 진실의 접시다!' : ''}`);
   }
 
   // ── 사신의 전령: 나뭇가지 위 까마귀 ──
@@ -1453,7 +1478,7 @@
     const [ax, ay] = anchorFor(who);
     const hx = (ax / W) * SW, hy = (ay / H) * SH;
     const w = el.offsetWidth, h = el.offsetHeight;
-    const left = Math.min(Math.max(hx - w * (who === 'reaper' ? 0.22 : 0.68), 6), SW - w - 6);
+    const left = Math.min(Math.max(hx - w * (who === 'reaper' ? 0.22 : 0.68), 6), SW * 0.79 - w); // 오른쪽 저울 자리는 비워 둔다
     el.style.left = `${left}px`;
     el.style.top = `${Math.max(4, hy - h - SH * 0.08)}px`; // 머리에서 넉넉히 띄워 단서·얼굴을 가리지 않게
     el.style.setProperty('--tailX', `${Math.min(Math.max(hx - left, 14), w - 14)}px`);
@@ -1850,6 +1875,7 @@
     Object.assign(S, { streak: 0, caseNo: 0, run: [], execUsed: false, pools: { normal: [], group: [], animal: [] } });
     $('#title-ui').hidden = true; $('#tag-reaper').hidden = false; $('#scale-label').hidden = false;
     $('#chat').innerHTML = '';
+    chatAdd('sys', '⚖ 우측 상단의 저울은 망자의 대답이 진실인지 거짓인지에 따라 기운다. 단, 어느 쪽 접시가 진실인지는 망자마다 바뀐다 — 진실의 시간(세 번째 질문)으로 가늠하라.');
     nextCase();
   }
 
@@ -1868,7 +1894,8 @@
   async function nextCase() {
     const c = pickCase();
     const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
-    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null, qAsked: 0, truthOn: false, lied: new Set(), scaleSide: Math.random() < 0.5 ? 'L' : 'R', scaleTarget: 0 });
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0, lastFact: null, nearFact: null, firstAsked: false, pendingQ: null, qAsked: 0, truthOn: false, lied: new Set(), scaleSide: Math.random() < 0.5 ? 'L' : 'R', scaleTarget: 0, scaleLog: [] });
+    renderScaleLog();
     $('#truth-next').hidden = true;
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
@@ -1904,6 +1931,7 @@
     if (truth) {
       S.truthOn = true; SFX.truth();
       chatAdd('fact', '⚖ 진실의 시간! 이 질문에 망자는 거짓을 말할 수 없다');
+      hideBubbles(); // 말풍선에 가리지 않게 잠시 끄고 배너
       await banner('⚖ 진실의 시간!<small>이 질문엔 거짓을 말할 수 없다</small>', 'blue', 1400);
     }
     await say('reaper', q, { name: '사신' });
@@ -1914,7 +1942,7 @@
     $('#bubble-sinner').classList.toggle('truth', truth);
     await say('sinner', r.reply, { name: truth ? `${who.name} — 진실만을 말한다` : who.name, by: r.by || 0 });
     chatAdd('s', r.reply, truth ? `${who.name} (진실의 시간)` : who.name);
-    tiltScale(truth ? true : r.lie === true ? false : r.lie === false ? true : null);
+    tiltScale(truth ? true : r.lie === true ? false : r.lie === false ? true : null, q, truth);
     if (truth) { S.truthOn = false; setTimeout(() => $('#bubble-sinner').classList.remove('truth'), 2500); }
     S.nearFact = r.near || null;
     for (const id of r.factIds || []) {
