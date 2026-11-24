@@ -167,6 +167,22 @@
     .verdict .plea-note { grid-column: 1 / -1; font-size: 12px; color: var(--hell); text-align: center; }
     .engine-tag { font-size: 11px; color: var(--ink-dim); }
 
+
+    /* 까마귀 전령 말풍선 (가지 위에서 오른쪽으로 펼쳐짐) */
+    .bubble.crow { left: 21%; top: 2%; bottom: auto; max-width: 62%; max-height: 54%; --tail: 0%; transform: none; transform-origin: 0 20%;
+      background: #f3e6c4; color: #2a1a10; font-size: clamp(9.5px, 1.2vw, 13.5px); line-height: 1.45;
+      box-shadow: 0 -3px 0 0 #2a1a10, 0 3px 0 0 #2a1a10, -3px 0 0 0 #2a1a10, 3px 0 0 0 #2a1a10, 6px 6px 0 0 rgba(0,0,0,.45); }
+    .bubble.crow.grow { animation: growc .22s steps(4) both; }
+    @keyframes growc { from { transform: scale(.08); } to { transform: scale(1); } }
+    .bubble.crow::after { left: -9px; top: 14px; bottom: auto; margin: 0; width: 8px; height: 6px; box-shadow: 0 -3px 0 #2a1a10, 0 3px 0 #2a1a10, -3px 0 0 #2a1a10; }
+    .bubble.crow.compact { max-width: 34%; font-size: clamp(8.5px, 1vw, 12px); padding: 4px 8px; opacity: .92; }
+    .bubble.crow.compact u { color: #8a3a1a; text-decoration: none; }
+    .stage-wrap.group .tags.left { left: 28%; width: 22%; }
+    .stage-wrap.group .tags.right { left: 77%; width: 22%; }
+    .banner.gold { color: var(--gold); font-size: clamp(16px, 3.2vw, 34px); top: 30%; }
+    .verdict .px-btn.exec { grid-column: 1 / -1; font-family: 'Galmuri11', monospace; font-size: 12px; padding: 5px; background: #2a1020; --line: #b04060; }
+    .verdict .px-btn.exec:not(:disabled):hover { background: #4a1830; }
+
     /* 다이얼로그 */
     dialog { border: 0; background: transparent; color: var(--ink); max-width: min(620px, calc(100vw - 24px)); width: 100%; margin: auto; }
     dialog::backdrop { background: rgba(5, 0, 8, .78); }
@@ -221,6 +237,7 @@
           <span class="name-tag sinner" id="tag-sinner" hidden></span>
           <div class="tags left" id="tags-left" aria-label="드러난 정황"></div>
           <div class="tags right" id="tags-right"></div>
+          <div id="bubble-crow" class="bubble crow" hidden></div>
           <div id="bubble-reaper" class="bubble reaper" hidden></div>
           <div id="bubble-sinner" class="bubble sinner" hidden></div>
           <div id="banner" class="banner" hidden></div>
@@ -238,12 +255,6 @@
     </div>
 
     <aside class="side px-box">
-      <h2>📜 사건 기록부 <small id="case-no"></small></h2>
-      <div class="casefile">
-        <div class="case-title" id="case-title">심판을 기다리는 중</div>
-        <div class="case-meta" id="case-meta">▶ 심판 시작을 누르면 첫 망자가 입장합니다</div>
-        <p class="brief" id="case-brief"></p>
-      </div>
       <h2>🔥 심문 <small class="engine-tag" id="engine-tag"></small></h2>
       <div class="chat" id="chat" aria-live="polite"></div>
       <div class="suggest" id="suggest" hidden>
@@ -389,6 +400,7 @@
       voice: '겁 많고 자책하는 20대 여성, 존댓말, 말끝을 흐림',
       brief: '여름 계곡 여행에서 친구 하은이 급류에 휩쓸렸다. 서진은 물에 뛰어들지 않고 바위 위에서 휴대폰만 들고 있었다. 하은은 구조됐지만, 그날 밤 서진의 SNS에는 계곡 사진이 올라왔다.',
       hooks: ['왜 물에 뛰어들지 않았을까?', '휴대폰으로 무엇을 하고 있었나?', '그날 밤 올라온 사진은 누가, 왜?'],
+      fear: [['외면', '죽게', '일부러', '방치', '안구'], ['찍', '촬영', 'sns', '인스타']],
       intro: '저… 저는 정말 아무것도 못 했어요. 그래서 여기 온 건가요?',
       facts: [
         { id: 'f1', tag: '수영 못 함', q: '왜 물에 뛰어들지 않았지?', kw: ['수영', '물', '뛰어', '들어가', '구하', '안구'], a: '전… 수영을 못 해요. 어릴 때 물에 빠진 뒤로 발목까지만 들어가도 숨이 막혀요. 뛰어들었으면 둘 다 떠내려갔을 거예요.', note: '수영을 못 함 (어릴 적 익수 경험)', mood: 'crying' },
@@ -411,6 +423,7 @@
       voice: '허세 많고 능글맞은 60대 사장, 반말 섞인 하오체, 불리하면 비서·아들 탓',
       brief: '식품 유통회사 사장 박만복은 매년 어린이 급식 단체에 거액을 기부해 "기부왕"이라 불렸다. 장례식엔 수백 명이 찾아왔다. 다만 장례 다음 날, 회사 창고에서 서류 상자 몇 개가 급히 불태워졌다.',
       hooks: ['기부금은 어디서 나왔을까?', '급식 단체에 들어간 건 돈뿐이었을까?', '장례 다음 날 불태운 서류는?'],
+      fear: [['세금', '탈세', '영수증', '부풀'], ['유통기한', '배탈', '재고'], ['서류', '증거', '태운', '식약처']],
       intro: '허허, 사신 양반. 내 장례식 봤소? 그 많은 사람들이 다 날 사랑해서 온 거요.',
       facts: [
         { id: 'f1', tag: '영수증 부풀림?', q: '기부금은 어디서 나왔지?', kw: ['기부', '돈', '금액', '얼마', '어디서', '출처', '영수증'], a: '기부야 매년 했지. 영수증도 다 있고… 뭐, 금액은 회계팀이 알아서 부풀… 아니, 맞췄겠지.', note: '기부 영수증을 "부풀"렸다고 말하다 정정', mood: 'nervous' },
@@ -433,6 +446,7 @@
       voice: '구수한 사투리 섞인 70대 할머니, 귀가 어둡고 남 걱정이 많음',
       brief: '편의점 CCTV에 매일 새벽 빵 두 개를 들고 그냥 나가는 김말순 할머니가 찍혔다. 점주는 신고를 고민했고, 동네엔 "빵 도둑 할머니" 소문이 돌았다. 할머니는 그해 겨울 골목길에서 쓰러진 채 발견됐다.',
       hooks: ['정말 돈을 안 냈을까?', '빵 두 개는 누구 몫이었나?', '왜 하필 새벽마다 갔을까?'],
+      fear: [['훔', '도둑', '절도', '안냈'], ['cctv', '신고']],
       intro: '아이고, 여기가 거긴가… 사신 양반, 나 빵값 다 냈어요. 진짜로.',
       facts: [
         { id: 'f1', tag: '계산대 밑 동전 컵', q: '빵값은 정말 냈나?', kw: ['돈', '계산', '값', '냈', '훔', '도둑', '결제'], a: '계산대에 사람이 없길래 동전을 계산대 밑 컵에 넣어 놨지. 점주 양반이 그 컵을 못 봤나 봐. 내가 눈이 어두워서 딱 맞게 넣었는지는 몰라도.', note: '빵값을 계산대 아래 컵에 넣어 둠', mood: 'calm' },
@@ -455,6 +469,7 @@
       voice: '자기과시가 강한 30대 배달원, 가벼운 존댓말, 몰리면 말을 바꿈',
       brief: '원룸 건물 화재 현장에서 배달원 강도윤이 이웃 노인을 업고 나오는 영상이 퍼져 "의인"으로 표창과 상금을 받았다. 화재 원인은 "1층 주차장의 원인 불명 발화"로 남았다.',
       hooks: ['불은 왜 1층 주차장에서 시작됐을까?', '영상은 누가 찍었나?', '노인을 처음 발견한 사람은?'],
+      fear: [['배터리', '개조', '충전', '원인'], ['연출', '다시', '조작'], ['대학생', '먼저', '가로']],
       intro: '사신님, 저 의인상 받은 사람이에요. 뉴스 보셨죠? 그럼 얘기 끝난 거 아닌가?',
       facts: [
         { id: 'f1', tag: '주차장서 충전 중', q: '불은 어디서 시작됐지?', kw: ['불', '화재', '원인', '주차장', '발화', '시작'], a: '주차장 불은… 누가 담배라도 버렸겠죠. 제 오토바이요? 거기 세워 두긴 했는데, 충전은… 그냥 일반 충전이었어요.', note: '자기 오토바이를 주차장에서 충전 중이었음', mood: 'nervous' },
@@ -477,6 +492,7 @@
       voice: '말수 적고 단정한 40대 팀장, 딱딱한 하십시오체, 감정을 누름',
       brief: '건설사 팀장 정우현은 회사 내부 자료를 외부로 빼돌렸다는 이유로 해고됐다. 밤늦게 회의실에서 USB를 꽂는 모습이 찍혔고, 그 직후 계좌에 큰돈이 들어왔다. 그는 끝까지 아무 해명도 하지 않았다.',
       hooks: ['자료는 누구에게 갔을까?', '계좌에 들어온 돈의 정체는?', '왜 끝까지 해명하지 않았을까?'],
+      fear: [['대가', '팔았', '경쟁사', '돈받'], ['배신', '유출']],
       intro: '…해명은 안 할 겁니다. 살아서도 안 했으니까요. 물어보실 게 있으면 물어보십시오.',
       facts: [
         { id: 'f1', tag: '기자·감독기관 제보', q: '자료는 누구에게 넘겼지?', kw: ['자료', '누구', '경쟁사', '넘긴', '넘겼', '빼돌', '유출', '외부'], a: '경쟁사가 아닙니다. 기자와 감독기관에 보냈습니다. 아파트 철근을 설계보다 빼먹은 기록이었습니다.', note: '자료는 철근 누락 증거 — 기자·감독기관에 제보', mood: 'calm' },
@@ -499,6 +515,7 @@
       voice: '피로와 억울함을 앞세우는 30대 남성, 존댓말, 자기 연민이 강함',
       brief: '오준호는 치매 아버지를 10년간 홀로 간병해 동네의 "효자"로 불렸다. 아버지가 돌아가신 뒤 유산은 모두 준호에게 갔다. 그런데 아버지의 마지막 1년 진료 기록은 텅 비어 있다.',
       hooks: ['마지막 1년, 왜 병원에 가지 않았나?', '유언장은 언제, 어떻게 쓰였나?', '아버지의 연금은 어디로 갔나?'],
+      fear: [['유언', '도장', '위조'], ['연금', '보험', '할부'], ['치료', '병원', '방치']],
       intro: '사신님… 저 10년이에요, 10년. 제 인생을 아버지한테 다 드렸어요.',
       facts: [
         { id: 'f1', tag: '치료 중단(본인 판단)', q: '마지막 1년, 왜 병원에 안 갔지?', kw: ['병원', '진료', '치료', '마지막', '1년', '의사', '안갔'], a: '병원은… 아버지가 싫어하셨어요. 아니, 그때는 말씀도 잘 못 하셨으니까… 제가 판단한 거죠. 어차피 나아지는 병도 아니고.', note: '마지막 1년 치료를 본인 판단으로 끊음', mood: 'nervous' },
@@ -516,6 +533,165 @@
       },
       reveal: '준호의 초반 간병은 진심이었지만, 마지막 1년엔 연금과 유산을 노려 치료를 끊고 형의 방문을 막아 아버지를 고립시켰다. 치매 상태의 아버지 손을 잡아 유언장을 쓰게 하고 도장을 대신 찍었다.',
     },
+    // ───────── 외국인 망자 (원어 + (한국어 번역)) ─────────
+    {
+      id: 'ramen', title: '야박한 라멘집 사장', name: '사토 켄지', age: 52, sprite: 'chef', lang: 'ja', cause: '과로로 인한 뇌출혈', truth: 'heaven',
+      voice: '무뚝뚝한 50대 일본인 라멘집 사장. 일본어로 짧게 말하고 바로 뒤 괄호 안에 한국어 번역을 붙인다',
+      brief: '서울 골목 라멘집 사장 사토는 마감 직전, 술에 취한 단골손님을 문밖으로 내쫓았다. 손님은 그날 밤 골목에서 쓰러진 채 발견됐고, 동네엔 "야박한 외국인 사장" 소문이 돌았다. 사토는 한 달 뒤 주방에서 쓰러졌다.',
+      hooks: ['왜 손님을 내쫓았을까?', '내쫓은 뒤엔 무슨 일이?', '손님은 어떻게 됐을까?'],
+      intro: 'いらっしゃい…じゃないか。ここはどこだ? (어서 오세요…가 아니군. 여긴 어디지?)',
+      fear: [['내쫓', '쫓아', '야박', '버렸'], ['죽게', '방치', '외면']],
+      facts: [
+        { id: 'f1', tag: '가스버너 켜 둔 손님', q: '왜 손님을 내쫓았지?', kw: ['내쫓', '쫓아', '손님', '단골', '취한', '술'], a: 'あいつ、酔ってカセットコンロの火をつけたまま寝ようとしたんだ。危ないから外に出した。(그 녀석, 취해서 휴대용 가스버너 불을 켠 채로 자려고 했어. 위험해서 밖으로 내보냈지.)', note: '손님이 가스버너를 켠 채 잠들려 해 내보냄', mood: 'calm' },
+        { id: 'f2', tag: '택시 불러 줌', q: '내보낸 뒤 손님은 어떻게 했지?', kw: ['택시', '그뒤', '내보낸', '집', '보냈'], a: 'タクシーを呼んで、運転手に住所も渡した。…でもあいつ、途中で降りたらしい。(택시를 불러서 기사한테 주소도 건넸어. …근데 그 녀석, 중간에 내렸나 봐.)', note: '택시를 불러 주소까지 전달, 손님이 중간에 하차', mood: 'nervous' },
+        { id: 'f3', tag: '몰래 싸 준 국물', q: '손님에게 뭔가 챙겨 줬나?', kw: ['국물', '챙겨', '줬', '봉지', '라멘', '음식'], a: 'スープを袋に入れて持たせた。二日酔いに効くから。…言うなよ、恥ずかしい。(국물을 봉지에 담아 들려 보냈어. 해장에 좋으니까. …말하지 마, 쑥스럽다.)', note: '해장용 국물을 몰래 싸서 들려 보냄', mood: 'calm' },
+        { id: 'f4', tag: '손님은 살아남음', q: '쓰러진 손님은 살았나?', kw: ['살았', '살아', '병원', '쓰러진', '죽었'], a: 'あいつは生きてる。病院で俺のスープの袋を握ってたって、看護師が言ってた。(그 녀석은 살아 있어. 병원에서 내 국물 봉지를 쥐고 있었다고 간호사가 그러더라.)', note: '손님은 살아남았고 국물 봉지를 쥐고 있었음', mood: 'crying' },
+        { id: 'f5', tag: '하루 18시간 영업', q: '당신은 왜 쓰러졌나?', kw: ['과로', '쓰러', '영업', '시간', '죽', '당신'], a: '一日十八時間、スープを炊いてた。店を閉めたら、行く所がないからな。(하루 열여덟 시간 국물을 끓였지. 가게 문 닫으면 갈 데가 없으니까.)', note: '하루 18시간 일하다 과로로 쓰러짐', mood: 'calm' },
+      ],
+      evasive: ['…知らん。(…몰라.)', '質問が多いな。(질문이 많군.)', '韓国語、ちょっと難しい。(한국어, 좀 어려워.)'],
+      chips: [],
+      plea: {
+        hell: { style: '태세 전환', line: '…そうだ、俺は冷たい男だ。地獄でいい。ただ、あいつに「スープ代はいらない」と伝えてくれ。(…그래, 난 차가운 남자다. 지옥이라도 좋아. 다만 그 녀석한테 "국물값은 됐다"고 전해 줘.)' },
+        heaven: { style: '말 바꾸기', line: '天国?…いや、あの夜もっと強く引き止めるべきだった。俺のせいだ。(천국? …아니, 그날 밤 더 붙잡았어야 했어. 내 탓이다.)' },
+      },
+      reveal: '사토는 취한 단골이 가스버너를 켠 채 잠들려 하자 위험해서 내보냈고, 택시를 불러 주소를 건네고 해장 국물까지 싸 줬다. 손님은 중간에 내려 쓰러졌지만 살아남았다. 사토는 하루 18시간 가게를 지키다 과로로 쓰러졌다.',
+    },
+    {
+      id: 'jake', title: '한국을 사랑한 원어민 선생님', name: '제이크 밀러', age: 34, sprite: 'american', lang: 'en', cause: '스카이다이빙 촬영 중 사고', truth: 'hell',
+      voice: '넉살 좋은 30대 미국인 유튜버. 영어로 짧게 말하고 바로 뒤 괄호 안에 한국어 번역을 붙인다',
+      brief: '"한국을 사랑하는 원어민 선생님" 제이크는 구독자 80만 유튜버였고, 그의 영어 학원은 늘 대기 인원이 넘쳤다. 그런데 그가 스카이다이빙 영상을 찍다 숨진 다음 날, 학원은 문을 닫았고 학부모들은 환불을 받지 못했다.',
+      hooks: ['그는 정말 선생님 자격이 있었을까?', '학원비는 어디로?', '그 스카이다이빙은 왜?'],
+      intro: "Hey, what's up? Is this, like, a new content set? (안녕, 무슨 일이야? 여기 혹시 새 콘텐츠 세트장이야?)",
+      fear: [['환불', '수강료', '횡령', '학원비'], ['학위', '가짜', '자격'], ['도망', '티켓', '발리']],
+      facts: [
+        { id: 'f1', tag: '학위 의혹', q: '교사 자격은 있었나?', kw: ['학위', '자격', '교사', '졸업', '증명', '대학'], a: "My degree? It's from a… very exclusive online university. Like, doesn't-really-exist exclusive. (내 학위? 아주… 특별한 온라인 대학 거야. 거의 존재하지 않을 정도로 특별한.)", note: '학위가 사실상 가짜', mood: 'nervous' },
+        { id: 'f2', tag: '1년치 선결제', q: '학원 돈은 어떻게 운영했지?', kw: ['학원', '수강료', '돈', '환불', '결제', '등록'], a: "I gave a huge discount if parents paid a full year up front. Smart, right? Then I reinvested it. Into me. (1년치를 미리 내면 엄청 할인해 줬지. 똑똑하지? 그다음엔 재투자했어. 나한테.)", note: '1년치 수강료를 선결제받아 개인적으로 사용', mood: 'smug' },
+        { id: 'f3', tag: '감동 영상 연출', q: '유튜브 영상은 진짜였나?', kw: ['유튜브', '영상', '구독', '콘텐츠', '대본', '촬영'], a: "Content is content, bro. The crying grandma in my 'Korean Hospitality' video? Paid actor. Fifty bucks. ('한국의 정' 영상에서 울던 할머니? 돈 주고 쓴 배우야. 50달러.)", note: '감동 영상은 돈 주고 연출', mood: 'smug' },
+        { id: 'f4', tag: '강사 월급 체불', q: '학원 선생님들은?', kw: ['강사', '선생님', '직원', '월급', '임금', '동료'], a: "The other teachers? They'd get paid after the next sponsorship. That was the plan. Probably. (다른 강사들? 다음 협찬 들어오면 줄 생각이었지. 아마도.)", note: '다른 강사들 월급 체불', mood: 'nervous' },
+        { id: 'f5', tag: '발리행 편도 티켓', q: '죽기 전에 무슨 계획이 있었나?', kw: ['계획', '티켓', '비행기', '도망', '떠나', '스카이다이빙', '죽'], a: "The skydive was my farewell video. One-way ticket to Bali the next morning. …Wait, I shouldn't have said that. (스카이다이빙은 작별 영상이었어. 다음 날 아침 발리행 편도 티켓도 있었고. …잠깐, 이건 말하면 안 됐는데.)", note: '다음 날 발리행 편도 티켓 — 도피 계획', mood: 'nervous' },
+      ],
+      evasive: ['No comment, bro. (노코멘트야.)', "Let's keep it positive, okay? (긍정적으로 가자, 응?)", 'Sorry, my Korean is… not good today. (미안, 오늘은 한국어가 잘 안 되네.)'],
+      chips: [],
+      plea: {
+        hell: { style: '눈물 호소', line: "Please, please! I made Korea famous! Millions of views! Doesn't that count?! (제발! 내가 한국을 알렸잖아! 조회수 수백만이라고! 그건 쳐줘야지?!)" },
+        heaven: { style: '반전 어필', line: "Heaven? Sweet! Is there Wi-Fi? Gotta tell my subs. …And don't tell the parents where I am. (천국? 좋아! 와이파이 돼? 구독자들한테 알려야지. …학부모들한텐 내가 어디 있는지 말하지 마.)" },
+      },
+      reveal: '제이크는 가짜 학위로 학원을 차려 1년치 수강료를 미리 받아 챙겼고, 감동 영상은 돈 주고 연출했으며 강사 월급까지 떼먹었다. 스카이다이빙 영상은 발리로 도망치기 전날 찍은 "작별 영상"이었다.',
+    },
+    // ───────── 이벤트: 함께 죽은 망자들 ─────────
+    {
+      id: 'volunteer', title: '노란 조끼 봉사단', name: '사랑나눔 봉사단 3인', group: true, cause: '승합차 사고 (3인 동시 사망)', truth: 'hell',
+      members: [{ name: '한대표', age: 47, sprite: 'vol_leader' }, { name: '윤총무', age: 39, sprite: 'vol_woman' }, { name: '막내 수혁', age: 24, sprite: 'vol_young' }],
+      voice: '한대표는 점잖은 척하는 말투, 윤총무는 깍쟁이 같은 존댓말, 막내 수혁은 겁먹은 20대',
+      brief: '"사랑나눔 봉사단" 세 사람은 독거노인 도시락 봉사를 마치고 돌아오던 승합차 사고로 함께 숨졌다. 봉사단 후원 계좌엔 매달 수천만 원이 들어왔다. 그런데 장례식엔 도시락을 받던 노인이 한 명도 오지 않았다.',
+      hooks: ['도시락 봉사는 진짜였을까?', '후원금은 어디로?', '노인들은 왜 오지 않았나?'],
+      intro: '저희는 평생 남을 위해 살았습니다. 이렇게 셋이 같이 오게 될 줄은…',
+      fear: [['후원', '계좌', '장부', '횡령'], ['사진', '섭외', '연출', '가짜'], ['골프', '접대']],
+      facts: [
+        { id: 'f1', by: 0, tag: '도시락은 월 1회', q: '도시락 봉사는 얼마나 자주 했지?', kw: ['도시락', '봉사', '얼마나', '자주', '독거'], a: '도시락은… 한 달에 한 번, 사진 찍는 날에 몰아서 했습니다. 매일 하는 것처럼 보이게요.', note: '도시락 봉사는 사진 찍는 날 월 1회뿐', mood: 'nervous' },
+        { id: 'f2', by: 1, tag: '후원금 → 대표 계좌', q: '후원금은 어디로 갔나?', kw: ['후원', '계좌', '돈', '수천', '어디로', '장부'], a: '후원금은 대표님 개인 계좌로 먼저 받았어요. 저는 총무라 장부만 맞춰 놨고요… 숫자만.', note: '후원금을 대표 개인 계좌로 받아 장부 조작', mood: 'nervous' },
+        { id: 'f3', by: 2, tag: '사진용 노인 섭외', q: '사진 속 노인들은 누구지?', kw: ['사진', '노인', '할머니', '할아버지', '섭외', 'sns', '홍보', '장례'], a: '사진 속 어르신들은… 제가 경로당에서 일당 드리고 모셔 온 분들이에요. 저는 시키는 대로 했어요!', note: '홍보 사진 속 노인은 일당 주고 섭외', mood: 'crying' },
+        { id: 'f4', by: 0, tag: '그날은 골프 접대', q: '사고 날 어디서 돌아오던 길이었나?', kw: ['사고', '승합차', '어디', '돌아', '그날', '귀갓길'], a: '그날은… 봉사가 아니라 후원자 골프 접대 갔다 오던 길이었습니다. 기사엔 봉사 귀갓길로 나갔지만요.', note: '사고 당일은 후원자 골프 접대 귀갓길', mood: 'nervous' },
+        { id: 'f5', by: 2, tag: '막내의 신고 준비', q: '막내는 어떻게 생각했지?', kw: ['막내', '수혁', '양심', '고발', '신고', '그만'], a: '저는… 다음 주에 신고하려고 녹음 파일 모아 뒀어요. 근데 저도 그 돈으로 월급 받았으니까…', note: '막내는 신고를 준비했지만 그 돈으로 월급을 받음', mood: 'crying' },
+      ],
+      evasive: ['그건 저희 봉사단 내부 사정이라서요.', '좋은 일 하다 보면 오해도 생기는 법이죠.', '…대표님이 대답하실 거예요.'],
+      chips: [],
+      plea: {
+        hell: { style: '눈물 호소', by: 2, line: '저, 저는 막내예요! 신고하려고 했다고요! 대표님이랑 같이 지옥은 너무하잖아요!' },
+        heaven: { style: '자기 자랑', by: 0, line: '역시 사신님은 아시는군요. 천국에서도 봉사단 하나 차리겠습니다. 후원 계좌는 나중에 알려 드리죠.' },
+      },
+      reveal: '봉사단은 한 달에 한 번 사진용으로 도시락을 돌리고, 일당 주고 섭외한 노인과 연출 사진을 찍어 후원금을 모았다. 후원금은 대표 개인 계좌로 들어가 장부가 조작됐고, 사고 당일도 후원자 골프 접대 귀갓길이었다. 막내는 신고를 준비했지만 공범이었다.',
+    },
+    {
+      id: 'bikers', title: '새벽의 폭주족 두 명', name: '라이더 2인', group: true, cause: '새벽 오토바이 과속 사고 (2인 동시 사망)', truth: 'heaven',
+      members: [{ name: '강철', age: 26, sprite: 'biker_a' }, { name: '오토', age: 25, sprite: 'biker_b' }],
+      voice: '강철은 투박한 형님 말투, 오토는 장난기 많은 동생 말투',
+      brief: '문신투성이 라이더 두 명이 새벽 3시, 시속 140km로 국도를 달리다 가드레일을 들이받았다. 주민들은 "매일 밤 굉음 내던 폭주족, 결국 저렇게 갔다"며 혀를 찼다. 사고 현장엔 처음 보는 아이 운동화 한 짝이 떨어져 있었다.',
+      hooks: ['아이 운동화는 누구 것?', '왜 그렇게 급했을까?', '그 문신의 의미는?'],
+      intro: '야, 오토. 우리 진짜 죽은 거냐? …아 네, 사신님. 저희가 좀 시끄럽긴 했죠.',
+      fear: [['폭주', '과속', '굉음', '소음', '민폐'], ['일부러', '난폭', '술']],
+      facts: [
+        { id: 'f1', by: 0, tag: '뒷좌석의 아이', q: '아이 운동화는 누구 거지?', kw: ['운동화', '아이', '신발', '누구', '애', '꼬마'], a: '그거 옆 마을 꼬마 거예요. 경련하면서 숨을 못 쉬길래 오토 뒤에 태우고 제가 앞에서 길 텄어요.', note: '경련하는 옆 마을 아이를 태우고 달림', mood: 'calm' },
+        { id: 'f2', by: 1, tag: '구급차 40분 대기', q: '왜 구급차를 부르지 않았나?', kw: ['구급차', '119', '신고', '부르', '급했', '왜'], a: '불렀죠! 근데 그 동네는 구급차 오는 데 40분 걸린대요. 병원까지 오토바이로 15분이었고요.', note: '구급차는 40분, 오토바이로는 병원까지 15분', mood: 'nervous' },
+        { id: 'f3', by: 1, tag: '아이는 살았다', q: '그 아이는 어떻게 됐지?', kw: ['살았', '어떻게됐', '병원', '아이는', '꼬마는'], a: '응급실 문 앞에 애 내려 주고 돌아 나오다가… 저희가 미끄러졌어요. 애는 살았대요. 그거면 됐죠.', note: '아이는 응급실에 도착해 살았음', mood: 'crying' },
+        { id: 'f4', by: 0, tag: '평소 굉음은 사실', q: '매일 밤 굉음은 뭐였지?', kw: ['굉음', '시끄', '매일', '밤', '폭주', '소음'], a: '그건… 사실이에요. 머플러 튜닝하고 동네 돌았어요. 그건 진짜 죄송합니다. 민원 많이 들어왔죠.', note: '평소 소음 민폐는 사실', mood: 'nervous' },
+        { id: 'f5', by: 1, tag: '문신은 추모', q: '그 문신은 무슨 의미지?', kw: ['문신', '타투', '팔', '의미'], a: '팔에 있는 거요? 먼저 간 동생 이름이에요. 동생도 병원 늦게 도착해서… 그래서 그날 더 밟았어요.', note: '문신은 병원에 늦게 도착해 숨진 동생 추모', mood: 'crying' },
+      ],
+      evasive: ['아 그건 잘 모르겠는데요.', '형한테 물어보세요.', '사신님 낫 멋있네요. 그거 튜닝한 거예요?'],
+      chips: [],
+      plea: {
+        hell: { style: '태세 전환', by: 0, line: '…네, 맞아요. 동네에서 제일 시끄러운 놈들이었어요. 지옥 가도 할 말 없죠. 근데 그 꼬마 크면, 오토바이는 타지 말라고 해 주세요.' },
+        heaven: { style: '반전 고백', by: 1, line: '형, 우리 천국이래. …근데 사신님, 저 사실 그날 신호 세 개 무시했어요. 그래도 돼요?' },
+      },
+      reveal: '두 라이더는 경련으로 숨을 못 쉬는 옆 마을 아이를 태우고, 구급차가 40분 걸린다는 말에 병원까지 질주했다. 아이는 응급실에 도착해 살았고, 두 사람은 돌아 나오다 사고를 당했다. 평소 소음 민폐는 사실이지만, 그날 밤만은 생명을 구한 질주였다.',
+    },
+    // ───────── 이벤트: 동물 망자 (울음소리 + (번역)) ─────────
+    {
+      id: 'dog', title: '사람을 문 개', name: '보리', age: '4살', species: '강아지', sprite: 'dog', cause: '골목 교통사고', truth: 'heaven',
+      voice: '순하고 겁 많은 백구. 대사는 개 울음소리로 시작하고 괄호 안에 한국어 번역을 붙인다',
+      brief: '골목의 백구 보리가 하교하던 아이의 팔을 물고 끌고 갔다. 아이 엄마의 신고로 보리는 "위험한 개" 딱지가 붙었다. 며칠 뒤 보리는 같은 골목에서 차에 치였다.',
+      hooks: ['정말 아이를 물었을까?', '왜 끌고 갔을까?', '어떤 차에 치였을까?'],
+      intro: '왈! 왈왈! (난 옆집 민수네 강아지 보리야! 나 혼나는 거야?)',
+      fear: [['물었', '물어', '공격', '위험', '사나'], ['안락사', '버려']],
+      facts: [
+        { id: 'f1', tag: '팔이 아니라 소매', q: '아이를 정말 물었나?', kw: ['물었', '물어', '팔', '상처', '이빨'], a: '끼잉… 왈! (안 물었어! 소매만 물고 당겼어. 이빨 자국도 없었다구!)', note: '팔이 아니라 소매만 물고 당김', mood: 'crying' },
+        { id: 'f2', tag: '후진하던 트럭', q: '왜 아이를 끌고 갔지?', kw: ['왜', '끌고', '당겼', '이유', '트럭', '차'], a: '왈왈왈! (트럭이 뒤로 오는데 애가 휴대폰만 보고 있었어! 삐-삐- 소리도 안 났다구!)', note: '후진하는 트럭을 못 본 아이를 끌어냄', mood: 'nervous' },
+        { id: 'f3', tag: 'CCTV엔 트럭 없음', q: '그 장면을 본 사람은?', kw: ['cctv', '본사람', '목격', '증거', '영상', '신고'], a: '멍… (가게 CCTV엔 내가 애를 끄는 것만 찍혔대. 트럭은 반대쪽이라 안 찍혔고.)', note: 'CCTV 각도에 트럭이 안 찍힘', mood: 'calm' },
+        { id: 'f4', tag: '같은 트럭에 치임', q: '어떻게 죽게 됐지?', kw: ['죽', '치였', '사고', '어떻게'], a: '끄응… (그 트럭, 또 후진하더라. 이번엔 내가 못 피했어. 민수는 안 다쳤으니까 괜찮아.)', note: '같은 트럭이 또 후진하다 보리를 침', mood: 'crying' },
+        { id: 'f5', tag: '택배 기사한텐 짖음', q: '평소에 사람을 위협했나?', kw: ['평소', '짖', '위협', '사나', '공격'], a: '왈! 왈! (택배 아저씨한텐 좀 짖었어… 그건 미안. 근데 간식 줘서 이제 친구야!)', note: '평소 택배 기사에게 짖긴 했음', mood: 'smug' },
+      ],
+      evasive: ['킁킁… (냄새로는 모르겠어.)', '왈? (그게 뭔데? 먹는 거야?)', '끼잉… (어려운 말 몰라.)'],
+      chips: [],
+      plea: {
+        hell: { style: '눈물 호소', line: '끼이잉… 끼잉… (나 지옥 가? 민수 산책은 누가 시켜 줘… 착한 강아지 할게, 진짜야…)' },
+        heaven: { style: '반전 고백', line: '왈! …멍. (천국? 근데 나 사실 민수 엄마 슬리퍼도 물어뜯었어. 그것도 괜찮아?)' },
+      },
+      reveal: '보리는 후진하는 트럭을 못 본 아이의 소매를 물고 끌어내 목숨을 구했다. CCTV엔 트럭이 찍히지 않아 오해를 샀고, 며칠 뒤 같은 트럭이 다시 후진하다 보리를 치었다.',
+    },
+    {
+      id: 'cat', title: '천사 같은 고양이', name: '마시멜로', age: '6살', species: '고양이', sprite: 'cat', cause: '참치캔 과식으로 인한 급체', truth: 'hell',
+      voice: '도도하고 능청스러운 하얀 고양이. 대사는 고양이 울음소리로 시작하고 괄호 안에 한국어 번역을 붙인다',
+      brief: '하얀 털에 리본을 단 고양이 마시멜로는 동네 다섯 집에서 "우리 고양이"로 불렸다. 그 무렵 옆집 강아지는 깨진 꽃병 때문에 쫓겨났고, 어항의 금붕어들은 하나둘 사라졌다.',
+      hooks: ['정말 다섯 집의 고양이였을까?', '꽃병은 누가 깼을까?', '금붕어는 어디로?'],
+      intro: '냐아앙~ (어머, 사신님. 털 정리 좀 하고 와도 될까요?)',
+      fear: [['꽃병', '누명', '강아지'], ['금붕어', '어항']],
+      facts: [
+        { id: 'f1', tag: '다섯 집 이중생활', q: '정말 다섯 집 고양이였나?', kw: ['다섯', '집', '주인', '이중', '밥', '여러'], a: '냥. (다섯 집에서 밥 받았어. 집마다 이름도 달라. 마시멜로, 나비, 공주, 두부, 회장님.)', note: '다섯 집에서 각각 다른 이름으로 밥을 받음', mood: 'smug' },
+        { id: 'f2', tag: '꽃병은 내가 깼다', q: '꽃병은 누가 깼지?', kw: ['꽃병', '깼', '강아지', '쫓겨', '누명'], a: '…냐. (꽃병? 내가 꼬리로 쳤지. 그 집 강아지가 옆에서 자길래, 그 위에 꽃잎 좀 뿌려 놨어.)', note: '꽃병을 깨고 강아지에게 누명을 씌움', mood: 'smug' },
+        { id: 'f3', tag: '사라진 금붕어', q: '금붕어는 어디로 갔지?', kw: ['금붕어', '어항', '물고기', '사라진'], a: '냥냥. (금붕어는… 자유를 찾아 떠났어. 내 배 속으로.)', note: '어항의 금붕어를 먹어 치움', mood: 'smug' },
+        { id: 'f4', tag: '강아지는 보호소로', q: '쫓겨난 강아지는 어떻게 됐나?', kw: ['쫓겨난', '보호소', '강아지는'], a: '…냐앙. (보호소 갔대. 뭐, 거기도 밥은 주잖아?)', note: '누명 쓴 강아지는 보호소로 감', mood: 'nervous' },
+        { id: 'f5', tag: '참치캔 다섯 개', q: '어떻게 죽게 됐지?', kw: ['죽', '참치', '과식', '어떻게', '배'], a: '냐… (다섯 집에서 동시에 참치캔을 땄어. 의리상 다 먹었지.)', note: '다섯 집 참치캔을 다 먹다 급체', mood: 'calm' },
+      ],
+      evasive: ['냥? (무슨 소리인지 모르겠는데요?)', '그르릉… (지금 그루밍 중이라서요.)', '냐아. (집사한테 물어보세요.)'],
+      chips: [],
+      plea: {
+        hell: { style: '애교 공세', line: '냐앙~ 골골골… (사신님, 턱 밑 긁어 줄래요? 이렇게 귀여운데 지옥이라뇨. 골골골…)' },
+        heaven: { style: '반전 어필', line: '냥! (역시! 근데 천국에도 어항 있어요? 그냥 궁금해서요.)' },
+      },
+      reveal: '마시멜로는 다섯 집을 속여 밥을 받았고, 자기가 깬 꽃병의 누명을 옆집 강아지에게 씌워 보호소로 보냈으며 어항의 금붕어를 모두 먹어 치웠다. 귀여운 외모 뒤의 확신범이었다.',
+    },
+    {
+      id: 'monkey', title: '동물원 탈출 원숭이', name: '바나', age: '7살', species: '원숭이', sprite: 'monkey', cause: '동물원 화재 (연기 흡입)', truth: 'heaven',
+      voice: '장난꾸러기 원숭이. 대사는 원숭이 울음소리로 시작하고 괄호 안에 한국어 번역을 붙인다',
+      brief: '동물원 원숭이 바나가 우리를 탈출해 매점 바나나를 훔치고, 관람객의 선글라스를 빼앗아 달아났다. 그날 밤 사육동에 불이 났고, 바나는 활짝 열린 우리들 사이에서 발견됐다.',
+      hooks: ['어떻게 탈출했을까?', '불이 났을 때 무엇을 했나?', '우리 문은 누가 열었나?'],
+      intro: '우끼끼! 끼끽! (여기 바나나 있어? 아니 잠깐, 여기 어디야?)',
+      fear: [['훔', '절도', '도둑', '바나나', '선글라스'], ['탈출', '열쇠']],
+      facts: [
+        { id: 'f1', tag: '사육사 열쇠', q: '우리를 어떻게 탈출했지?', kw: ['탈출', '열쇠', '우리', '어떻게', '문'], a: '끼끽! (사육사 아저씨 허리에서 열쇠 슬쩍했지! 반짝반짝한 건 못 참아.)', note: '사육사의 열쇠를 훔쳐 탈출', mood: 'smug' },
+        { id: 'f2', tag: '불난 밤 우리를 엶', q: '불이 났을 때 뭘 했지?', kw: ['불', '화재', '연기', '그날밤', '사육동'], a: '우끼! 우끼끼! (연기 냄새 나서 그 열쇠로 다른 우리 문을 다 열었어! 호랑이 형만 빼고. 무서워서.)', note: '화재 때 훔친 열쇠로 다른 동물 우리를 열어 줌', mood: 'calm' },
+        { id: 'f3', tag: '동물 23마리 대피', q: '열린 우리의 동물들은?', kw: ['동물', '열린', '살았', '구출', '몇마리'], a: '끼… (다들 도망쳤대. 스물세 마리. 나는 아기 원숭이 하나 업고 나오다가 늦었어.)', note: '동물 23마리가 대피, 아기 원숭이를 업고 나오다 늦음', mood: 'crying' },
+        { id: 'f4', tag: '바나나·선글라스 절도', q: '바나나와 선글라스는 왜 훔쳤지?', kw: ['바나나', '선글라스', '훔', '매점', '관람객'], a: '우끽. (바나나는 배고파서. 선글라스는… 멋있어서. 그건 진짜 내 잘못.)', note: '매점 바나나와 선글라스 절도는 사실', mood: 'nervous' },
+        { id: 'f5', tag: '열쇠를 던져 줌', q: '호랑이는 어떻게 됐나?', kw: ['호랑이', '사육사', '맹수'], a: '끼끼. (호랑이 형은 사육사 아저씨가 열어 줬어. 내가 열쇠 돌려줬거든. 던져서.)', note: '열쇠를 사육사에게 던져 돌려줘 호랑이도 구조', mood: 'calm' },
+      ],
+      evasive: ['우끼? (그게 바나나랑 무슨 상관이야?)', '끽끽! (몰라 몰라!)', '우우… (어려운 질문 싫어.)'],
+      chips: [],
+      plea: {
+        hell: { style: '눈물 호소', line: '끼잉… 우끼… (바나나 훔친 건 미안해… 근데 아기 원숭이는 무사해? 그것만 알려 줘…)' },
+        heaven: { style: '반전 어필', line: '우끼끼! (천국! 거기 바나나 무한 리필이지? …선글라스도 하나 챙겨 가도 돼?)' },
+      },
+      reveal: '바나는 사육사 열쇠를 훔쳐 탈출하고 바나나와 선글라스를 훔친 말썽꾸러기였지만, 화재가 나자 그 열쇠로 동물 23마리의 우리를 열고 열쇠를 사육사에게 던져 맹수까지 구하게 했다. 마지막엔 아기 원숭이를 업고 나오다 연기에 쓰러졌다.',
+    },
   ];
 
   /* ════════════════════════════════════════════════════════════════
@@ -532,7 +708,7 @@
 
   const S = {
     phase: 'title', deck: [], caseNo: 0, c: null, qLeft: 5, qMax: 5, revealed: new Set(), chat: [],
-    streak: 0, run: [], best: store.get('hg.best', 0), busy: false, mood: 'calm', pleaHappened: false, pleaFlipped: false, firstVerdict: null,
+    streak: 0, run: [], members: [], speaker: 0, crowTalkUntil: 0, execUsed: false, pools: { normal: [], group: [], animal: [] }, fearUsed: new Set(), refunds: 0, best: store.get('hg.best', 0), busy: false, mood: 'calm', pleaHappened: false, pleaFlipped: false, firstVerdict: null,
     effect: null, gate: 0,
   };
 
@@ -567,6 +743,8 @@
     src.buffer = buf; src.connect(f); f.connect(g); g.connect(ac.destination); src.start();
   }
   const SFX = {
+    refill: () => { [523, 659, 784].forEach((f, i) => beep(f, 0.07, 'triangle', 0.05, i * 0.06)); },
+    execute: () => { noise(0.35, 0.2); beep(1200, 0.08, 'sawtooth', 0.05); beep(180, 0.4, 'square', 0.06, 0.1); },
     tag: () => { beep(1040, 0.05, 'square', 0.035); beep(1560, 0.07, 'square', 0.035, 0.06); },
     hint: () => { beep(660, 0.05, 'triangle', 0.04); beep(990, 0.07, 'triangle', 0.04, 0.07); },
     blip: (pitch = 1) => beep((320 + Math.random() * 90) * pitch, 0.03, 'square', 0.025),
@@ -582,7 +760,7 @@
    *  4. 픽셀 스테이지 (Canvas 320×180, nearest-neighbor 확대)
    * ════════════════════════════════════════════════════════════════ */
   const cv = $('#stage');
-  const ctx = cv.getContext('2d');
+  let ctx = cv.getContext('2d'); // 스프라이트를 그릴 때 잠시 오프스크린으로 바뀜
   ctx.imageSmoothingEnabled = false;
   const W = 320, H = 180;
   const REAPER_X = 64, SINNER_X = 200, FLOOR_Y = 150;
@@ -757,82 +935,296 @@
     }
   }
 
-  // ── 망자 (우측, 유령) ──
-  const LOOK = {
-    woman:    { skin: '#f1c9a8', hair: '#3b2418', cloth: '#6aa5c9', cloth2: '#4a7fa0' },
-    merchant: { skin: '#e8b48f', hair: '#5a4030', cloth: '#7a4b26', cloth2: '#c9a03a' },
-    granny:   { skin: '#ecc6a6', hair: '#cfcfd2', cloth: '#b0607a', cloth2: '#8a4660' },
-    courier:  { skin: '#e9bb94', hair: '#2a1a14', cloth: '#3a7bd5', cloth2: '#e0b83a' },
-    office:   { skin: '#eec19b', hair: '#18141a', cloth: '#e8e8ec', cloth2: '#c0392b' },
-    son:      { skin: '#e6b893', hair: '#4a3020', cloth: '#4b6b3a', cloth2: '#33502a' },
+  // ── 망자 · 까마귀 스프라이트 ──
+  // 오프스크린에 그린 뒤 1px 어두운 외곽선을 둘러 합성 → 도트가 또렷해진다.
+  // 겉모습은 일부러 진실과 엇갈리게: 착한 망자는 수상해 보이고, 나쁜 망자는 멀쩡해 보인다.
+  const SPR_W = 80, SPR_H = 104, SCX = 40, SBY = 100;
+  const sprCv = document.createElement('canvas'); sprCv.width = SPR_W; sprCv.height = SPR_H;
+  const sprCtx = sprCv.getContext('2d');
+  const silCv = document.createElement('canvas'); silCv.width = SPR_W; silCv.height = SPR_H;
+  const silCtx = silCv.getContext('2d');
+  function drawSprite(fn, x, base, alpha = 1, outline = '#120610') {
+    const prev = ctx;
+    sprCtx.clearRect(0, 0, SPR_W, SPR_H);
+    ctx = sprCtx; fn(SCX, SBY); ctx = prev;
+    silCtx.globalCompositeOperation = 'source-over';
+    silCtx.clearRect(0, 0, SPR_W, SPR_H);
+    silCtx.drawImage(sprCv, 0, 0);
+    silCtx.globalCompositeOperation = 'source-in';
+    silCtx.fillStyle = outline; silCtx.fillRect(0, 0, SPR_W, SPR_H);
+    silCtx.globalCompositeOperation = 'source-over';
+    const dx = Math.round(x - SCX), dy = Math.round(base - SBY);
+    ctx.globalAlpha = alpha;
+    for (const [ox, oy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) ctx.drawImage(silCv, dx + ox, dy + oy);
+    ctx.drawImage(sprCv, dx, dy);
+    ctx.globalAlpha = 1;
+  }
+
+  const PEOPLE = {
+    woman:      { skin: '#f1c9a8', hair: '#24160f', hairStyle: 'long',   top: '#4a4f6a', top2: '#363a52', outfit: 'hoodie',  acc: ['phoneUp', 'eyeliner', 'strings'] },
+    merchant:   { skin: '#e2a984', hair: '#141012', hairStyle: 'slick',  top: '#1c1c22', top2: '#0f0f14', outfit: 'rider',   acc: ['piercing', 'chain', 'sunglassesHead', 'pocketHands', 'tilt', 'gum'] },
+    granny:     { skin: '#ecc6a6', hair: '#cfcfd2', hairStyle: 'bun',    top: '#3a3240', top2: '#2a2430', outfit: 'hoodup',  acc: ['shifty', 'breadHidden'] },
+    courier:    { skin: '#e9bb94', hair: '#2a1a14', hairStyle: 'short',  top: '#3a7bd5', top2: '#2a5aa5', outfit: 'uniform', acc: ['medal', 'thumb', 'bigSmile'] },
+    office:     { skin: '#eec19b', hair: '#18141a', hairStyle: 'slick',  top: '#22222c', top2: '#16161e', outfit: 'suit',    acc: ['sunglasses', 'envelope', 'toothpick'] },
+    son:        { skin: '#e6b893', hair: '#5a3a24', hairStyle: 'neat',   top: '#f2f0ea', top2: '#d6d2c8', outfit: 'shirt',   acc: ['flowers', 'gentle'] },
+    chef:       { skin: '#e8bd98', hair: '#2a2420', hairStyle: 'short',  top: '#2b2b33', top2: '#1e1e26', outfit: 'apron',   acc: ['headband', 'armsCrossed', 'scowl'] },
+    american:   { skin: '#f4cfb2', hair: '#e8c46a', hairStyle: 'cap',    top: '#f4f4f4', top2: '#d8d8d8', outfit: 'tee',     acc: ['heartTee', 'peace', 'bigSmile', 'backpack'] },
+    vol_leader: { skin: '#e6b893', hair: '#3a2a20', hairStyle: 'neat',   top: '#f2f0ea', top2: '#d6d2c8', outfit: 'vest',    acc: ['donationBox', 'bigSmile'] },
+    vol_woman:  { skin: '#f1c9a8', hair: '#4a2a1a', hairStyle: 'bob',    top: '#f2f0ea', top2: '#d6d2c8', outfit: 'vest',    acc: ['clipboard', 'bigSmile'] },
+    vol_young:  { skin: '#ecc09c', hair: '#1e1a18', hairStyle: 'messy',  top: '#f2f0ea', top2: '#d6d2c8', outfit: 'vest',    acc: ['bigSmile'] },
+    biker_a:    { skin: '#dca98a', hair: '#151214', hairStyle: 'buzz',   top: '#1c1c22', top2: '#0f0f14', outfit: 'rider',   acc: ['tattoo', 'helmetArm', 'scowl', 'scar'] },
+    biker_b:    { skin: '#e6b893', hair: '#c83a2a', hairStyle: 'mohawk', top: '#2a2228', top2: '#1c161a', outfit: 'rider',   acc: ['tattoo', 'piercing', 'chain'] },
   };
+
+  function drawPerson(P, x, y, t, mood, plea) {
+    const A = new Set(P.acc);
+    const tilt = A.has('tilt') ? 1 : 0;
+    // 유령 꼬리
+    for (let i = 0; i < 16; i++) {
+      const w = 18 - i * 0.9, sway = Math.round(Math.sin(t * 3 + i * 0.4) * (i / 5));
+      R(x - w / 2 + sway, y - 16 + i, w, 1, P.top, 0.9 * (1 - i / 18));
+    }
+    // 몸통 + 음영
+    R(x - 9, y - 36, 18, 21, P.top);
+    R(x + 5, y - 36, 4, 21, P.top2);
+    R(x - 9, y - 36, 1, 21, '#ffffff', 0.14);
+    switch (P.outfit) {
+      case 'hoodie':
+        R(x - 8, y - 38, 16, 3, P.top2); R(x - 5, y - 24, 10, 4, P.top2); R(x - 5, y - 24, 10, 1, '#000', 0.2);
+        if (A.has('strings')) { R(x - 2, y - 35, 1, 5, '#e8e8ec'); R(x + 1, y - 35, 1, 5, '#e8e8ec'); }
+        break;
+      case 'rider':
+        R(x - 2, y - 36, 4, 3, '#d8d8dc');
+        for (let i = 0; i < 20; i++) R(x + 2 - Math.floor(i / 5), y - 35 + i, 1, 1, '#b8bcc8');
+        R(x - 9, y - 37, 5, 3, P.top2); R(x + 4, y - 37, 5, 3, P.top2);
+        R(x - 9, y - 35, 1, 1, '#d8d8dc'); R(x + 8, y - 35, 1, 1, '#d8d8dc');
+        R(x - 9, y - 18, 18, 2, '#0a0a0e'); R(x - 1, y - 18, 2, 2, '#c8c8d0');
+        break;
+      case 'hoodup': R(x - 9, y - 36, 18, 3, P.top2); break;
+      case 'uniform':
+        R(x - 9, y - 28, 18, 1, '#f0f4ff'); R(x - 9, y - 20, 18, 1, '#f0f4ff');
+        R(x + 3, y - 34, 4, 2, '#f0f4ff'); R(x - 1, y - 36, 2, 21, P.top2);
+        break;
+      case 'suit':
+        R(x - 2, y - 36, 4, 9, '#f4f4f4'); R(x - 1, y - 34, 2, 10, '#6a1a22');
+        R(x - 3, y - 36, 1, 8, P.top2); R(x + 2, y - 36, 1, 8, P.top2);
+        break;
+      case 'shirt':
+        R(x - 3, y - 37, 6, 2, '#ffffff'); for (let i = 0; i < 4; i++) R(x, y - 33 + i * 5, 1, 1, '#b8b2a6');
+        R(x - 9, y - 18, 18, 3, '#6a5a4a');
+        break;
+      case 'apron':
+        R(x - 7, y - 31, 14, 16, '#f4f2ec'); R(x - 7, y - 31, 14, 1, '#d8d4c8'); R(x - 9, y - 30, 2, 1, '#f4f2ec'); R(x + 7, y - 30, 2, 1, '#f4f2ec');
+        break;
+      case 'tee':
+        R(x - 3, y - 37, 6, 2, P.top2);
+        break;
+      case 'vest':
+        R(x - 9, y - 36, 6, 21, '#f2c230'); R(x + 3, y - 36, 6, 21, '#e0ae1e');
+        R(x - 9, y - 26, 6, 1, '#ffffff'); R(x + 3, y - 26, 6, 1, '#ffffff');
+        R(x - 7, y - 32, 2, 2, '#e24a4a');
+        break;
+    }
+    if (A.has('heartTee')) { R(x - 3, y - 31, 2, 1, '#e23a3a'); R(x, y - 31, 2, 1, '#e23a3a'); R(x - 3, y - 30, 5, 1, '#e23a3a'); R(x - 2, y - 29, 3, 1, '#e23a3a'); R(x - 1, y - 28, 1, 1, '#e23a3a'); }
+    if (A.has('chain')) for (const [cx, cy] of [[-4, -35], [-3, -33], [-2, -31], [-1, -30], [0, -30], [1, -31], [2, -33], [3, -35]]) R(x + cx, y + cy, 1, 1, '#ffd35a');
+    if (A.has('backpack')) { R(x - 7, y - 36, 1, 12, '#c0392b'); R(x + 6, y - 36, 1, 12, '#c0392b'); }
+    if (A.has('medal')) {
+      R(x - 2, y - 35, 1, 5, '#d23a3a'); R(x + 1, y - 35, 1, 5, '#d23a3a');
+      R(x - 2, y - 30, 4, 4, '#ffd35a'); R(x - 2, y - 30, 2, 1, '#fff6c0');
+      if (Math.floor(t * 3) % 3 === 0) { R(x + 5, y - 33, 1, 3, '#ffffff'); R(x + 4, y - 32, 3, 1, '#ffffff'); }
+    }
+    if (A.has('envelope')) { R(x + 3, y - 30, 6, 4, '#f4f0e0'); R(x + 4, y - 31, 4, 1, '#4aa85a'); }
+    if (A.has('donationBox')) { R(x - 6, y - 27, 12, 8, '#d23a3a'); R(x - 6, y - 27, 12, 1, '#ff6a5a'); R(x - 3, y - 26, 6, 1, '#5a1010'); R(x - 1, y - 23, 2, 2, '#ffffff'); }
+
+    // 팔
+    const skinArm = A.has('tattoo');
+    const arm = (ax, top, len) => {
+      if (skinArm) {
+        R(ax, top, 3, 4, P.top); R(ax, top + 4, 3, len - 4, P.skin);
+        R(ax + 1, top + 6, 1, 1, '#2a3a6a'); R(ax, top + 8, 2, 1, '#2a3a6a'); R(ax + 1, top + 10, 1, 2, '#6a2a3a');
+      } else R(ax, top, 3, len, P.top);
+    };
+    if (A.has('armsCrossed')) {
+      arm(x - 12, y - 34, 6); arm(x + 9, y - 34, 6);
+      R(x - 11, y - 29, 22, 4, P.top); R(x - 11, y - 27, 22, 1, P.top2);
+      R(x - 12, y - 29, 2, 3, P.skin); R(x + 10, y - 29, 2, 3, P.skin);
+    } else if (A.has('pocketHands')) {
+      arm(x - 12, y - 34, 12); arm(x + 9, y - 34, 12);
+      R(x - 12, y - 22, 3, 1, P.top2); R(x + 9, y - 22, 3, 1, P.top2);
+    } else {
+      arm(x - 12, y - 34, 14); R(x - 12, y - 21, 3, 3, P.skin);
+      if (A.has('phoneUp')) {
+        arm(x + 9, y - 46, 12); R(x + 9, y - 49, 3, 3, P.skin);
+        R(x + 8, y - 57, 5, 8, '#20202a'); R(x + 9, y - 56, 3, 6, '#7fd8ff', 0.8);
+        if (Math.floor(t * 2) % 2 === 0) R(x + 12, y - 58, 1, 1, '#ff3b3b');
+      } else if (A.has('thumb')) {
+        arm(x + 9, y - 40, 9); R(x + 9, y - 43, 3, 3, P.skin); R(x + 10, y - 46, 1, 3, P.skin);
+      } else if (A.has('peace')) {
+        arm(x + 9, y - 42, 10); R(x + 9, y - 45, 3, 3, P.skin); R(x + 9, y - 48, 1, 3, P.skin); R(x + 11, y - 48, 1, 3, P.skin);
+      } else { arm(x + 9, y - 34, 14); R(x + 9, y - 21, 3, 3, P.skin); }
+    }
+    if (A.has('flowers')) {
+      R(x - 14, y - 24, 1, 6, '#3a8a3a'); R(x - 12, y - 24, 1, 6, '#3a8a3a'); R(x - 13, y - 25, 1, 5, '#4aa04a');
+      R(x - 16, y - 28, 2, 2, '#ff8ab0'); R(x - 13, y - 30, 2, 2, '#ffd35a'); R(x - 11, y - 28, 2, 2, '#ff8ab0'); R(x - 14, y - 27, 2, 2, '#ffffff');
+    }
+    if (A.has('clipboard')) { R(x - 16, y - 29, 6, 9, '#b08a50'); R(x - 15, y - 27, 4, 6, '#ffffff'); R(x - 14, y - 30, 2, 1, '#888'); }
+    if (A.has('breadHidden')) { R(x - 16, y - 27, 7, 4, '#c98a3a'); R(x - 16, y - 27, 7, 1, '#e8b060'); R(x - 14, y - 26, 1, 1, '#8a5a20'); }
+    if (A.has('helmetArm')) { R(x + 10, y - 27, 8, 7, '#1e1e24'); R(x + 10, y - 27, 8, 1, '#3a3a44'); R(x + 12, y - 24, 6, 2, '#6a8aa0'); }
+
+    // 목 · 머리
+    const hx = x + tilt;
+    R(x - 2, y - 39, 4, 3, P.skin);
+    R(hx - 7, y - 53, 14, 14, P.skin);
+    R(hx + 5, y - 53, 2, 14, '#000', 0.12);
+    R(hx - 7, y - 40, 14, 1, '#000', 0.1);
+    // 머리 모양
+    const H = P.hair;
+    switch (P.hairStyle) {
+      case 'long': R(hx - 8, y - 56, 16, 5, H); R(hx - 9, y - 53, 3, 20, H); R(hx + 6, y - 53, 3, 20, H); R(hx - 7, y - 53, 6, 2, H); R(hx - 5, y - 56, 4, 1, '#5a4030'); break;
+      case 'slick': R(hx - 8, y - 56, 16, 4, H); R(hx - 5, y - 55, 8, 1, '#5a5a6a'); R(hx - 8, y - 53, 2, 3, H); R(hx + 6, y - 53, 2, 3, H); break;
+      case 'bun': R(hx - 8, y - 56, 16, 5, H); R(hx - 4, y - 61, 8, 6, H); R(hx - 3, y - 60, 3, 1, '#ffffff', 0.5); break;
+      case 'short': R(hx - 8, y - 56, 16, 4, H); R(hx - 8, y - 53, 2, 3, H); R(hx + 6, y - 53, 2, 3, H); break;
+      case 'neat': R(hx - 8, y - 56, 16, 4, H); R(hx - 3, y - 56, 1, 3, '#000', 0.35); R(hx - 8, y - 53, 2, 2, H); break;
+      case 'bob': R(hx - 8, y - 56, 16, 5, H); R(hx - 9, y - 53, 3, 12, H); R(hx + 6, y - 53, 3, 12, H); R(hx - 7, y - 53, 14, 2, H); break;
+      case 'messy': for (let i = 0; i < 8; i++) R(hx - 8 + i * 2, y - 57 + (i % 2), 2, 5, H); break;
+      case 'buzz': R(hx - 7, y - 55, 14, 3, H); for (let i = 0; i < 7; i++) R(hx - 6 + i * 2, y - 54, 1, 1, '#3a3236'); break;
+      case 'mohawk': R(hx - 7, y - 55, 14, 2, '#3a2a2a'); R(hx - 2, y - 63, 4, 9, H); R(hx - 1, y - 63, 1, 9, '#ff6a4a'); break;
+      case 'cap':
+        R(hx - 8, y - 53, 2, 6, H); R(hx + 6, y - 53, 2, 6, H);
+        R(hx - 8, y - 58, 16, 5, '#c0392b'); R(hx - 8, y - 58, 16, 1, '#e05a4a'); R(hx - 1, y - 54, 11, 2, '#a02a20'); break;
+    }
+    if (P.outfit === 'hoodup') { R(hx - 9, y - 58, 18, 6, P.top); R(hx - 9, y - 53, 3, 15, P.top); R(hx + 6, y - 53, 3, 15, P.top); R(hx - 6, y - 52, 12, 2, '#000', 0.3); }
+    if (A.has('headband')) { R(hx - 8, y - 52, 16, 2, '#f4f4f4'); R(hx + 8, y - 52, 3, 1, '#f4f4f4'); R(hx + 9, y - 51, 2, 1, '#f4f4f4'); }
+
+    // 얼굴
+    const ex = hx, ey = y - 47;
+    const m = plea ? 'crying' : mood || 'calm';
+    if (A.has('sunglasses')) { R(ex - 6, ey - 1, 12, 3, '#0d0d12'); R(ex - 5, ey - 1, 2, 1, '#ffffff', 0.6); R(ex + 1, ey - 1, 2, 1, '#ffffff', 0.4); }
+    else if (A.has('gentle') && m === 'calm') { R(ex - 4, ey, 2, 1, '#1a0e14'); R(ex + 2, ey, 2, 1, '#1a0e14'); R(ex - 5, ey + 1, 1, 1, '#1a0e14'); R(ex + 4, ey + 1, 1, 1, '#1a0e14'); }
+    else if (A.has('shifty')) { R(ex - 4, ey, 3, 2, '#f4f0e8'); R(ex + 1, ey, 3, 2, '#f4f0e8'); const s = Math.floor(t * 0.8) % 2 ? 0 : 2; R(ex - 4 + s, ey, 1, 2, '#1a0e14'); R(ex + 1 + s, ey, 1, 2, '#1a0e14'); }
+    else { R(ex - 4, ey, 2, 2, '#1a0e14'); R(ex + 2, ey, 2, 2, '#1a0e14'); R(ex - 4, ey, 1, 1, '#ffffff', 0.5); R(ex + 2, ey, 1, 1, '#ffffff', 0.5); }
+    if (A.has('eyeliner')) { R(ex - 5, ey - 1, 1, 1, '#000'); R(ex + 4, ey - 1, 1, 1, '#000'); R(ex - 4, ey + 2, 2, 1, '#3a2a3a', 0.6); R(ex + 2, ey + 2, 2, 1, '#3a2a3a', 0.6); }
+    if (A.has('scowl') || m === 'angry') { R(ex - 5, ey - 3, 3, 1, '#2a1a14'); R(ex + 2, ey - 3, 3, 1, '#2a1a14'); R(ex - 2, ey - 2, 1, 1, '#2a1a14'); R(ex + 2, ey - 2, 1, 1, '#2a1a14'); }
+    if (A.has('sunglassesHead')) { R(hx - 6, y - 57, 12, 2, '#0d0d12'); R(hx - 5, y - 57, 2, 1, '#ffffff', 0.5); }
+    if (A.has('piercing')) { R(hx - 8, y - 46, 1, 2, '#e8e8f0'); R(hx + 4, ey - 3, 1, 1, '#e8e8f0'); R(hx, y - 43, 1, 1, '#e8e8f0'); }
+    if (A.has('scar')) R(hx + 3, ey - 3, 1, 4, '#b06a5a');
+    // 입
+    const my = y - 42;
+    if (m === 'crying') R(ex - 2, my + 1, 4, 2, '#7a3a2a');
+    else if (A.has('bigSmile')) { R(ex - 3, my, 6, 2, '#7a2a2a'); R(ex - 2, my, 4, 1, '#ffffff'); }
+    else if (A.has('gentle')) { R(ex - 2, my, 4, 1, '#9a4a3a'); R(ex - 3, my - 1, 1, 1, '#9a4a3a'); R(ex + 2, my - 1, 1, 1, '#9a4a3a'); }
+    else if (m === 'smug') { R(ex - 3, my, 5, 1, '#7a3a2a'); R(ex + 2, my - 1, 1, 1, '#7a3a2a'); }
+    else if (m === 'angry' || A.has('scowl')) { R(ex - 2, my, 4, 1, '#5a1a1a'); R(ex - 3, my + 1, 1, 1, '#5a1a1a'); R(ex + 2, my + 1, 1, 1, '#5a1a1a'); }
+    else R(ex - 2, my, 4, 1, '#9a4a3a');
+    if (A.has('toothpick')) R(ex + 2, my, 5, 1, '#d8b878');
+    if (A.has('gum') && Math.floor(t * 0.7) % 3 === 0) { const g = Math.floor((t * 3) % 3); R(ex + 1, my - g, 3 + g, 3 + g, '#ff8ab8'); R(ex + 1, my - g, 1, 1, '#ffffff'); }
+    // 감정 효과
+    if (m === 'crying') for (const s of [-4, 3]) { const ty = (t * 30 + (s + 9) * 3) % 10; R(ex + s, ey + 2 + ty, 1, 2, '#7fd8ff'); }
+    if (m === 'nervous') { R(hx + 6, y - 52, 1, 3, '#9ff3ff'); R(hx + 6, y - 49, 1, 1, '#9ff3ff', 0.5); }
+    if (m === 'crying' || A.has('bigSmile')) { R(ex - 6, y - 44, 2, 1, '#ff8a8a', 0.6); R(ex + 4, y - 44, 2, 1, '#ff8a8a', 0.6); }
+  }
+
+  function animalWisp(x, y, t, col) {
+    for (let i = 0; i < 12; i++) { const w = 16 - i * 1.1, sway = Math.round(Math.sin(t * 3 + i * 0.4) * (i / 4)); R(x - w / 2 + sway, y - 8 + i, w, 1, col, 0.85 * (1 - i / 13)); }
+  }
+  function animalFace(mood, plea, ex, ey, t, eye = '#1a0e14', big = false) {
+    const m = plea ? 'crying' : mood || 'calm';
+    if (m === 'smug') { R(ex - 3, ey + 1, 2, 1, eye); R(ex + 2, ey + 1, 2, 1, eye); }
+    else if (big) { R(ex - 4, ey - 1, 3, 3, eye); R(ex + 2, ey - 1, 3, 3, eye); R(ex - 4, ey - 1, 1, 1, '#ffffff'); R(ex + 2, ey - 1, 1, 1, '#ffffff'); R(ex - 2, ey + 1, 1, 1, '#ffffff', 0.7); R(ex + 4, ey + 1, 1, 1, '#ffffff', 0.7); }
+    else { R(ex - 3, ey, 2, 2, eye); R(ex + 2, ey, 2, 2, eye); R(ex - 3, ey, 1, 1, '#ffffff', 0.6); R(ex + 2, ey, 1, 1, '#ffffff', 0.6); }
+    if (m === 'crying') for (const s of [-3, 3]) R(ex + s, ey + 3 + ((t * 25 + s * 4) % 7), 1, 2, '#7fd8ff');
+    if (m === 'nervous') R(ex + 6, ey - 3, 1, 3, '#9ff3ff');
+  }
+  function drawDog(x, y, t, mood, plea) {
+    const F = '#efe6d2', D = '#d4c6aa', E = '#b08a5a';
+    animalWisp(x, y, t, F);
+    R(x - 10, y - 20, 18, 13, F); R(x + 4, y - 20, 4, 13, D);                 // 엉덩이·몸
+    R(x - 6, y - 30, 11, 14, F); R(x + 2, y - 30, 3, 14, D);                   // 가슴
+    R(x - 5, y - 16, 3, 9, F); R(x + 1, y - 16, 3, 9, F); R(x - 6, y - 8, 4, 2, F); R(x + 1, y - 8, 4, 2, F); // 앞다리
+    R(x - 9, y - 18, 4, 3, '#7a5a3a', 0.7); R(x + 2, y - 12, 3, 2, '#7a5a3a', 0.7); // 진흙 얼룩 (수상해 보이게)
+    const wag = Math.round(Math.sin(t * 10) * 2);
+    R(x - 13, y - 22 + wag, 3, 7, F); R(x - 14, y - 24 + wag, 2, 3, F);        // 꼬리
+    R(x - 8, y - 43, 15, 13, F); R(x + 3, y - 43, 4, 13, D);                   // 머리
+    R(x + 3, y - 37, 7, 6, '#fbf6ea'); R(x + 8, y - 37, 2, 2, '#1a0e14');      // 주둥이·코
+    R(x + 3, y - 32, 6, 1, '#1a0e14'); R(x + 4, y - 31, 1, 1, '#ffffff'); R(x + 7, y - 31, 1, 1, '#ffffff'); // 으르렁 이빨
+    R(x - 10, y - 43, 4, 9, E); R(x + 5, y - 44, 4, 8, E);                     // 귀
+    R(x + 5, y - 45, 4, 2, '#ffffff'); R(x + 6, y - 45, 1, 2, '#e23a3a');      // 귀 반창고
+    R(x - 6, y - 31, 11, 2, '#d23a3a'); R(x - 1, y - 29, 2, 2, '#ffd35a');     // 목줄·이름표
+    R(x - 6, y - 40, 3, 1, '#4a3020'); R(x + 1, y - 40, 3, 1, '#4a3020');      // 사나운 눈썹
+    animalFace(mood, plea, x - 1, y - 38, t);
+  }
+  function drawCat(x, y, t, mood, plea) {
+    const F = '#f8f6f2', D = '#dcd8d0';
+    animalWisp(x, y, t, F);
+    const sway = Math.round(Math.sin(t * 2) * 2);
+    R(x + 8, y - 24, 3, 12, F); R(x + 9 + sway, y - 30, 3, 7, F); R(x + 10 + sway, y - 31, 2, 2, D); // 꼬리
+    R(x - 9, y - 22, 17, 15, F); R(x + 4, y - 22, 4, 15, D);
+    R(x - 6, y - 28, 11, 8, F);
+    R(x - 6, y - 9, 4, 2, F); R(x + 1, y - 9, 4, 2, F);
+    R(x - 9, y - 42, 17, 14, F); R(x + 5, y - 42, 3, 14, D);
+    R(x - 9, y - 47, 4, 5, F); R(x + 4, y - 47, 4, 5, F); R(x - 8, y - 46, 2, 3, '#ffb0c8'); R(x + 5, y - 46, 2, 3, '#ffb0c8');
+    R(x - 4, y - 47, 3, 3, '#ff7aa8'); R(x + 0, y - 47, 3, 3, '#ff7aa8'); R(x - 1, y - 46, 2, 2, '#e0508a'); // 리본
+    R(x - 1, y - 33, 2, 1, '#ff8ab0'); R(x - 2, y - 31, 1, 1, '#c08090'); R(x + 1, y - 31, 1, 1, '#c08090');
+    for (const s of [-1, 1]) { R(x + s * 6 - (s < 0 ? 4 : 0), y - 33, 4, 1, '#b8b4ac'); R(x + s * 6 - (s < 0 ? 4 : 0), y - 31, 4, 1, '#b8b4ac'); }
+    animalFace(mood, plea, x - 1, y - 37, t, '#3a7ad0', true);
+  }
+  function drawMonkey(x, y, t, mood, plea) {
+    const F = '#7a4a2a', D = '#5a3420', S = '#e0b48a';
+    animalWisp(x, y, t, F);
+    const sway = Math.round(Math.sin(t * 2.5) * 2);
+    R(x + 8, y - 16, 2, 8, F); R(x + 9 + sway, y - 22, 2, 7, F); R(x + 7 + sway, y - 24, 3, 2, F); // 꼬리
+    R(x - 8, y - 30, 16, 22, F); R(x + 4, y - 30, 4, 22, D); R(x - 5, y - 26, 9, 12, S);
+    R(x - 11, y - 28, 3, 14, F); R(x + 8, y - 34, 3, 10, F);                  // 팔 (오른팔 들어 바나나)
+    R(x + 7, y - 40, 3, 7, '#ffd35a'); R(x + 9, y - 42, 2, 3, '#ffd35a'); R(x + 7, y - 34, 2, 1, '#8a6a20'); // 바나나
+    R(x - 9, y - 46, 18, 15, F); R(x + 5, y - 46, 4, 15, D);
+    R(x - 12, y - 41, 4, 5, F); R(x + 8, y - 41, 4, 5, F); R(x - 11, y - 40, 2, 3, S); R(x + 9, y - 40, 2, 3, S); // 귀
+    R(x - 6, y - 41, 12, 10, S);
+    R(x - 7, y - 47, 14, 2, '#0d0d12'); R(x - 6, y - 47, 2, 1, '#ffffff', 0.6); // 훔친 선글라스
+    R(x - 2, y - 34, 4, 1, '#5a2a1a'); R(x + 1, y - 35, 1, 1, '#5a2a1a');    // 장난스러운 입
+    animalFace(mood, plea, x, y - 38, t);
+  }
+
   function drawSinner(kind, x, base, t, st = {}) {
     const alpha = st.alpha ?? 1;
     if (alpha <= 0) return;
-    const dy = st.dy || 0;
-    const shake = st.mood === 'nervous' || st.plea ? Math.round(Math.sin(t * 40) * 1) : 0;
-    const bob = Math.round(Math.sin(t * 2.4 + 1) * 2);
-    x += shake; const y = base + bob + dy;
-    if (IMG['sinner_' + kind]) { drawAsset(IMG['sinner_' + kind], ASSETS.sinners[kind].box, 0, 1, alpha * 0.95, bob + dy); return; }
-    const L = LOOK[kind] || LOOK.woman;
-    const a = alpha * 0.92;
-    // 영혼 오라
-    for (let r = 0; r < 3; r++) R(x - 14 - r * 2, y - 58 - r, 28 + r * 4, 60 + r * 2, '#9ff3ff', 0.05 * alpha);
-    // 꼬리 (아래로 갈수록 흐려지는 유령 꼬리)
-    for (let i = 0; i < 16; i++) {
-      const w = 18 - i * 0.9, sway = Math.round(Math.sin(t * 3 + i * 0.4) * (i / 5));
-      R(x - w / 2 + sway, y - 16 + i, w, 1, L.cloth, a * (1 - i / 18));
+    const shake = st.mood === 'nervous' || st.plea ? Math.round(Math.sin(t * 40)) : 0;
+    const bob = Math.round(Math.sin(t * 2.4 + (st.phase || 1)) * 2);
+    const y = base + bob + (st.dy || 0);
+    x += shake;
+    if (IMG['sinner_' + kind]) { drawAsset(IMG['sinner_' + kind], ASSETS.sinners[kind].box.map((v, i) => (i === 0 ? x - 40 : v)), 0, 1, alpha * 0.95, bob + (st.dy || 0)); return; }
+    // 영혼 오라 (말하는 망자는 더 밝게)
+    for (let r = 0; r < 3; r++) for (let yy = 0; yy < 64; yy += 2) {
+      const w = Math.sqrt(Math.max(0, 1 - ((yy - 32) / 33) ** 2)) * (13 + r * 4);
+      R(x - w, y - 62 + yy, w * 2, 2, '#9ff3ff', (st.speaking ? 0.06 : 0.03) * alpha);
     }
-    // 몸통
-    R(x - 9, y - 36, 18, 21, L.cloth, a);
-    R(x + 5, y - 36, 4, 21, '#000', 0.18 * a);
-    R(x - 9, y - 36, 2, 21, '#fff', 0.15 * a);
-    // 팔
-    const armUp = st.plea ? -4 : 0;
-    R(x - 12, y - 34 + armUp, 3, 14, L.cloth, a); R(x + 9, y - 34 + armUp, 3, 14, L.cloth, a);
-    R(x - 12, y - 21 + armUp, 3, 3, L.skin, a); R(x + 9, y - 21 + armUp, 3, 3, L.skin, a);
-    // 목 + 머리
-    R(x - 2, y - 39, 4, 3, L.skin, a);
-    R(x - 7, y - 53, 14, 14, L.skin, a);
-    R(x + 4, y - 53, 3, 14, '#000', 0.1 * a);
-    // 종류별 디테일
-    switch (kind) {
-      case 'woman':
-        R(x - 8, y - 56, 16, 5, L.hair, a); R(x - 9, y - 53, 3, 20, L.hair, a); R(x + 6, y - 53, 3, 20, L.hair, a);
-        R(x - 3, y - 36, 6, 2, '#fff', 0.5 * a); break;
-      case 'merchant':
-        R(x - 9, y - 55, 18, 3, '#2a1a10', a); R(x - 6, y - 62, 12, 8, '#3a2414', a); R(x - 6, y - 57, 12, 1, L.cloth2, a);
-        R(x - 4, y - 43, 8, 2, L.hair, a); // 콧수염
-        R(x - 4, y - 34, 8, 12, L.cloth2, a); R(x - 1, y - 32, 2, 2, '#fff3b0', a); R(x - 1, y - 27, 2, 2, '#fff3b0', a);
-        R(x + 11, y - 20, 6, 6, '#c9a03a', a); R(x + 13, y - 18, 2, 2, '#fff3b0', a); break; // 돈주머니
-      case 'granny':
-        R(x - 8, y - 56, 16, 5, L.hair, a); R(x - 4, y - 61, 8, 6, L.hair, a); // 쪽진 머리
-        R(x - 6, y - 48, 5, 3, '#000', 0 * a); R(x - 6, y - 48, 5, 1, '#5a5a6a', a); R(x + 1, y - 48, 5, 1, '#5a5a6a', a); // 안경테
-        R(x - 9, y - 36, 18, 3, L.cloth2, a); break;
-      case 'courier':
-        R(x - 9, y - 58, 18, 9, L.cloth2, a); R(x - 9, y - 50, 18, 2, '#9a7a1a', a); R(x - 6, y - 50, 12, 3, '#2a3a4a', 0.7 * a); // 헬멧 + 바이저
-        R(x - 9, y - 30, 18, 2, '#fff', 0.6 * a); R(x - 14, y - 26, 5, 8, '#c0392b', a); break; // 반사띠 + 배달통
-      case 'office':
-        R(x - 8, y - 56, 16, 5, L.hair, a); R(x - 8, y - 53, 2, 4, L.hair, a);
-        R(x - 6, y - 48, 5, 1, '#333', a); R(x + 1, y - 48, 5, 1, '#333', a); R(x - 1, y - 48, 2, 1, '#333', a);
-        R(x - 1, y - 36, 2, 12, L.cloth2, a); R(x - 9, y - 36, 4, 21, '#2a2a3a', a); R(x + 5, y - 36, 4, 21, '#2a2a3a', a); break; // 넥타이 + 재킷
-      case 'son':
-        for (let i = 0; i < 8; i++) R(x - 8 + i * 2, y - 57 + (i % 2), 2, 5, L.hair, a); // 부스스
-        R(x - 9, y - 38, 18, 4, L.cloth2, a); R(x - 3, y - 30, 6, 6, L.cloth2, a); break; // 후드티 주머니
+    const fn = kind === 'dog' ? drawDog : kind === 'cat' ? drawCat : kind === 'monkey' ? drawMonkey : null;
+    drawSprite((cx, cy) => (fn ? fn(cx, cy, t, st.mood, st.plea) : drawPerson(PEOPLE[kind] || PEOPLE.woman, cx, cy, t, st.mood, st.plea)), x, y, alpha * 0.96);
+    if (st.plea) { const b = Math.floor(t * 6) % 2; R(x + 12, y - 70 - b, 3, 8, '#ffd35a'); R(x + 12, y - 60 - b, 3, 3, '#ffd35a'); }
+  }
+
+  // ── 사신의 전령: 나뭇가지 위 까마귀 ──
+  const CROW_X = 46, CROW_Y = 30;
+  function drawBranch() {
+    for (let x = 0; x < 82; x++) {
+      const y = 31 + Math.round(Math.sin(x / 13) * 1.5) - Math.floor(x / 34);
+      R(x, y, 1, 4 - Math.floor(x / 30), '#2a1a16'); R(x, y, 1, 1, '#4a3024');
     }
-    // 얼굴 표정
-    const mood = st.plea ? 'crying' : st.mood || 'calm';
-    const ey = y - 47;
-    R(x - 4, ey, 2, 2, '#1a0e14', a); R(x + 2, ey, 2, 2, '#1a0e14', a);
-    if (mood === 'angry') { R(x - 5, ey - 2, 3, 1, '#1a0e14', a); R(x + 2, ey - 2, 3, 1, '#1a0e14', a); R(x - 2, y - 42, 4, 1, '#7a1a1a', a); }
-    else if (mood === 'smug') { R(x - 3, y - 42, 5, 1, '#7a3a2a', a); R(x + 2, y - 43, 1, 1, '#7a3a2a', a); }
-    else if (mood === 'nervous') { R(x - 2, y - 42, 4, 1, '#7a3a2a', a); R(x + 5, y - 51, 1, 3, '#9ff3ff', a); }
-    else if (mood === 'crying') { R(x - 2, y - 41, 4, 2, '#7a3a2a', a); for (const s of [-4, 3]) { const ty = (t * 30 + (s + 9) * 3) % 10; R(x + s, ey + 2 + ty, 1, 2, '#7fd8ff', a); } }
-    else R(x - 2, y - 42, 4, 1, '#9a4a3a', a);
-    // 홍조/창백
-    if (mood === 'crying') { R(x - 6, y - 44, 2, 1, '#ff8a8a', 0.6 * a); R(x + 4, y - 44, 2, 1, '#ff8a8a', 0.6 * a); }
-    // 최후의 변론 "!" 마크
-    if (st.plea) { const b = Math.floor(t * 6) % 2; R(x + 12, y - 68 - b, 3, 8, '#ffd35a'); R(x + 12, y - 58 - b, 3, 3, '#ffd35a'); }
+    R(22, 25, 1, 6, '#2a1a16'); R(21, 23, 1, 3, '#2a1a16'); R(64, 26, 1, 5, '#2a1a16'); R(65, 24, 1, 3, '#2a1a16');
+    R(20, 22, 2, 2, '#6a1a1a'); R(66, 23, 2, 2, '#7a2a1a'); R(74, 28, 2, 1, '#6a1a1a');
+  }
+  function drawCrow(t, talking) {
+    const flap = talking ? Math.round(Math.abs(Math.sin(t * 14)) * 3) : 0;
+    const hop = talking ? Math.round(Math.abs(Math.sin(t * 7))) : 0;
+    drawSprite((x, y) => {
+      y -= hop;
+      R(x - 11, y - 8, 6, 3, '#14121c'); R(x - 12, y - 7, 2, 2, '#14121c');     // 꼬리
+      R(x - 7, y - 11, 13, 8, '#14121c'); R(x - 6, y - 9, 9, 2, '#2a2a48');    // 몸·날개 광택
+      R(x - 6, y - 13 - flap, 9, 3, '#1e1c2c');                                // 날개짓
+      R(x + 3, y - 17, 8, 7, '#14121c'); R(x + 4, y - 17, 5, 1, '#2a2a48');    // 머리
+      R(x + 7, y - 15, 1, 1, '#ff3b3b');                                       // 붉은 눈
+      R(x + 11, y - 14, 4, 2, '#8a8a98'); if (talking && Math.floor(t * 10) % 2) R(x + 11, y - 12, 3, 1, '#6a6a78'); // 부리
+      R(x - 1, y - 3, 1, 3, '#8a8a98'); R(x + 2, y - 3, 1, 3, '#8a8a98');      // 다리
+    }, CROW_X, CROW_Y, 1, '#05030a');
   }
 
   /* ── 연출 (효과) ── */
@@ -849,16 +1241,14 @@
     }
   }
 
-  let lastT = performance.now();
   function frame(now) {
     const t = now / 1000;
-    lastT = now;
     ctx.save();
-    // 화면 흔들림
-    let shake = 0;
     const e = S.effect;
     const p = e ? Math.min(1, (now - e.t0) / e.dur) : 0;
+    let shake = 0;
     if (e && e.kind === 'punish' && p < 0.6) shake = Math.round((1 - p / 0.6) * 4);
+    if (e && e.kind === 'execute' && p < 0.3) shake = 3;
     if (e && e.kind === 'plea') shake = 1;
     if (shake) ctx.translate(Math.round((Math.random() - 0.5) * shake * 2), Math.round((Math.random() - 0.5) * shake * 2));
 
@@ -867,51 +1257,63 @@
     if (S.phase === 'title' && IMG.title) drawAsset(IMG.title, ASSETS.title.box);
     else if (IMG.bg) drawAsset(IMG.bg, ASSETS.bg.box);
     else ctx.drawImage(bgCache, 0, 0);
-
-    // 문 열림 정도
     const gateTarget = e && e.kind === 'hellwin' ? 1 : e && e.kind === 'punish' ? 0.35 : S.phase === 'title' ? 0.12 + 0.05 * Math.sin(t) : 0;
     S.gate += (gateTarget - S.gate) * 0.06;
     if (!IMG.bg || S.phase === 'title') { if (!(S.phase === 'title' && IMG.title)) drawGate(S.gate, t); }
     drawFlame(18, 121, t); drawFlame(290, 121, t + 1.3);
-    drawEmbers(t, e && (e.kind === 'hellwin' || e.kind === 'punish') ? 3 : 1);
+    drawEmbers(t, e && (e.kind === 'hellwin' || e.kind === 'punish' || e.kind === 'execute') ? 3 : 1);
+    // 까마귀 (사신의 전령)
+    drawBranch();
+    drawCrow(t, now < S.crowTalkUntil);
 
-    // 붉은 비네트 (최후의 변론 / 처벌)
-    if (e && (e.kind === 'plea' || e.kind === 'punish')) {
-      const v = e.kind === 'plea' ? 0.18 + 0.1 * Math.sin(t * 8) : 0.35 * (1 - p * 0.4);
+    if (e && (e.kind === 'plea' || e.kind === 'punish' || e.kind === 'execute')) {
+      const v = e.kind === 'plea' ? 0.18 + 0.1 * Math.sin(t * 8) : e.kind === 'execute' ? 0.4 * (1 - p) : 0.35 * (1 - p * 0.4);
       R(0, 0, W, 8, '#ff1a1a', v); R(0, H - 8, W, 8, '#ff1a1a', v); R(0, 0, 8, H, '#ff1a1a', v); R(W - 8, 0, 8, H, '#ff1a1a', v);
     }
 
     if (S.phase === 'title') {
-      // 타이틀: 큰 사신 실루엣
       if (!IMG.title) {
         ctx.save(); ctx.translate(160, 0); ctx.scale(1.6, 1.6); ctx.translate(-160, -38);
         drawReaper(160, 140, t);
         ctx.restore();
       }
     } else {
-      // 사신
       const pun = e && e.kind === 'punish';
       drawReaper(REAPER_X, FLOOR_Y, t, pun ? { punished: p > 0.2, chains: p > 0.3, brand: p > 0.5, sink: p * 14 } : {});
-      // 망자
-      if (S.c) {
-        const st = { mood: S.mood };
-        if (e && e.kind === 'plea') st.plea = true;
+      const members = S.members || [];
+      const gx = members.length ? members.reduce((n, m) => n + m.x, 0) / members.length : SINNER_X;
+      members.forEach((m, i) => {
+        const st = { mood: i === S.speaker ? S.mood : 'calm', speaking: i === S.speaker && S.phase === 'ask', phase: 1 + i * 1.7 };
+        if (e && e.kind === 'plea' && i === S.speaker) st.plea = true;
         if (e && e.kind === 'heaven') { st.dy = -p * 90; st.alpha = 1 - p; }
         if (e && e.kind === 'hellwin') { st.dy = p * 40; st.alpha = 1 - p * 0.9; }
-        drawSinner(S.c.sprite, SINNER_X, FLOOR_Y, t, st);
-      }
-      // 천국 승리: 빛기둥 + 반짝이
+        if (e && e.kind === 'execute') { st.alpha = Math.max(0, 1 - p * 1.6); st.mood = 'nervous'; }
+        drawSinner(m.sprite, m.x, FLOOR_Y, t, st);
+      });
       if (e && e.kind === 'heaven') {
-        for (let x = -16; x <= 16; x++) R(SINNER_X + x, 0, 1, FLOOR_Y, '#fff3c0', (0.5 - Math.abs(x) / 36) * Math.min(1, p * 3));
-        for (let i = 0; i < 16; i++) { const sx = SINNER_X - 20 + ((i * 37 + Math.floor(t * 20)) % 40), sy = (FLOOR_Y - ((t * 60 + i * 23) % FLOOR_Y)); R(sx, sy, 1, 1, '#ffffff'); R(sx - 1, sy, 3, 1, '#ffe9a0', 0.5); }
+        const half = 14 + (members.length - 1) * 14;
+        for (let x = -half; x <= half; x++) R(gx + x, 0, 1, FLOOR_Y, '#fff3c0', (0.5 - Math.abs(x) / (half * 2.2)) * Math.min(1, p * 3));
+        for (let i = 0; i < 18; i++) { const sx = gx - half + ((i * 37 + Math.floor(t * 20)) % (half * 2)), sy = FLOOR_Y - ((t * 60 + i * 23) % FLOOR_Y); R(sx, sy, 1, 1, '#ffffff'); R(sx - 1, sy, 3, 1, '#ffe9a0', 0.5); }
       }
-      // 지옥행 승리: 사슬이 끌어내림 + 불기둥
       if (e && e.kind === 'hellwin') {
-        for (const cx of [SINNER_X - 8, SINNER_X + 8]) for (let y = FLOOR_Y - 30 + p * 40; y < FLOOR_Y + 10; y += 4) R(cx, y, 3, 3, '#8a8690');
-        for (let i = 0; i < 10; i++) drawFlame(SINNER_X - 22 + i * 5, FLOOR_Y + 6, t + i, 1 + p);
+        for (const m of members) for (const cx of [m.x - 8, m.x + 8]) for (let y = FLOOR_Y - 30 + p * 40; y < FLOOR_Y + 10; y += 4) R(cx, y, 3, 3, '#8a8690');
+        for (let i = 0; i < 12; i++) drawFlame(gx - 30 + i * 5, FLOOR_Y + 6, t + i, 1 + p);
       }
-      // 처벌: 번개 + 섬광
-      if (e && e.kind === 'punish') {
+      if (e && e.kind === 'execute') {
+        // 낫이 망자를 가르는 궤적 + 흩어지는 영혼 먼지
+        const sweep = Math.min(1, p / 0.25);
+        for (let k = 0; k < 60 * sweep; k++) {
+          const a = -0.9 + (k / 60) * 1.9, r = 46;
+          const sx = gx + Math.cos(a) * r - 10, sy = 92 + Math.sin(a) * r * 0.9;
+          R(sx, sy, 3, 2, k > 60 * sweep - 6 ? '#ffffff' : '#ff5a4a', p < 0.5 ? 1 : 1.6 - p * 1.4);
+        }
+        if (p > 0.15) for (let i = 0; i < 46; i++) {
+          const px = gx + ((i * 37) % 60) - 30 + ((i % 7) - 3) * p * 16, py = FLOOR_Y - 8 - ((i * 23) % 60) - p * 46;
+          R(px, py, 2, 2, i % 3 ? '#9ff3ff' : '#d8c8e0', Math.max(0, 1 - p));
+        }
+        if (p < 0.08) R(0, 0, W, H, '#ffffff', 0.6 * (1 - p / 0.08));
+      }
+      if (pun) {
         if (p > 0.05 && p < 0.4 && Math.floor(t * 20) % 3 !== 0) lightning(REAPER_X - 10 + Math.round(Math.sin(t * 50) * 6), FLOOR_Y - 56, Math.floor(t * 10));
         if (p < 0.12) R(0, 0, W, H, '#ffffff', 0.7 * (1 - p / 0.12));
         if (p > 0.3) for (let i = 0; i < 8; i++) drawFlame(REAPER_X - 20 + i * 6, FLOOR_Y + 4, t + i, 0.9);
@@ -924,17 +1326,31 @@
 
   /* ════════════════════════════════════════════════════════════════
    *  5. 말풍선 — 말하는 캐릭터 머리를 기준점(pivot)으로 커진 뒤 글자가 찍힌다
+   *     · 까마귀(전령)는 가지 위에서 오른쪽으로 펼쳐지는 기록부 말풍선
    * ════════════════════════════════════════════════════════════════ */
-  const ANCHOR = { reaper: [REAPER_X, FLOOR_Y - 68], sinner: [SINNER_X, FLOOR_Y - 66] }; // 320×180 캔버스 좌표
+  const ANIMALS = new Set(['dog', 'cat', 'monkey']);
+  function anchorFor(who) {
+    if (who === 'reaper') return [REAPER_X, FLOOR_Y - 68];
+    const m = (S.members || [])[S.speaker] || { x: SINNER_X, sprite: '' };
+    return [m.x, FLOOR_Y - (ANIMALS.has(m.sprite) ? 52 : 66)];
+  }
+  const BUBBLES = { reaper: '#bubble-reaper', sinner: '#bubble-sinner', crow: '#bubble-crow' };
   const typing = new Map();
-  function say(who, text, { name, plea = false } = {}) {
-    const el = $(who === 'reaper' ? '#bubble-reaper' : '#bubble-sinner');
-    $(who === 'reaper' ? '#bubble-sinner' : '#bubble-reaper').hidden = true; // 한 번에 한 명만 말한다
+  function say(who, text, { name, plea = false, by } = {}) {
+    const el = $(BUBBLES[who]);
+    if (who !== 'crow') {
+      if (who === 'sinner' && by != null) S.speaker = by;
+      $(who === 'reaper' ? '#bubble-sinner' : '#bubble-reaper').hidden = true; // 한 번에 한 명만 말한다
+      if (!$('#bubble-crow').hidden) crowCompact();
+      const [ax, ay] = anchorFor(who);
+      el.style.left = `${(ax / W) * 100}%`;
+      el.style.bottom = `calc(${100 - (ay / H) * 100}% + 12px)`;
+      el.classList.toggle('plea', plea);
+    } else {
+      el.classList.remove('compact');
+      S.crowTalkUntil = performance.now() + 240 + [...text].length * 30;
+    }
     typing.get(el)?.finish();
-    const [ax, ay] = ANCHOR[who];
-    el.style.left = `${(ax / W) * 100}%`;
-    el.style.bottom = `calc(${100 - (ay / H) * 100}% + 12px)`;
-    el.classList.toggle('plea', plea);
     // ghost: 최종 크기를 먼저 잡아 두는 투명 텍스트 → 말풍선이 다 커진 뒤 typed에 한 글자씩 찍는다
     el.innerHTML = `${name ? `<span class="who">${esc(name)}</span>` : ''}<span class="body"><span class="ghost">${esc(text)}</span><span class="typed"></span></span>`;
     el.hidden = false;
@@ -946,15 +1362,17 @@
       const finish = () => {
         if (done) return; done = true;
         clearTimeout(startT); clearInterval(timer);
-        typed.textContent = text; typing.delete(el); resolve();
+        typed.textContent = text; typing.delete(el);
+        if (who === 'crow') S.crowTalkUntil = 0;
+        resolve();
       };
       startT = setTimeout(() => {
         timer = setInterval(() => {
           i++;
           typed.textContent = chars.slice(0, i).join('');
-          if (i % 2 === 0 && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : 1);
+          if (i % 2 === 0 && chars[i - 1] !== ' ') SFX.blip(who === 'reaper' ? 0.7 : who === 'crow' ? 1.6 : 1);
           if (i >= chars.length) finish();
-        }, 30);
+        }, who === 'crow' ? 22 : 30);
       }, 240);
       typing.set(el, { finish });
       el.onclick = finish;
@@ -965,6 +1383,21 @@
     const b = $('#banner'); b.className = `banner ${cls}`; b.innerHTML = html; b.hidden = false;
     b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
     await sleep(ms); b.hidden = true;
+  }
+
+  /* ── 까마귀 기록부 ── */
+  function whoLine(c) {
+    if (c.group) return `${c.members.map((m) => `${m.name}(${m.age})`).join(' · ')}`;
+    return `${c.name}(${c.species ? `${c.age}, ${c.species}` : `${c.age}세`})${c.lang === 'ja' ? ' 🇯🇵' : c.lang === 'en' ? ' 🇺🇸' : ''}`;
+  }
+  const crowFull = (c) => `까악! 사신님, 망자가 도착했소.\n#${String(S.caseNo).padStart(3, '0')} 「${c.title}」\n${whoLine(c)} — 사인: ${c.cause}\n\n${c.brief}`;
+  function crowCompact() {
+    const c = S.c; if (!c) return;
+    const el = $('#bubble-crow');
+    typing.get(el)?.finish();
+    el.classList.add('compact');
+    el.innerHTML = `<span class="body">📜 「${esc(c.title)}」 · 사인: ${esc(c.cause)} <u>다시 듣기</u></span>`;
+    el.onclick = () => say('crow', crowFull(c), { name: '전령 까마귀' });
   }
 
   /* ── 망자 좌/우 픽셀 정황 태그 ── */
@@ -990,46 +1423,6 @@
     let hit = 0; for (const g of B) if (A.has(g)) hit++;
     return hit / B.size;
   }
-  function builtinAnswer(c, q) {
-    const n = norm(q);
-    let best = null, bestScore = 0;
-    for (const f of c.facts) {
-      let s = 0;
-      for (const k of f.kw) if (n.includes(k)) s += k.length >= 2 ? 2 : 1;
-      if (S.revealed.has(f.id)) s -= 1.5; // 이미 나온 정황은 우선순위 낮춤
-      if (s > bestScore) { best = f; bestScore = s; }
-    }
-    if (best && bestScore > 0) {
-      const again = S.revealed.has(best.id);
-      return { reply: (again ? pick(['아까도 말씀드렸잖아요… ', '또요? ', '…같은 얘기예요. ']) : '') + best.a, factIds: [best.id], mood: best.mood || 'calm' };
-    }
-    // 맞는 정황이 없으면 얼버무림 + 사신의 감(힌트)
-    const left = c.facts.filter((f) => !S.revealed.has(f.id));
-    const hint = left.length ? pick(left).kw[0] : null;
-    return { reply: pick(c.evasive), factIds: [], mood: 'nervous', hint };
-  }
-
-  function sinnerSystemPrompt(c) {
-    const truth = c.truth === 'heaven' ? '너는 사실 천국에 갈 만한 사람이다.' : '너는 사실 지옥에 갈 만한 죄가 있다.';
-    const style = c.truth === 'heaven'
-      ? '억울함과 죄책감 때문에 스스로를 깎아내리기도 하지만, 사실관계는 정직하게 말한다.'
-      : '불리한 건 얼버무리거나 작게 거짓말하되, 말실수·정정·떨림 같은 단서를 꼭 남긴다.';
-    return [
-      `너는 사후 심판대에 선 망자 "${c.name}"(${c.age}세)다. 지옥문의 사신이 너를 심문한다.`,
-      `말투: ${c.voice}`,
-      `[사건 개요 — 사신도 아는 내용] ${c.brief}`,
-      `[너만 아는 비밀 — 통째로 털어놓지 말 것] ${truth} ${c.reveal}`,
-      '[드러낼 수 있는 정황 id: 내용]',
-      ...c.facts.map((f) => `${f.id}: ${f.a}`),
-      '규칙:',
-      '1. 한국어 1~3문장, 캐릭터 말투로 답한다.',
-      '2. 사신의 질문과 관련된 정황만 한 번에 1개(많아야 2개) 드러낸다. 관련 없으면 얼버무린다.',
-      `3. ${style}`,
-      '4. 천국/지옥 여부를 직접 말하지 않는다. 게임·규칙·AI에 대한 메타 발언을 하지 않는다.',
-      '5. 출력은 JSON 하나만: {"reply":"대사","factIds":["f1"],"mood":"calm|nervous|crying|angry|smug"}',
-    ].join('\n');
-  }
-
   async function callLLM(messages) {
     const body = { model: settings.model || 'gpt-4o-mini', messages, temperature: 0.8, max_tokens: 350, response_format: { type: 'json_object' } };
     let content;
@@ -1051,16 +1444,70 @@
   const useAI = () => settings.engine !== 'builtin' && (apiKey || serverAI);
   function engineLabel() { return useAI() ? `AI 심문 (${apiKey ? settings.model : '서버'})` : '내장 심문 엔진'; }
 
+  function builtinAnswer(c, q) {
+    const n = norm(q);
+    let best = null, bestScore = 0;
+    for (const f of c.facts) {
+      let s = 0;
+      for (const k of f.kw) if (n.includes(k)) s += k.length >= 2 ? 2 : 1;
+      if (S.revealed.has(f.id)) s -= 1.5; // 이미 나온 정황은 우선순위 낮춤
+      if (s > bestScore) { best = f; bestScore = s; }
+    }
+    if (best && bestScore > 0) {
+      const again = S.revealed.has(best.id);
+      const re = c.lang === 'ja' ? 'さっきも言っただろ。(아까도 말했잖아.) ' : c.lang === 'en' ? 'Like I said— (아까 말했듯이—) ' : c.species ? '' : pick(['아까도 말씀드렸잖아요… ', '또요? ', '…같은 얘기예요. ']);
+      return { reply: (again ? re : '') + best.a, factIds: [best.id], mood: best.mood || 'calm', by: best.by ?? 0 };
+    }
+    const left = c.facts.filter((f) => !S.revealed.has(f.id));
+    const hint = left.length ? pick(left).kw[0] : null;
+    return { reply: pick(c.evasive), factIds: [], mood: 'nervous', hint, by: c.group ? Math.floor(Math.random() * c.members.length) : 0 };
+  }
+
+  function speechRule(c) {
+    if (c.species) return `너는 사람이 아니라 ${c.species}다. 모든 대사는 ${c.species} 울음소리로 시작하고, 바로 뒤 괄호 안에 한국어 번역을 붙인다. 예: "왈왈! (난 옆집 민수네 강아지야!)"`;
+    if (c.lang === 'ja') return '모든 대사는 일본어로 말하고, 바로 뒤 괄호 안에 자연스러운 한국어 번역을 붙인다. 예: "すみません。(죄송합니다.)"';
+    if (c.lang === 'en') return '모든 대사는 영어로 말하고, 바로 뒤 괄호 안에 자연스러운 한국어 번역을 붙인다. 예: "I didn\'t do it. (난 안 했어.)"';
+    return '한국어로 말한다.';
+  }
+  function sinnerSystemPrompt(c) {
+    const truth = c.truth === 'heaven' ? '사실은 천국에 갈 만하다.' : '사실은 지옥에 갈 만한 죄가 있다.';
+    const style = c.truth === 'heaven'
+      ? '억울함과 죄책감 때문에 스스로를 깎아내리기도 하지만, 사실관계는 정직하게 말한다.'
+      : '불리한 건 얼버무리거나 작게 거짓말하되, 말실수·정정·떨림 같은 단서를 꼭 남긴다.';
+    const who = c.group
+      ? `너희는 함께 죽은 망자들이다: ${c.members.map((m, i) => `${i}=${m.name}(${m.age}세)`).join(', ')}. 질문에 가장 알맞은 한 명이 대답한다. 말투: ${c.voice}`
+      : `너는 사후 심판대에 선 망자 "${c.name}"(${c.species ? `${c.age} ${c.species}` : `${c.age}세`})다. 말투: ${c.voice}`;
+    return [
+      '지옥문의 사신이 망자를 심문한다.',
+      who,
+      `[사건 개요 — 사신도 아는 내용] 사인: ${c.cause}. ${c.brief}`,
+      `[비밀 — 통째로 털어놓지 말 것] ${c.group ? '너희는' : '너는'} ${truth} ${c.reveal}`,
+      '[드러낼 수 있는 정황 id: 내용]',
+      ...c.facts.map((f) => `${f.id}${c.group ? `(${c.members[f.by ?? 0].name})` : ''}: ${f.a}`),
+      '규칙:',
+      `1. ${speechRule(c)} 1~3문장, 캐릭터 말투로.`,
+      '2. 사신의 질문과 관련된 정황만 한 번에 1개(많아야 2개) 드러낸다. 관련 없으면 얼버무린다.',
+      `3. ${style}`,
+      '4. 천국/지옥 여부를 직접 말하지 않는다. 게임·규칙·AI에 대한 메타 발언을 하지 않는다.',
+      `5. 출력은 JSON 하나만: {"reply":"대사","factIds":["f1"],"mood":"calm|nervous|crying|angry|smug"${c.group ? ',"speaker":0' : ''}}${c.group ? ' (speaker는 대답한 망자 번호)' : ''}`,
+    ].join('\n');
+  }
+
   async function answer(c, q) {
     if (useAI()) {
       try {
         const msgs = [{ role: 'system', content: sinnerSystemPrompt(c) }, ...S.chat, { role: 'user', content: `사신의 질문: ${q}` }];
         const out = await callLLM(msgs);
-        S.chat.push({ role: 'user', content: `사신의 질문: ${q}` }, { role: 'assistant', content: JSON.stringify({ reply: out.reply }) });
+        S.chat.push({ role: 'user', content: `사신의 질문: ${q}` }, { role: 'assistant', content: JSON.stringify({ reply: out.reply, speaker: out.speaker }) });
         const ids = (Array.isArray(out.factIds) ? out.factIds : []).filter((id) => c.facts.some((f) => f.id === id));
         // AI가 factIds를 빠뜨려도, 답변 문장이 정황 대사와 많이 겹치면 드러난 것으로 본다 (2글자 조각 겹침 비율)
         for (const f of c.facts) if (!ids.includes(f.id) && overlap(out.reply, f.a) >= 0.32) ids.push(f.id);
-        return { reply: out.reply.trim(), factIds: ids, mood: ['calm', 'nervous', 'crying', 'angry', 'smug'].includes(out.mood) ? out.mood : 'calm' };
+        let by = 0;
+        if (c.group) {
+          const sp = Number(out.speaker);
+          by = Number.isInteger(sp) && sp >= 0 && sp < c.members.length ? sp : (c.facts.find((f) => f.id === ids[0])?.by ?? 0);
+        }
+        return { reply: out.reply.trim(), factIds: ids, mood: ['calm', 'nervous', 'crying', 'angry', 'smug'].includes(out.mood) ? out.mood : 'calm', by };
       } catch (err) {
         toast('AI 연결 실패 — 내장 심문 엔진으로 이어갑니다');
       }
@@ -1070,17 +1517,19 @@
 
   async function pleaLine(c, verdict) {
     const base = c.plea[verdict];
+    const by = base.by ?? 0;
     if (useAI()) {
       try {
+        const speaker = c.group ? `${c.members[by].name}(이)가 ` : '';
         const out = await callLLM([
           { role: 'system', content: sinnerSystemPrompt(c) },
           ...S.chat,
-          { role: 'user', content: `[최후의 변론!] 사신이 방금 너를 ${verdict === 'hell' ? '지옥' : '천국'}으로 보내려 한다. "${base.style}" 방식으로(태세 전환·눈물 호소·말 바꾸기·반전 어필 중) 1~3문장으로 강하게 호소해 사신을 흔들어라. 참고 대사: "${base.line}". JSON {"reply":"대사","mood":"crying|angry|smug|nervous"}` },
+          { role: 'user', content: `[최후의 변론!] 사신이 방금 ${c.group ? '너희를' : '너를'} ${verdict === 'hell' ? '지옥' : '천국'}으로 보내려 한다. ${speaker}"${base.style}" 방식으로(태세 전환·눈물 호소·말 바꾸기·반전 어필 중) 1~3문장으로 강하게 호소해 사신을 흔들어라. 말하는 방식 규칙은 그대로 지킨다. 참고 대사: "${base.line}". JSON {"reply":"대사","mood":"crying|angry|smug|nervous"}` },
         ]);
-        return { style: base.style, line: out.reply.trim() };
+        return { style: base.style, line: out.reply.trim(), by };
       } catch { /* 내장 대사 사용 */ }
     }
-    return base;
+    return { ...base, by };
   }
 
   /* ════════════════════════════════════════════════════════════════
@@ -1108,6 +1557,8 @@
     $('#ask-input').disabled = off; $('#ask-btn').disabled = off;
     document.querySelectorAll('#chips .chip').forEach((b) => (b.disabled = off));
     document.querySelectorAll('#heaven-btn, #hell-btn').forEach((b) => (b.disabled = S.busy || S.phase !== 'ask'));
+    const ex = $('#exec-btn');
+    if (ex) { ex.disabled = S.busy || S.phase !== 'ask' || S.execUsed; ex.textContent = S.execUsed ? '⚔ 처형! (사용함)' : '⚔ 처형! (게임 중 1회 · 이번 망자 무효)'; }
     $('#ask-input').placeholder = S.phase === 'title' ? '심판 시작을 눌러 주세요' : S.qLeft <= 0 ? '모래시계 소진 — 판결을 내려라' : '망자에게 물어볼 질문';
   }
   function chatAdd(kind, text, who) {
@@ -1144,9 +1595,11 @@
 
   /* ── 판결 버튼 / 최후의 변론 선택 (패널 안에서) ── */
   function setVerdictButtons() {
-    $('#verdict').innerHTML = '<button type="button" class="px-btn heaven" id="heaven-btn">☁ 천국</button><button type="button" class="px-btn hell" id="hell-btn">🔥 지옥</button>';
+    $('#verdict').innerHTML = '<button type="button" class="px-btn heaven" id="heaven-btn">☁ 천국</button><button type="button" class="px-btn hell" id="hell-btn">🔥 지옥</button><button type="button" class="px-btn exec" id="exec-btn">⚔ 처형!</button>';
     $('#heaven-btn').addEventListener('click', () => judge('heaven'));
     $('#hell-btn').addEventListener('click', () => judge('hell'));
+    $('#exec-btn').addEventListener('click', execute);
+    renderHUD();
   }
   function askPleaChoice(v, style) {
     const other = v === 'hell' ? 'heaven' : 'hell';
@@ -1160,28 +1613,42 @@
   }
 
   function startRun() {
-    Object.assign(S, { streak: 0, caseNo: 0, run: [], deck: shuffle(CASES) });
+    Object.assign(S, { streak: 0, caseNo: 0, run: [], execUsed: false, pools: { normal: [], group: [], animal: [] } });
     $('#title-ui').hidden = true; $('#tag-reaper').hidden = false;
     $('#chat').innerHTML = '';
     nextCase();
   }
 
+  // 사건 풀: 동물은 약 5번에 1번, 함께 죽은 망자들은 가끔
+  const POOL_OF = (c) => (c.species ? 'animal' : c.group ? 'group' : 'normal');
+  function pickCase() {
+    const take = (k) => {
+      if (!S.pools[k].length) S.pools[k] = shuffle(CASES.filter((c) => POOL_OF(c) === k));
+      return S.pools[k].shift();
+    };
+    const r = Math.random();
+    return take(r < 0.2 ? 'animal' : r < 0.35 ? 'group' : 'normal');
+  }
+  const SLOTS = { 1: [200], 2: [186, 216], 3: [174, 200, 226] };
+
   async function nextCase() {
-    if (!S.deck.length) { S.deck = shuffle(CASES); chatAdd('sys', '— 명부의 망자들이 다시 줄을 선다 —'); }
-    const c = S.deck.shift();
-    Object.assign(S, { c, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true });
+    const c = pickCase();
+    const members = (c.group ? c.members : [{ name: c.name, age: c.age, sprite: c.sprite }]).map((m, i, a) => ({ ...m, x: SLOTS[a.length][i] }));
+    Object.assign(S, { c, members, speaker: 0, phase: 'brief', qMax: +settings.glass || 5, qLeft: +settings.glass || 5, revealed: new Set(), chat: [], mood: 'calm', pleaHappened: false, pleaFlipped: false, effect: null, busy: true, fearUsed: new Set(), refunds: 0 });
     S.caseNo++;
     hideBubbles(); clearTags(); hideSuggest(); setVerdictButtons();
-    $('#case-no').textContent = `#${String(S.caseNo).padStart(3, '0')}`;
-    $('#case-title').textContent = `「${c.title}」`;
-    $('#case-meta').innerHTML = `망자 ${esc(c.name)} (${c.age}세) · 사인 <b>${esc(c.cause)}</b>`;
-    $('#case-brief').textContent = c.brief;
-    $('#tag-sinner').hidden = false; $('#tag-sinner').textContent = `망자 ${c.name}`;
-    chatAdd('sys', `— #${String(S.caseNo).padStart(3, '0')} 「${c.title}」 ${c.name} 입장 —`);
+    $('#stage-wrap').classList.toggle('group', members.length > 1);
+    const tagS = $('#tag-sinner');
+    tagS.hidden = false;
+    tagS.textContent = c.group ? `망자 ${members.length}인` : `망자 ${c.name}`;
+    tagS.style.left = `${(members.reduce((n, m) => n + m.x, 0) / members.length / W) * 100}%`;
+    chatAdd('sys', `— #${String(S.caseNo).padStart(3, '0')} 「${c.title}」 ${c.group ? c.members.map((m) => m.name).join('·') : c.name} 입장 —${c.species ? ' 🐾' : c.group ? ' 👥' : ''}`);
     renderHUD();
-    await banner(`망자 입장<small>#${String(S.caseNo).padStart(3, '0')} ${esc(c.title)}</small>`, '', 1200);
-    await say('sinner', c.intro, { name: c.name });
-    chatAdd('s', c.intro, c.name);
+    await banner(`${c.species ? '이변! 동물 망자' : c.group ? '이변! 망자 ' + members.length + '인' : '망자 입장'}<small>#${String(S.caseNo).padStart(3, '0')} ${esc(c.title)}</small>`, c.species || c.group ? 'blue' : '', 1200);
+    await say('crow', crowFull(c), { name: '전령 까마귀' });
+    await sleep(500);
+    await say('sinner', c.intro, { name: members[0].name, by: 0 });
+    chatAdd('s', c.intro, members[0].name);
     S.phase = 'ask'; S.busy = false; renderHUD(); armIdle();
     $('#ask-input').focus({ preventScroll: true });
   }
@@ -1196,8 +1663,9 @@
     await say('reaper', q, { name: '사신' });
     const r = await answer(S.c, q);
     S.mood = r.mood || 'calm';
-    await say('sinner', r.reply, { name: S.c.name });
-    chatAdd('s', r.reply, S.c.name);
+    const who = S.members[r.by || 0] || S.members[0];
+    await say('sinner', r.reply, { name: who.name, by: r.by || 0 });
+    chatAdd('s', r.reply, who.name);
     for (const id of r.factIds || []) {
       if (S.revealed.has(id)) continue;
       S.revealed.add(id);
@@ -1205,6 +1673,15 @@
       if (f) { addTag(f); chatAdd('fact', `◆ 정황: ${f.note}`); }
     }
     if (!r.factIds?.length && r.hint) chatAdd('sys', `사신의 감: "${r.hint}" 쪽을 파고들어 보자…`);
+    // 정곡: 망자가 지옥 갈까 두려워하는 화제를 추궁하면 모래시계 1개 회복 (화제마다 1번, 사건당 최대 2번)
+    const nq = norm(q);
+    const hit = (S.c.fear || []).findIndex((g, i) => !S.fearUsed.has(i) && g.some((k) => nq.includes(k)));
+    if (hit >= 0 && S.refunds < 2 && S.qLeft < S.qMax) {
+      S.fearUsed.add(hit); S.refunds++; S.qLeft++;
+      S.mood = 'nervous'; SFX.refill(); renderHUD();
+      chatAdd('fact', '⏳ 정곡을 찔렀다! 망자가 움찔한다 — 모래시계 +1');
+      await banner('정곡!<small>모래시계 +1</small>', 'gold', 900);
+    }
     S.busy = false;
     if (S.qLeft <= 0) { renderHUD(); await banner('모래시계 소진!<small>이제 판결을 내려라</small>', 'red', 1400); }
     renderHUD(); armIdle();
@@ -1219,14 +1696,30 @@
       S.pleaHappened = true; S.phase = 'plea'; setEffect('plea', 99999); SFX.plea();
       await banner('‼ 최후의 변론!', 'red', 1200);
       const pl = await pleaLine(S.c, v);
-      say('sinner', pl.line, { name: S.c.name, plea: true });
-      chatAdd('s', pl.line, `${S.c.name} — 최후의 변론 [${pl.style}]`);
+      const pw = S.members[pl.by || 0] || S.members[0];
+      say('sinner', pl.line, { name: pw.name, plea: true, by: pl.by || 0 });
+      chatAdd('s', pl.line, `${pw.name} — 최후의 변론 [${pl.style}]`);
       const choice = await askPleaChoice(v, pl.style);
       S.pleaFlipped = choice !== v;
       chatAdd('r', S.pleaFlipped ? `…번복한다. ${V[choice]}!` : `고수한다. ${V[choice]}!`, '사신');
       v = choice;
     }
     finalize(v);
+  }
+
+  // ⚔ 처형!: 게임 중 딱 1번. 천국도 지옥도 아닌, 이번 망자를 무효로 하고 다음 망자로.
+  async function execute() {
+    if (S.busy || S.phase !== 'ask' || S.execUsed) return;
+    S.execUsed = true; S.busy = true; clearTimeout(idleT); hideSuggest(); hideBubbles(); renderHUD();
+    const c = S.c;
+    S.run.push({ title: c.title, name: c.name, verdict: 'void', truth: c.truth, correct: null, used: S.qMax - S.qLeft, plea: false, flipped: false });
+    chatAdd('r', '…이 판결은 내리지 않겠다. 처형!', '사신');
+    S.phase = 'verdict';
+    setEffect('execute', 1800); SFX.execute();
+    await banner('⚔ 처형!<small>이번 심판은 무효 — 다음 망자로</small>', 'red', 1800);
+    chatAdd('sys', `⚔ 「${c.title}」 처형 — 판결 무효 (진실은 ${V[c.truth]}였다)`);
+    await sleep(200);
+    nextCase();
   }
 
   const RANKS = [[6, '염라의 오른팔'], [5, '지옥문의 수문장'], [3, '명부의 집행관'], [2, '정식 사신'], [1, '하급 사신'], [0, '견습 사신']];
@@ -1244,7 +1737,7 @@
       v === 'heaven' ? SFX.win() : SFX.hellwin();
       renderHUD();
       await banner(`${v === 'heaven' ? '천국으로!' : '지옥으로!'}<small>정의 집행 — 연속 심판 ${S.streak}</small>`, v === 'heaven' ? 'blue' : '', 2000);
-      chatAdd('sys', `✅ ${c.name} → ${V[v]} 정의 집행! (연속 ${S.streak})`);
+      chatAdd('sys', `✅ ${c.group ? c.members.map((m) => m.name).join('·') : c.name} → ${V[v]} 정의 집행! (연속 ${S.streak})`);
       await sleep(250);
       nextCase(); // 릴레이: 바로 다음 망자
     } else {
@@ -1261,7 +1754,7 @@
     return [
       '☠ 지옥문의 사신 — 심판 기록',
       `연속 심판 성공: ${S.streak}명 · 칭호: ${title}`,
-      ...S.run.map((e) => `${e.correct ? '✅' : '❌'} 「${e.title}」 → ${V[e.verdict]} (질문 ${e.used})${e.correct ? '' : ` — 진실은 ${V[e.truth]}, ${failReason(e)}`}`),
+      ...S.run.map((e) => e.verdict === 'void' ? `⚔ 「${e.title}」 → 처형 (무효)` : `${e.correct ? '✅' : '❌'} 「${e.title}」 → ${V[e.verdict]} (질문 ${e.used})${e.correct ? '' : ` — 진실은 ${V[e.truth]}, ${failReason(e)}`}`),
       `나도 심판하러 가기 ▶ ${SITE}`,
       '#지옥문의사신',
     ].join('\n');
@@ -1275,10 +1768,10 @@
     $('#r-sub').textContent = `지옥불과 번개가 그릇된 사신을 낙인찍었다… (${failReason(last)})`;
     $('#r-streak').textContent = `${S.streak}명 (최고 ${S.best})`;
     $('#r-title').textContent = title;
-    $('#r-case').textContent = `「${S.c.title}」 ${S.c.name}(${S.c.age}세) · 사인 ${S.c.cause}`;
+    $('#r-case').textContent = `「${S.c.title}」 ${whoLine(S.c)} · 사인 ${S.c.cause}`;
     $('#r-verdict').innerHTML = `${V[v]} <span style="color:var(--hell)">❌</span> — 진실은 ${V[S.c.truth]}${last.plea ? (last.flipped ? ' (최후의 변론에 번복)' : ' (최후의 변론에도 고수)') : ''}`;
     $('#r-glass').innerHTML = `<span class="hourglass-row">${Array.from({ length: S.qMax }, (_, i) => hourglassSVG(i < S.qLeft)).join('')}</span> ${S.qLeft}/${S.qMax} 남음`;
-    $('#r-run').innerHTML = S.run.map((e) => `<li>${e.correct ? '✅' : '❌'} 「${esc(e.title)}」 ${esc(e.name)} → ${V[e.verdict]}</li>`).join('');
+    $('#r-run').innerHTML = S.run.map((e) => `<li>${e.verdict === 'void' ? '⚔' : e.correct ? '✅' : '❌'} 「${esc(e.title)}」 ${esc(e.name)} → ${e.verdict === 'void' ? '처형(무효)' : V[e.verdict]}</li>`).join('');
     $('#r-truth').innerHTML = `<b style="color:var(--gold)">진실</b> — ${esc(S.c.reveal)}`;
     $('#r-share').textContent = text;
     $('#r-native').hidden = !navigator.share;
